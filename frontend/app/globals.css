@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+.cus-auth-title{
+    @apply md:text-6xl text-5xl font-bold text-center mb-10
+}
+
+.cus-auth-input{
+    @apply border-2 rounded-md border-black p-2
+}
+
+.cus-auth-submit{
+    @apply text-white font-bold bg-green-700 md:p-3 p-4 cursor-pointer rounded-2xl border-2 border-green-700 my-8 md:mx-30 duration-100 
+            hover:bg-white hover:border-green-700 hover:text-black
+}
