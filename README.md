@@ -16,5 +16,18 @@ Předpoklady
 
 Naklonování repozitáře
 -
-Nejprve si stáhněte projekt k sobě do počítače a přejděte do jeho hlavní složky
-`git clone pikabukubakabaka`
+Nejprve si stáhněte projekt k sobě do počítače a přejděte do jeho hlavní složky <br><br>
+`git clone https://github.com/janousek-petr/Zoo-Plzen.git` <br>
+`cd Zoo-Plzen` <br>
+
+Nastavení Frontendu (Next.js a Axios)
+- 
+Přejděte do frontend složky <br>
+
+`cd frontend` <br>
+
+Nainstalujte závislosti <br>
+
+`npm install` <br>
+
+
