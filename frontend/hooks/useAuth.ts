@@ -34,8 +34,23 @@ export const useAuth = () => {
         }
     }
 
+    /**
+     * Odhlásí přihlášeného uživatele
+     */
+    const logout = async () => {
+        try {
+            console.log("Zkouším odhlášení");
+            await authService.logout();
+            console.log("Odhlášení proběhlo úspěšně")
+            router.push('/');
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
     return{
         register,
+        logout,
         isLoading,
         error,
         user
