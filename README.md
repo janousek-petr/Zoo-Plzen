@@ -38,7 +38,7 @@ Nastavení BACKENDU (Laravel a Breeze)
 
 `composer install` <br>
 
-`cp .env.example .env` <br>
+`copy .env.example .env` <br>
 
 `php artisan key:generate` <br>
 
