@@ -20,7 +20,7 @@ Nejprve si stáhněte projekt k sobě do počítače a přejděte do jeho hlavn�
 `git clone https://github.com/janousek-petr/Zoo-Plzen.git` <br>
 `cd Zoo-Plzen` <br>
 
-Nastavení Frontendu (Next.js a Axios)
+Nastavení FRONTENDU (Next.js a Axios)
 - 
 Přejděte do frontend složky <br>
 
@@ -29,5 +29,27 @@ Přejděte do frontend složky <br>
 Nainstalujte závislosti <br>
 
 `npm install` <br>
+
+`npm run dev` <br>
+
+Nastavení BACKENDU (Laravel a Breeze)
+-
+`cd backend` <br>
+
+`composer install` <br>
+
+`cp .env.example .env` <br>
+
+`php artisan key:generate` <br>
+
+`php artisan migrate`
+
+`php artisan serve`
+
+
+
+
+
+
 
 
