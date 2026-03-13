@@ -48,9 +48,23 @@ export const useAuth = () => {
         }
     }
 
+    const login = async (data: LoginData) => {
+        try {
+            console.log("Zkouším přihlášení");
+            await authService.login(data);
+            console.log("Přihlášení se podařilo");
+            const userResponse = await authService.getUser();
+            setUser(userResponse.data)
+            router.push('/zvoleni-profilu');
+        } catch (err) {
+            console.error("Došlo k chybě: ", err);
+        }
+    }
+
     return{
         register,
         logout,
+        login,
         isLoading,
         error,
         user
