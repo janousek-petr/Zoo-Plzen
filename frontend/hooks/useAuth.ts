@@ -41,7 +41,8 @@ export const useAuth = () => {
         try {
             console.log("Zkouším odhlášení");
             await authService.logout();
-            console.log("Odhlášení proběhlo úspěšně")
+            console.log("Odhlášení proběhlo úspěšně");
+            setUser(null);
             router.push('/');
         } catch (err) {
             console.error(err);
