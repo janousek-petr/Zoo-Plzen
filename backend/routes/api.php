@@ -17,3 +17,6 @@ Route::post('/login', AuthenticatedSessionController::class.'@store')->middlewar
 
 // Kvíz
 Route::get('/quizInfo', QuizController::class.'@index')->middleware('guest:sanctum');
+
+//Otázky
+Route::get('/quiz/{id}', QuizController::class.'@show')->middleware('guest:sanctum');
