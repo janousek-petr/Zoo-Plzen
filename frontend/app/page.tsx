@@ -6,16 +6,18 @@ export default function StartPage(){
         <>
             <div className="relative min-h-screen w-full bg-white overflow-hidden">
                <Image
-                    src="/startpage-hero.jpeg"
+                    src="/img/background/startpage-hero.jpeg"
                     alt="Pozadí úvodní stránky"
-                    className="object-cover sm:object-top-left object-bottom z-0"
+                    className="object-cover sm:object-top-left object-bottom z-0 select-none"
+                    draggable={false}
                     priority
                     fill
                />
 
                 <svg 
                     viewBox="0 0 1440 320" 
-                    className="absolute -bottom-1 left-0 xxl:h-auto lg:h-110 md:h-90 h-80 max-sm:h-90 z-10 "
+                    className="absolute -bottom-1 left-0 xl:w-full h-90 lg:h-110 z-10"
+                    preserveAspectRatio="none"
                     xmlns="http://www.w3.org/2000/svg"
                     >
                     <path 
@@ -24,30 +26,31 @@ export default function StartPage(){
                     ></path>
                 </svg>
 
-                <h1 className="absolute bottom-10 justify-self-center mx-5 z-20 cus-font-impacted-2 text-sky-600 uppercase lg:text-8xl md:text-7xl text-6xl">Vstup do světa zvířat</h1>
+                <h1 className="absolute bottom-10 justify-self-center mx-5 z-20 cus-font-impacted-2 text-sky-600 uppercase lg:text-8xl md:text-7xl sm:text-6xl text-5xl">Vstup do světa zvířat</h1>
 
             </div>
 
             <div className="relative py-5">
-                <div className="flex flex-row justify-center gap-8">
+                <div className="flex flex-row justify-center md:gap-8 gap-2">
                     <Link 
                         href="/prihlaseni"
-                        className="bg-sky-600 text-white p-5 rounded-md font-bold border-sky-600 border-3 cus-font-swiss-10
+                        className="bg-sky-600 text-white p-7 rounded-md font-bold sm:text-xl border-sky-600 border-3 cus-font-swiss-10
                                         hover:bg-sky-800 hover:border-sky-800 duration-100 cursor-pointer">
                         Přihlásit se
                     </Link>
 
                     <Link
                         href="/" 
-                        className="text-sky-600 p-5 border-sky-600 border-3 rounded-md font-bold cus-font-swiss-10
+                        className="text-sky-600 p-7 border-sky-600 border-3 rounded-md font-bold sm:text-xl cus-font-swiss-10
                                         hover:bg-sky-800 hover:border-sky-800 hover:text-white duration-100 cursor-pointer">
                         Prozkoumat
                     </Link>
                 </div>
             </div>
 
-            <div className="flex md:flex-row flex-col justify-center gap-10 p-20">
-                <div className="px-10">
+            <div className="flex md:flex-row flex-col justify-center gap-10 md:p-20 p-5">
+            
+                <div >
                     <Image
                         src="/img/startpage-1.png"
                         alt="1. fotka na úvodní stránced"
@@ -59,12 +62,12 @@ export default function StartPage(){
                     <h2 className="text-3xl cus-font-impacted-2 uppercase my-2 text-sky-600">
                         Přihlaš se
                     </h2>
-                    <p>
+                    <p className="md:pe-5">
                         Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text
                     </p>
                 </div>
 
-                <div className="px-10">
+                <div>
                     <Image
                         src="/img/startpage-2.png"
                         alt="1. fotka na úvodní stránced"
@@ -76,12 +79,12 @@ export default function StartPage(){
                     <h2 className="text-3xl cus-font-impacted-2 uppercase my-2 text-amber-900">
                         Prozkoumávej
                     </h2>
-                     <p>
+                     <p className="md:pe-5">
                         Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text
                     </p>
                 </div>
 
-                <div className="px-10">
+                <div>
                     <Image
                         src="/img/startpage-3.png"
                         alt="1. fotka na úvodní stránced"
@@ -93,7 +96,7 @@ export default function StartPage(){
                     <h2 className="text-3xl cus-font-impacted-2 uppercase my-2 text-amber-400">
                         Hraj
                     </h2>
-                     <p>
+                     <p className="">
                         Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text
                     </p>
                 </div>

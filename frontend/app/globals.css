@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 @font-face {
+    font-family: Impacted;
+    src: url("../public/fonts/impact.ttf");
+    
+}
+
+@font-face {
     font-family: Impacted-2;
     src: url("../public/fonts/Impacted2.0.ttf");
     
@@ -9,6 +15,11 @@
 @font-face {
     font-family: Swiss-721-10;
     src: url("../public/fonts/Swiss_721_10.woff2");
+}
+
+@font-face {
+    font-family: Swiss-721-12;
+    src: url("../public/fonts/Swiss_721_12.woff2");
 }
 
 .cus-auth-title{
@@ -24,10 +35,34 @@
             hover:bg-white hover:border-green-700 hover:text-black
 }
 
+.cus-text-beige{
+    color: #BD9554;
+}
+
+.cus-bg-beige{
+    background-color: #BD9554;
+}
+
+.cus-bg-beige-light{
+    background-color: #f0e1c7
+}
+
+.cus-hover-bg-beige-dark:hover{
+    background-color: #977742;
+}
+
+.cus-font-impacted{
+    font-family: Impacted;
+}
+
 .cus-font-impacted-2{
     font-family: Impacted-2;
 }
 
 .cus-font-swiss-10{
     font-family: Swiss-721-10;
+}
+
+p{
+    font-family: Swiss-721-12;
 }
