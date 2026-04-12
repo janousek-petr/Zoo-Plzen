@@ -1,8 +1,8 @@
-//import { FaPlayCircle } from "react-icons/fa";
+import { FaPlayCircle } from "react-icons/fa";
 //import {useAudio} from "@/components/useAudio";
 import SpeechBalloon from "@/components/ui/SpeechBalloon";
 import Image from "next/image"
-//import { RiLock2Fill } from "react-icons/ri";
+import { RiLock2Fill } from "react-icons/ri";
 
 export default function EtiopskaArea() {
     //const sound1 = useAudio("/sounds/testovaci.mp3");
@@ -139,10 +139,10 @@ export default function EtiopskaArea() {
                             <p className="text-4xl font-bold">1</p>
                         </div>
                         <div className="border-x-2 flex flex-1 cursor-pointer items-center justify-center bg-gray-500 transition duration-200 hover:text-gray-100 hover:bg-gray-600 hover:border-black">
-                            {/* <RiLock2Fill size="36" /> */}
+                            <RiLock2Fill size="36" />
                         </div>
                         <div className="flex flex-1 cursor-pointer items-center justify-center bg-gray-500 transition duration-200 hover:text-gray-100 hover:bg-gray-600">
-                            {/* <RiLock2Fill size="36" /> */}
+                            <RiLock2Fill size="36" />
                         </div>
                         
                     </div>
