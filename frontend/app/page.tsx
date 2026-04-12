@@ -96,7 +96,7 @@ export default function StartPage(){
                     <h2 className="text-3xl cus-font-impacted-2 uppercase my-2 text-amber-400">
                         Hraj
                     </h2>
-                     <p className="">
+                     <p>
                         Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text
                     </p>
                 </div>
