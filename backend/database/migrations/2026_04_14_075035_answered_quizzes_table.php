@@ -14,8 +14,8 @@ return new class extends Migration
         //
         Schema::create('answered_quizzes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('quiz_id')->constrained();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('quiz_id')->constrained('quiz');
+            $table->foreignId('user_id')->constrained('users');
             $table->date('answered_at')->default(now());
             $table->integer('score')->default(0);
         });
