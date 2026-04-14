@@ -11,7 +11,7 @@ class AnsweredQuestion extends Model
     protected $fillable = ['answered_quiz_id', 'question_id', 'chosen_answer', 'written_answer'];
     protected $timestamp = false;
 
-    public function answered_quiz()
+    public function answeredQuiz()
     {
         return $this->belongsTo(AnsweredQuizzes::class);
     }
