@@ -45,4 +45,8 @@ class Quiz extends Model
     {
         return $this->belongsTo(Region::class);
     }
+
+    public function answeredQuizzes() {
+        return $this->hasMany(AnsweredQuizzes::class);
+    }
 }
