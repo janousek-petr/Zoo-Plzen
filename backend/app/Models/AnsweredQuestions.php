@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class AnsweredQuestion extends Model
+class AnsweredQuestions extends Model
 {
     //
     protected $table = 'answered_questions';
