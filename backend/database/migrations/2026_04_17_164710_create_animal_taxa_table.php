@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('rank');
-            $table->foreignId('id')->nullable()->constrained('animal_taxa');
+            $table->foreignId('parent_id')->nullable()->constrained('animal_taxa')->references('id');
         });
     }
 

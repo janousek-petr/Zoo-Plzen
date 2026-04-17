@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('animal', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->foreignId('animal_taxa_id')->constrained('animal_table');
+            $table->foreignId('animal_taxa_id')->constrained('animal_taxa');
         });
     }
 
