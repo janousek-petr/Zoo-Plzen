@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('item_animals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('animal_id')->primary()->constrained('animal');
-            $table->foreignId('item_id')->primary()->constrained('item');
+            $table->foreignId('animal_id')->constrained('animal');
+            $table->foreignId('item_id')->constrained('item');
+            $table->unique(['animal_id', 'item_id']);
         });
     }
 
