@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventory_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('inventory_id')->primary()->constrained('inventory');
-            $table->foreignId('item_id')->constrained('item');
+            $table->foreignId('item_id')->primary()->constrained('item');
             $table->date('acquisition_date');
             $table->date('loss_date')->nullable();
         });
