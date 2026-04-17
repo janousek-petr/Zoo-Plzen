@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AnsweredQuestion;
 use App\Models\AnsweredQuizzes;
 use Illuminate\Http\Request;
 
@@ -11,10 +10,11 @@ class AnsweredQuizzesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(int $id)
+    public function index()
     {
         //
-        $quizzes = AnsweredQuizzes::where('user_id', $id)->with(['quiz'])->get();
+        $user_id = auth()->id();
+        $quizzes = AnsweredQuizzes::where('user_id', $user_id)->with(['quiz'])->get();
 
         return response()->json($quizzes);
     }
@@ -38,9 +38,16 @@ class AnsweredQuizzesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(int $id)
     {
         //
+        $answeredQuiz = AnsweredQuizzes::with([
+            'answeredQuestions.question.answers',  // vyplněné otázky → otázka
+        ])
+            ->where('id', $id)
+            ->firstOrFail();
+
+        return response()->json($answeredQuiz);
     }
 
     /**
