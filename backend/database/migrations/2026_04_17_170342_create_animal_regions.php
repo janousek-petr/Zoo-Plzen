@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('animal_regions', function (Blueprint $table) {
-            $table->foreignId('animal_id')->primary()->constrained('animal');
-            $table->foreignId('region_id')->primary()->constrained('region');
+            $table->foreignId('animal_id')->constrained('animal');
+            $table->foreignId('region_id')->constrained('region');
+            $table->primary(['animal_id', 'region_id']);
         });
     }
 
