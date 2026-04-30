@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home(){
     return(
@@ -8,77 +9,78 @@ export default function Home(){
 
                 <section className="grid sm:grid-cols-4 grid-cols-2 flex-col gap-5 justify-self-center my-20">
 
-                    <div className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center">
+                    {/* Každé tlačítko je nyní Link místo divu */}
+                    <Link href="#" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/play-button.png"
                             alt="Tlačítko - Hrát"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-yellow-500 rounded-full justify-center items-center">
+                    <Link href="/profil?tab=batoh" className="flex w-30 h-30 bg-yellow-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/inventory-button.png"
                             alt="Tlačítko - Inventář"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-indigo-400 rounded-full justify-center items-center">
+                    <Link href="/profil?tab=medaile" className="flex w-30 h-30 bg-indigo-400 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/gallery-button.png"
                             alt="Tlačítko - Galerie"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-green-500 rounded-full justify-center items-center">
+                    <Link href="vyzvy" className="flex w-30 h-30 bg-green-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/tasks-button.png"
                             alt="Tlačítko - Úkoly"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-fuchsia-800 rounded-full justify-center items-center">
+                    <Link href="zebricek" className="flex w-30 h-30 bg-fuchsia-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/leaderboards-button.png"
                             alt="Tlačítko - Žebříčky"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-slate-800 rounded-full justify-center items-center">
+                    <Link href="obchod" className="flex w-30 h-30 bg-slate-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/shop-button.png"
                             alt="Tlačítko - Obchod"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-amber-900 rounded-full justify-center items-center">
+                    <Link href="profil" className="flex w-30 h-30 bg-amber-900 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/profile-button.png"
                             alt="Tlačítko - Profil"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
-                    <div className="flex w-30 h-30 bg-gray-500 rounded-full justify-center items-center">
+                    <Link href="nastaveni" className="flex w-30 h-30 bg-gray-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/settings-button.png"
                             alt="Tlačítko - Nastavení"
                             width={64}
                             height={64}
                         />
-                    </div>
+                    </Link>
 
                 </section>
 
