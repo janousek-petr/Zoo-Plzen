@@ -90,7 +90,7 @@ export default function Home(){
                         {/* --- PRVNÍ NOVINKA --- */}
                         <div className="flex flex-col items-center max-w-lg">
                             <Image
-                                src="/img/photo/image-2.jpg"
+                                src="/img/photo/image-2.JPG"
                                 alt="Novinka - Lev"
                                 width={400}
                                 height={400}
@@ -109,7 +109,7 @@ export default function Home(){
                         <div className="flex flex-col items-center max-w-lg">
                             {/* Přidáno zaoblení a stín */}
                             <Image
-                                src="/img/photo/image-1.jpg"
+                                src="/img/photo/image-1.JPG"
                                 alt="Novinka - Tygr"
                                 width={400}
                                 height={400}
