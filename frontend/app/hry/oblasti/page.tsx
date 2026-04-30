@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Areas() {
   return (
@@ -7,8 +8,8 @@ export default function Areas() {
         <section>
 
             {/* PALEARKTICKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full bg-sky-700 my-30 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex items-center overflow-visible">
-
                 <div className="overflow-hidden absolute inset-0 z-0">
                     <Image
                     src="/img/maps/palearctic-area.png"
@@ -37,8 +38,9 @@ export default function Areas() {
                 priority
                 />
             </div>
-
+            </Link>
             {/* NEARKTICKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full bg-amber-900 my-20 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex justify-end items-center overflow-visible">
 
                 <div className="overflow-hidden absolute right-0 inset-0 z-0">
@@ -70,8 +72,9 @@ export default function Areas() {
                 />
 
           </div>
-
+        </Link>
             {/* NEOTROPICKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full bg-green-700 my-30 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex items-center overflow-visible">
 
                 <div className="overflow-hidden absolute inset-0 z-0">
@@ -102,8 +105,9 @@ export default function Areas() {
                 priority
                 />
             </div>
-
+            </Link>
             {/* ETIOPSKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full cus-bg-beige my-20 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex justify-end items-center overflow-visible">
 
                 <div className="overflow-hidden absolute right-0 inset-0 z-0">
@@ -135,8 +139,9 @@ export default function Areas() {
                 />
 
           </div>
-
+          </Link>
           {/* NEOTROPICKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full bg-red-500 my-30 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex items-center overflow-visible">
 
                 <div className="overflow-hidden absolute inset-0 z-0">
@@ -167,8 +172,10 @@ export default function Areas() {
                 priority
                 />
             </div>
+            </Link>
 
             {/* ETIOPSKÁ OBLAST */}
+            <Link href="/hry/oblasti/etiopska-oblast">
             <div className="relative w-full bg-yellow-500 my-20 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex justify-end items-center overflow-visible">
 
                 <div className="overflow-hidden absolute right-0 inset-0 z-0">
@@ -200,7 +207,7 @@ export default function Areas() {
                 />
 
           </div>
-
+          </Link>
           
 
         </section>

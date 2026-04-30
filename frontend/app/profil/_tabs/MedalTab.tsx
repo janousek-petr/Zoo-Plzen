@@ -75,6 +75,7 @@ export default function MedalTab() {
       </SectionBlock>
 
       {/* ── VLASTNĚNÉ MEDAILE ───────────────────────────────────────── */}
+      <>
       <SectionBlock title="Vlastněné medaile">
         <ExpandableGallery
           title="Medaile"
@@ -87,7 +88,7 @@ export default function MedalTab() {
           previewCount={PREVIEW_COUNT}
         />
       </SectionBlock>
-
+    </>
       {/* ── CTA ─────────────────────────────────────────────────────── */}
       <div className="relative flex flex-col lg:flex-row items-center md:items-end justify-center h-auto md:h-150 md:p-20">
                 <SpeechBalloon
