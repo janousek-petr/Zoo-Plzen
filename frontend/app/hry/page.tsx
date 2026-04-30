@@ -1,10 +1,12 @@
 import Image from "next/image"
+import Link from "next/link"
 
 export default function Games(){
     return(
         <>
             <main className="my-40 w-full">
                 <section>
+                    <Link href="/hry/oblasti/">
                     <div className="flex sm:flex-row flex-col justify-center items-center gap-6 min-h-60 bg-emerald-500 my-15">
                         <Image
                             src="/img/icons/quiz-icon.png"
@@ -16,6 +18,7 @@ export default function Games(){
                             Kvízy kontinentů
                         </h2>
                     </div>
+                    </Link>
 
                     <div className="flex sm:flex-row flex-col justify-center items-center gap-6 h-60 bg-emerald-500 my-15">
                         <Image
