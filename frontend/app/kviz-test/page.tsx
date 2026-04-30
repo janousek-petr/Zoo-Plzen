@@ -1,126 +1,100 @@
-/*'use client';
+"use client"
 
-import { useState, useMemo, useEffect } from 'react';
-import QuizText from '@/components/ui/QuizText';
-
-interface Question {
-  id: number;
-  question: string;
-  options: string[];
-  correctAnswer: number;
-  image: string;
-}
-
-interface ShuffledOption {
-  text: string;
-  isCorrect: boolean;
-}
-
-const shuffleArray = <T,>(array: T[]): T[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-};
+import { useState } from 'react';
+import QuizQuestion from '@/components/ui/QuizQuestion';
 
 export default function QuizEngine() {
-  // --- NOVÉ: Stav pro prevenci Hydration erroru ---
-  const [isMounted, setIsMounted] = useState(false);
+    const quizData = [
+        {
+            id: 1,
+            question: "Jaké zvíře je na obrázku?",
+            image: "/img/photo/image-1.jpg",
+            type: "image_question",
+            options: [
+            { id: 89, text: "Jaguár" },
+            { id: 12, text: "Tygr" },
+            { id: 45, text: "Lev" }
+            ],
+            correct_id: 12
+        },
+        {
+            id: 2,
+            question: "Které město je hlavní město České republiky?",
+            image: null,
+            type: "text_only",
+            options: [
+            { id: 210, text: "Brno" },
+            { id: 211, text: "Ostrava" },
+            { id: 212, text: "Praha" }
+            ],
+            correct_id: 212
+        },
+        {
+            id: 3,
+            question: "Která planeta je nejblíže Slunci?",
+            image: "/img/photo/image-2.jpg",
+            type: "text_only",
+            options: [
+            { id: 305, text: "Venuše" },
+            { id: 306, text: "Merkur" },
+            { id: 307, text: "Mars" },
+            ],
+            correct_id: 306
+        }
+    ];
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [isFinished, setIsFinished] = useState(false);
 
-  // 1. STATICKÁ DATA
-  const [questions] = useState<Question[]>([
-    {
-      id: 1,
-      question: "Jaké zvíře je na obrázku?",
-      options: ["Tygr", "Lev", "Jaguár"],
-      correctAnswer: 0,
-      image: "/img/photo/image-1.jpg"
-    },
-    {
-      id: 2,
-      question: "Jaké zvíře je na obrázku?",
-      options: ["Lev", "Tygr", "Jaguár"],
-      correctAnswer: 0,
-      image: "/img/photo/image-2.jpg"
+    // Funkce, kterou zavoláme z vnitřní komponenty
+    const handleAnswer = (selectedId) => {
+        const currentQuestion = quizData[currentIndex];
+
+        // 1. Přičtení bodu, pokud je to správně
+        if (selectedId === currentQuestion.correct_id) {
+            setScore(prev => prev + 1);
+        }
+
+        // 2. Posun na další otázku nebo konec
+        const nextIndex = currentIndex + 1;
+        if (nextIndex < quizData.length) {
+            setCurrentIndex(nextIndex);
+        } else {
+            setIsFinished(true);
+        }
+    };
+
+    if (isFinished) {
+        return (
+            <div className="text-center p-10">
+                <h1 className="text-3xl font-bold">Dokončil jsi kvíz!</h1>
+                <p className="text-xl mt-4">Tvoje skóre: {score} z {quizData.length}</p>
+                <button 
+                    onClick={() => window.location.reload()} // Jednoduchý restart
+                    className="mt-6 bg-blue-500 text-white px-6 py-2 rounded-lg"
+                >
+                    Zkusit znovu
+                </button>
+            </div>
+        );
     }
-  ]);
 
-  // 2. STAV KVÍZU
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [score, setScore] = useState(0);
-  const [isFinished, setIsFinished] = useState(false);
-
-  const currentQ = questions[currentIndex];
-
-  // 3. MÍCHÁNÍ (Bezpečné díky isMounted)
-  const shuffledOptions = useMemo(() => {
-    if (!currentQ) return [];
-
-    const optionsWithMeta: ShuffledOption[] = currentQ.options.map((text, idx) => ({
-      text,
-      isCorrect: idx === currentQ.correctAnswer
-    }));
-
-    return shuffleArray(optionsWithMeta);
-  }, [currentQ]);
-
-  // 4. LOGIKA VYHODNOCENÍ
-  const handleAnswer = (selectedIdx: number) => {
-    const selectedOption = shuffledOptions[selectedIdx];
-
-    if (selectedOption.isCorrect) {
-      setScore(prev => prev + 1);
-    }
-
-    if (currentIndex + 1 < questions.length) {
-      setCurrentIndex(prev => prev + 1);
-    } else {
-      setIsFinished(true);
-    }
-  };
-
-  // --- NOVÉ: Zabráníme serveru renderovat cokoliv náhodného ---
-  // Dokud nejsme plně na klientovi, nevykreslujeme nic (nebo můžeš vrátit loading spinner)
-  if (!isMounted) {
-    return null; 
-  }
-
-  // 5. FINÁLNÍ OBRAZOVKA
-  if (isFinished) {
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center p-6 text-center bg-white">
-        <h2 className="text-5xl font-black mb-2 text-black">HOTOVO!</h2>
-        <p className="text-2xl mb-8 font-bold text-red-600 uppercase">
-          Tvé skóre: {score} / {questions.length}
-        </p>
-        <button 
-          onClick={() => window.location.reload()}
-          className="bg-black text-white px-12 py-4 rounded-full font-bold uppercase transition hover:scale-105 shadow-xl"
-        >
-          Hrát znovu
-        </button>
-      </div>
+        <>
+            <div className="mt-16">
+                <h1 className="uppercase cus-font-impacted-2 text-6xl text-center">Oblast</h1>
+                <p className="text-3xl text-center">Level</p>
+            </div>
+            <div className="container mx-auto p-4">
+                <QuizQuestion 
+                    data={quizData[currentIndex]} 
+                    onAnswer={handleAnswer} 
+                />
+                <div className="mt-4 text-gray-500 text-center">
+                    Otázka {currentIndex + 1} z {quizData.length}
+                </div>
+            </div>
+        </>
     );
-  }
-
-  if (shuffledOptions.length === 0) return null;
-
-  return (
-    <QuizText 
-      data={{
-        question: currentQ.question,
-        image: currentQ.image,
-        options: shuffledOptions.map(opt => opt.text) 
-      }}
-      onAnswer={handleAnswer}
-      currentLevel={currentIndex + 1}
-      totalLevels={questions.length}
-    />
-  );
-}*/
+}

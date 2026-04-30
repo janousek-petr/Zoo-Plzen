@@ -3,23 +3,28 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Quiz; // Předpokládám, že model existuje
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        /*$user = User::factory()->create([
+            'first_name' => 'Petr',
+            'last_name' => 'Novák',
+            'email' => 'admin@test.cz',
+        ]);*/
+
+    
+        $this->call([
+            RegionSeeder::class,
+            QuestionCategorySeeder::class,
+            QuizSeeder::class,
+            QuestionSeeder::class,
+            AnswerSeeder::class
         ]);
     }
 }
