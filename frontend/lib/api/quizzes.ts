@@ -8,9 +8,9 @@ import { Quiz } from "@/lib/types";
  */
 
 
-export async function getQuestions(quizId: number) {
+export async function getQuestions(id: number) {
     try {
-        const res = await axiosClient.get(`/api/quiz/${quizId}`);
+        const res = await axiosClient.get(`/api/quizzes/${id}/questions`);
         return res.data;
     } catch (err) {
         console.error(err);
