@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB; // Nezapomeň na tento import
+use Illuminate\Support\Facades\DB;
 
 class QuizSeeder extends Seeder
 {
@@ -11,9 +11,24 @@ class QuizSeeder extends Seeder
     {
         DB::table('quiz')->insert([
             [
-                'name' => 'První testovací kvíz',
-                'description' => 'Popis k prvnímu kvízu, který načítám z Laravelu.',
-                'region_id' => 1, // Ujisti se, že region s ID 1 existuje!
+                'name' => 'Etiopský kvíz - Level 1',
+                'description' => 'Základní otázky o etiopské oblasti.',
+                'region_id' => 3,
+                'level' => 1,
+                'created_at' => now()
+            ],
+            [
+                'name' => 'Etiopský kvíz - Level 2',
+                'description' => 'Středně těžké otázky o etiopské oblasti.',
+                'region_id' => 3,
+                'level' => 2,
+                'created_at' => now()
+            ],
+            [
+                'name' => 'Etiopský kvíz - Level 3',
+                'description' => 'Těžké otázky o etiopské oblasti.',
+                'region_id' => 3,
+                'level' => 3,
                 'created_at' => now()
             ],
         ]);

@@ -10,14 +10,33 @@ class RegionSeeder extends Seeder
     public function run(): void
     {
         DB::table('region')->updateOrInsert(
-            ['id' => 1], // Pokud id 1 existuje, jen ho aktualizuje
-            ['name' => 'Palearktická oblast'] // Jinak ho vytvoří
+            ['id' => 1],
+            ['name' => 'Palearktická oblast']
         );
         
-        // Můžeš jich přidat víc, pokud chceš
         DB::table('region')->updateOrInsert(
             ['id' => 2],
             ['name' => 'Nearktická oblast']
+        );
+
+        DB::table('region')->updateOrInsert(
+            ['id' => 3],
+            ['name' => 'Neotropická oblast']
+        );
+
+        DB::table('region')->updateOrInsert(
+            ['id' => 4],
+            ['name' => 'Etiopská oblast']
+        );
+
+        DB::table('region')->updateOrInsert(
+            ['id' => 5],
+            ['name' => 'Australská oblast']
+        );
+
+        DB::table('region')->updateOrInsert(
+            ['id' => 6],
+            ['name' => 'Orientální oblast']
         );
     }
 }

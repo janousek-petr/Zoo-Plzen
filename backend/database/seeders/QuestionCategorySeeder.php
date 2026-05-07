@@ -11,22 +11,17 @@ class QuestionCategorySeeder extends Seeder
     {
         DB::table('question_category')->updateOrInsert(
             ['id' => 1],
-            ['name' => 'Savci']
+            ['name' => 'true_false']
         );
 
         DB::table('question_category')->updateOrInsert(
             ['id' => 2],
-            ['name' => 'Ptáci']
+            ['name' => 'select']
         );
 
         DB::table('question_category')->updateOrInsert(
             ['id' => 3],
-            ['name' => 'Plazi']
-        );
-
-        DB::table('question_category')->updateOrInsert(
-            ['id' => 4],
-            ['name' => 'Všeobecné']
+            ['name' => 'image_select']
         );
     }
 }

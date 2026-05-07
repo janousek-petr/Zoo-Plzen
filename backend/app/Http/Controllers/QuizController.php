@@ -37,20 +37,16 @@ class QuizController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'region_id' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'region_id' => 'integer|exists:region,id',
+            'level' => 'required|integer|min:1|max:3',
         ]);
 
-        Quiz::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'region_id' => $request->region_id,
-        ]);
+        $quiz = Quiz::create($validated);
 
-        return response()->noContent();
+        return response()->json($quiz);
     }
 
     /**
@@ -116,5 +112,14 @@ class QuizController extends Controller
         DB::table('quiz')->where('id', $id)->delete();
 
         return response()->noContent();
+    }
+
+    public function byRegion(int $id)
+    {
+        $quizzes = Quiz::where('region_id', $id)
+            ->orderBy('level')
+            ->get();
+
+        return response()->json($quizzes);
     }
 }
