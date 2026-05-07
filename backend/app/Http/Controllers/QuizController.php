@@ -52,27 +52,20 @@ class QuizController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(int $id)
+    public function show($id)
     {
-        //
-        /*
-        $questions = QuizQuestionView::where('quiz_id', $id)->inRandomOrder()->get();
-        $questionsId = $questions->pluck('question_id');
-        $answers = Answer::whereIn('question_id', $questionsId)->inRandomOrder()->get();
 
-        $groupedAnswers = $answers->groupBy('question_id');
-        $questions->each(function ($q) use ($groupedAnswers) {
-            $q->answers = $groupedAnswers[$q->question_id] ?? [];
-        });
 
-        return response()->json($questions);
-        */
-
-        $questions = Question::with(['answers', 'category'])
+        /*$questions = Question::with(['answers', 'category'])
             ->whereHas('quizzes', fn ($q) => $q->where('quiz_id', $id))
             ->get();
 
-        return response()->json($questions);
+        return response()->json($questions);*/
+
+        $quiz = Quiz::with('region')->where('id', $id)->first();
+
+        return response()->json($quiz);
+
     }
 
     /**
@@ -121,5 +114,13 @@ class QuizController extends Controller
             ->get();
 
         return response()->json($quizzes);
+    }
+
+    public function questions($id){
+        $questions = Question::with(['answers', 'category'])
+            ->whereHas('quizzes', fn ($q) => $q->where('quiz_id', $id))
+            ->get();
+
+        return response()->json($questions);
     }
 }

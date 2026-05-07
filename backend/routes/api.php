@@ -18,9 +18,10 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middlew
 
 // Kvíz (apiResource = GET, POST, GET, PUT, DELETE v jednom)
 Route::apiResource('quizzes', QuizController::class);
+Route::get('/quizzes/{id}/questions', [QuizController::class, 'questions']);
 
 // Otázky
-Route::get('/quiz/{id}', [QuizController::class, 'show'])->middleware('guest:sanctum');
+//Route::get('/quiz/{id}', [QuizController::class, 'show'])->middleware('guest:sanctum');
 
 Route::get('/regions/{id}/quizzes', [QuizController::class, 'byRegion']);
 
