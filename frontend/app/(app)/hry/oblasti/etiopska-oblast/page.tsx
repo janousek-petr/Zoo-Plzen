@@ -1,10 +1,17 @@
 import { FaPlayCircle } from "react-icons/fa";
 //import {useAudio} from "@/components/useAudio";
 import SpeechBalloon from "@/components/ui/SpeechBalloon";
-import Image from "next/image"
+import Image from "next/image";
 import { RiLock2Fill } from "react-icons/ri";
+import Link from "next/link";
+import { getQuizzesByRegion } from "@/lib/api/quizzes";
 
-export default function EtiopskaArea() {
+const REGION_ID = 3;
+
+export default async function EtiopskaArea() {
+
+    const quizzes = await getQuizzesByRegion(REGION_ID);
+    
     //const sound1 = useAudio("/sounds/testovaci.mp3");
     //const sound2 = useAudio("/sounds/testovaci2.mp3");
 
@@ -124,7 +131,7 @@ export default function EtiopskaArea() {
 
             {/* Kvíz sekce */}
             <div className="flex flex-col lg:flex-row cus-bg-beige-light overflow-visible">
-    
+
                 <div className="flex w-full flex-col items-center py-20 px-4 lg:w-3/5">
                     <h2 className="w-full wrap-break-word text-center text-5xl uppercase md:text-8xl cus-text-beige cus-font-impacted-2">
                         Etiopský kvíz
@@ -134,27 +141,39 @@ export default function EtiopskaArea() {
                     </p>
 
                     <div className="z-10 mt-10 flex h-20 w-full max-w-150 overflow-hidden rounded-3xl border-4">
+                        {[1, 2, 3].map((level, index) => {
+                            const quiz = quizzes?.find((q: any) => q.level === level);
+                            const isFirst = level === 1;
 
-                        <div className="flex flex-1 cursor-pointer items-center justify-center cus-bg-beige text-black bor hover:text-gray-100 transition duration-200 cus-hover-bg-beige-dark">
-                            <p className="text-4xl font-bold">1</p>
-                        </div>
-                        <div className="border-x-2 flex flex-1 cursor-pointer items-center justify-center bg-gray-500 transition duration-200 hover:text-gray-100 hover:bg-gray-600 hover:border-black">
-                            <RiLock2Fill size="36" />
-                        </div>
-                        <div className="flex flex-1 cursor-pointer items-center justify-center bg-gray-500 transition duration-200 hover:text-gray-100 hover:bg-gray-600">
-                            <RiLock2Fill size="36" />
-                        </div>
-                        
+                            if (!isFirst || !quiz) {
+                                return (
+                                    <div
+                                        key={level}
+                                        className={`flex flex-1 cursor-not-allowed items-center justify-center bg-gray-500 transition duration-200 ${index === 1 ? "border-x-2" : ""}`}
+                                    >
+                                        <RiLock2Fill size="36" />
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <Link key={level} href={`/hry/oblasti/etiopska-oblast/kviz/${quiz.id}`}
+                                    className="flex flex-1 cursor-pointer items-center justify-center cus-bg-beige text-black hover:text-gray-100 transition duration-200 cus-hover-bg-beige-dark"
+                                >
+                                    <p className="text-4xl font-bold">{level}</p>
+                                </Link>
+                            );
+                        })}
                     </div>
                 </div>
 
                 <div className="relative flex w-full items-end justify-end min-h-87 lg:w-2/5 lg:min-h-full">
-                    <Image 
-                        src="/img/photo-no-bg/giraffe.png" 
-                        alt="Žirafa" 
-                        width={600} 
-                        height={600} 
-                        className="object-cover" 
+                    <Image
+                        src="/img/photo-no-bg/giraffe.png"
+                        alt="Žirafa"
+                        width={600}
+                        height={600}
+                        className="object-cover"
                         draggable="false"
                     />
                 </div>

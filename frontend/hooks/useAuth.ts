@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import authService, { RegisterData, LoginData } from '@/services/authService';
+import authService, { RegisterData, LoginData } from '@/lib/api/auth';
 
 export const useAuth = () => {
     const router = useRouter();

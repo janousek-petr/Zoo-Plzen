@@ -1,7 +1,7 @@
-import { getQuestions } from "@/lib/question";
-import { getQuizInfo } from "@/lib/quiz";
+import { getQuestions } from "@/lib/api/questions";
+import { getQuizInfo } from "@/lib/api/quizzes";
 import { Quiz } from "@/lib/types";
-import QuizEngine from "@/components/ui/QuizEngine";
+import QuizEngine from "@/components/quiz/QuizEngine";
 
 const QUIZ_ID = 1; // nebo dynamicky z params pokud máš [id]
 

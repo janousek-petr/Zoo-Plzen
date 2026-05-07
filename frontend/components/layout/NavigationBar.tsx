@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // ── Položky hamburger menu — doplň href dle svých routes ─────────────────────
 const MENU_ITEMS = [
@@ -14,13 +15,13 @@ const MENU_ITEMS = [
   { label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
 ];
 
-// ── Cesty k obrázkům — vlož své ──────────────────────────────────────────────
-const LOGO_SRC        = "/img/icons/zoo-logo.png";       // střed — odkaz na homepage
-const RIGHT_ICON_SRC  = "/img/icons/profile-button.png"; // vpravo — odkaz na profil
-const RIGHT_ICON_HREF = "/profil";                        // kam odkazuje pravá ikona
+const RIGHT_ICON_HREF = "/profil";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = usePathname();
+
+  if (pathname.includes("/kviz/")) return null;
 
   return (
     <>
@@ -32,7 +33,7 @@ export default function Navbar() {
           <button
             onClick={() => setMenuOpen((p) => !p)}
             aria-label="Otevřít menu"
-            className="w-10 h-10 flex flex-col items-center justify-center gap-[5px] flex-shrink-0"
+            className="w-10 h-10 flex flex-col items-center justify-center gap-1.25 shrink-0"
           >
             <span
               className={[
@@ -72,7 +73,7 @@ export default function Navbar() {
           {/* VPRAVO — ikona profilu jako odkaz */}
           <Link
             href={RIGHT_ICON_HREF}
-            className="w-10 h-10 flex-shrink-0 flex items-center justify-center"
+            className="w-10 h-10 shrink-0 flex items-center justify-center"
             aria-label="Profil"
           >
             <div className="relative w-10 h-10 rounded-full overflow-hidden">
@@ -89,16 +90,11 @@ export default function Navbar() {
       </nav>
 
       {/* ── DROPDOWN MENU ─────────────────────────────────────────────── */}
-      {/*
-        Overlay — kliknutím mimo zavře menu.
-        Umístěn pod navbar (top-16 = 64px = výška navbaru).
-      */}
       {menuOpen && (
         <div
           className="fixed inset-0 top-16 z-40"
           onClick={() => setMenuOpen(false)}
         >
-          {/* Samotný dropdown panel — klik na něj menu nezavře */}
           <div
             className="absolute top-0 left-0 w-64 bg-white shadow-xl"
             onClick={(e) => e.stopPropagation()}
@@ -120,7 +116,7 @@ export default function Navbar() {
         </div>
       )}
 
-      {/* Spacer — aby obsah stránky nezačínal pod fixním navbarem */}
+      {/* Spacer */}
       <div className="h-16" />
     </>
   );
