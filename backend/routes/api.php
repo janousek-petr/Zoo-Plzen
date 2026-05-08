@@ -2,8 +2,11 @@
 
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\QuestionCategoryController;
+use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RegionController;
+use App\Http\Controllers\MediaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +21,15 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middlew
 
 // Kvíz (apiResource = GET, POST, GET, PUT, DELETE v jednom)
 Route::apiResource('quizzes', QuizController::class);
+
 Route::get('/quizzes/{id}/questions', [QuizController::class, 'questions']);
+Route::post('/quizzes/{id}/questions', [QuestionController::class, 'store']);
+Route::get('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'show']);
+Route::put('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'update']);
+
+Route::get('/question-categories', [QuestionCategoryController::class, 'index']);
+
+Route::apiResource('media', MediaController::class)->only(['index', 'store', 'destroy']);
 
 // Otázky
 //Route::get('/quiz/{id}', [QuizController::class, 'show'])->middleware('guest:sanctum');

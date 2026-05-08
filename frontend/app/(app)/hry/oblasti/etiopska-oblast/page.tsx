@@ -6,7 +6,7 @@ import { RiLock2Fill } from "react-icons/ri";
 import Link from "next/link";
 import { getQuizzesByRegion } from "@/lib/api/quizzes";
 
-const REGION_ID = 3;
+const REGION_ID = 4;
 
 export default async function EtiopskaArea() {
 

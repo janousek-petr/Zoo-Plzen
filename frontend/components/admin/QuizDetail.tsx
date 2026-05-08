@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getQuiz, getQuestions } from '@/lib/api/quizzes'
-import { RiMapPinLine, RiEditLine, RiArrowLeftLine, RiStarLine, RiQuestionLine, RiCheckLine } from 'react-icons/ri'
+import { RiAddFill, RiMapPinLine, RiEditLine, RiArrowLeftLine, RiStarLine, RiQuestionLine, RiCheckLine } from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
+import { MenuCard, MenuCardProps } from "./MenuCard";
+import Header from '@/components/admin/Header'
 
 const LEVEL_BADGE: Record<number, string> = {
     1: 'bg-green-50 text-green-800',
@@ -24,6 +26,11 @@ export default function QuizDetail({ id }: { id: number }) {
     const [questions, setQuestions] = useState<Question[]>([])
     const [loading, setLoading] = useState(true)
 
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
+
+    const imgUrl = (path: string | null | undefined) =>
+        path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+
     useEffect(() => {
         Promise.all([getQuiz(id), getQuestions(id)]).then(([quizData, questionsData]) => {
             setQuiz(quizData)
@@ -32,29 +39,27 @@ export default function QuizDetail({ id }: { id: number }) {
         })
     }, [id])
 
-    if (loading) return <p className="text-lg text-gray-400 p-6 cus-font-impacted">Načítám...</p>
+    if (loading) return <p className="text-lg text-gray-400 p-6 cus-font-impacted uppercase">Načítám...</p>
     if (!quiz) return <p className="text-lg text-red-400 p-6">Kvíz nenalezen.</p>
 
+    const menuItems: MenuCardProps[] = [
+        { label: "Upravit kvíz", icon: RiEditLine, href: `/admin/quizzes/${id}/edit`},
+        { label: "Správa otázek", icon: RiQuestionLine, href: `/admin/quizzes/${id}/questions`}
+    ];
+
     return (
+        <>
+        <Header title={quiz.name} href="/admin/quizzes"/>
+
         <div className="flex flex-col">
-            {/* Header */}
-            <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-6">
-                <div className="flex items-center gap-4">
-                    <button
-                        onClick={() => router.push('/admin/quizzes')}
-                        className="flex items-center gap-1 text-gray-400 hover:text-gray-700 transition-colors"
-                    >
-                        <RiArrowLeftLine className="text-xl" />
-                    </button>
-                    <h1 className="text-3xl cus-font-impacted uppercase">{quiz.name}</h1>
+        
+            <div className="p-6">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    {menuItems.map((item) => (
+                    <MenuCard key={item.href} {...item} />
+                    ))}
                 </div>
-                <button
-                    onClick={() => router.push(`/admin/quizzes/${id}/edit`)}
-                    className="flex items-center gap-1.5 bg-sky-600 hover:bg-sky-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-                >
-                    <RiEditLine /> Upravit kvíz
-                </button>
-            </header>
+            </div>
 
             <div className="p-6 flex flex-col gap-6">
                 {/* Info karty */}
@@ -117,10 +122,9 @@ export default function QuizDetail({ id }: { id: number }) {
                                         <span className="text-xs text-gray-400">{question.points} b.</span>
                                     </div>
                                 </div>
-
                                 {question.image && (
                                     <img
-                                        src={question.image}
+                                        src={imgUrl(question.image)!}
                                         alt="Obrázek otázky"
                                         className="h-24 object-contain mb-3"
                                     />
@@ -142,7 +146,11 @@ export default function QuizDetail({ id }: { id: number }) {
                                                 <span className="w-4 shrink-0" />
                                             )}
                                             {answer.image && (
-                                                <img src={answer.image} alt={answer.text} className="h-10 object-contain" />
+                                                <img
+                                                    src={imgUrl(answer.image)!}
+                                                    alt={answer.text}
+                                                    className="h-10 object-contain"
+                                                />
                                             )}
                                             {answer.text}
                                         </div>
@@ -154,5 +162,6 @@ export default function QuizDetail({ id }: { id: number }) {
                 </div>
             </div>
         </div>
+        </>
     )
 }

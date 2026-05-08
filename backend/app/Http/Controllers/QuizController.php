@@ -89,6 +89,7 @@ class QuizController extends Controller
             'name' => 'required',
             'description' => 'required',
             'region_id' => 'required',
+            'level' => 'required|integer|min:1|max:3',
         ]);
 
         DB::table('quiz')->where('id', $id)->update($validated);

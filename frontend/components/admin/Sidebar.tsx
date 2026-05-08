@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RiLayoutGridFill, RiLayoutGridLine, RiUserLine, RiBarChartLine, RiSettingsLine, RiLogoutBoxLine } from "react-icons/ri";
+import { RiLayoutGridFill, RiLayoutGridLine, RiUserLine, RiBarChartLine, RiSettingsLine, RiLogoutBoxLine, RiImageLine } from "react-icons/ri";
 
 const NAV_ITEMS = [
   { label: "Správa kvízů", href: "/admin/quizzes", icon: RiLayoutGridLine },
-  { label: "Správa uživatelů", href: "/admin/users", icon: RiUserLine }
+  { label: "Správa uživatelů", href: "/admin/users", icon: RiUserLine },
+  { label: "Média", href: "/admin/media", icon: RiImageLine }
 ];
 
 interface SidebarProps {

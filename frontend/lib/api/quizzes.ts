@@ -17,6 +17,16 @@ export async function getQuestions(id: number) {
     }
 }
 
+export async function getQuestion(quizId: number, questionId: number) {
+    try {
+        const res = await axiosClient.get(`/api/quizzes/${quizId}/questions/${questionId}`)
+        return res.data
+    } catch (err) {
+        console.error(err)
+        throw err
+    }
+}
+
 export async function getRegions() {
     try {
         const res = await axiosClient.get(`/api/regions`);
@@ -85,5 +95,52 @@ export async function getQuiz(id: number) {
         return res.data;
     } catch (err) {
         console.error(err);
+    }
+}
+
+export async function getQuestionCategories() {
+    const res = await axiosClient.get('/api/question-categories')
+    return res.data
+}
+
+
+export async function createQuestion(quizId: number, data: {
+    text: string,
+    points: number,
+    question_category: number,
+    image?: string | null,
+    answers: {
+        text?: string | null,
+        is_correct: boolean,
+        image?: string | null,
+    }[]
+}) {
+    try {
+        const res = await axiosClient.post(`/api/quizzes/${quizId}/questions`, data)
+        return res.data
+    } catch (err) {
+        console.error(err)
+        throw err
+    }
+}
+
+export async function updateQuestion(quizId: number, questionId: number, data: {
+    text: string,
+    points: number,
+    question_category: number,
+    image?: string | null,
+    answers: {
+        id?: number,
+        text?: string | null,
+        is_correct: boolean,
+        image?: string | null,
+    }[]
+}) {
+    try {
+        const res = await axiosClient.put(`/api/quizzes/${quizId}/questions/${questionId}`, data)
+        return res.data
+    } catch (err) {
+        console.error(err)
+        throw err
     }
 }

@@ -31,9 +31,19 @@ export type Quiz = {
         id: number
         name: string
     } | null
+    region_id?: number | null
 }
 
 export type Region = {
     "id": number,
     "name": string
 }
+
+export type MediaItem = {
+    id: number;
+    filename: string;
+    path: string;
+    mime_type: string;
+    size: number;
+    created_at: string;
+};
