@@ -21,6 +21,14 @@ function groupByRegion(quizzes: Quiz[]) {
   }, {})
 }
 
+function sortedRegionEntries(grouped: Record<string, Quiz[]>) {
+  return Object.entries(grouped).sort(([a], [b]) => {
+    if (a === 'Žádná oblast') return 1
+    if (b === 'Žádná oblast') return -1
+    return a.localeCompare(b, 'cs')
+  })
+}
+
 export default function QuizList() {
   const router = useRouter()
   const [quizzes, setQuizzes] = useState<Quiz[]>([])
@@ -47,7 +55,7 @@ export default function QuizList() {
 
   return (
     <div className="flex flex-col gap-4">
-      {Object.entries(grouped).map(([region, items]) => {
+      {sortedRegionEntries(grouped).map(([region, items]) => {
         const isOpen = openRegions[region] ?? true
         return (
           <div key={region} className="border border-gray-200 rounded-xl overflow-hidden">

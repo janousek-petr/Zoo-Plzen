@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('store', function (Blueprint $table) {
+        Schema::create('media', function (Blueprint $table) {
             $table->id();
-            $table->integer('max_items');
-            $table->foreignId('profile_id')->references('id')->on('profiles');
-            $table->boolean('is_available')->default(true);
+            $table->string('filename');
+            $table->string('path');
+            $table->string('mime_type')->nullable();
+            $table->unsignedBigInteger('size')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('store');
+        Schema::dropIfExists('media');
     }
 };

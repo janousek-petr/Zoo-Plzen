@@ -1,4 +1,4 @@
-import QuickMenu from "@/components/admin/QuickMenu";
+import QuickMenu from "@/components/admin/QuickMenu"
 
 export const metadata = { title: "Quick menu – Admin" };
 

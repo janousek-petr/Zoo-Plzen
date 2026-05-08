@@ -46,6 +46,10 @@ export default function QuizEngine({
     timeLabel,
   } = useQuiz(questions);
 
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
+    const imgUrl = (path: string | null | undefined) =>
+        path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+
   if (!started) {
     return (
       <QuizIntro
@@ -105,7 +109,7 @@ export default function QuizEngine({
       {questionType !== "image_select" && currentQuestion.image && (
         <div className="relative w-full max-w-sm h-56 my-4 shrink-0">
           <Image
-            src={currentQuestion.image}
+            src={imgUrl(currentQuestion.image)!}
             alt="Zvíře"
             fill
             className="object-contain"
@@ -213,7 +217,7 @@ export default function QuizEngine({
               >
                 {answer.image && (
                   <Image
-                    src={answer.image}
+                    src={imgUrl(answer.image)!}
                     alt={answer.text ?? ""}
                     fill
                     className="object-contain p-2"

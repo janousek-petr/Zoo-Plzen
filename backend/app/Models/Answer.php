@@ -8,6 +8,7 @@ class Answer extends Model
 {
     //
     protected $fillable = [
+        'question_id',
         'text',
         'correct_input',
         'is_correct',
