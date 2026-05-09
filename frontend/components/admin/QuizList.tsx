@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getQuizzes } from '@/lib/api/quizzes'
-import { RiEditLine, RiListCheck, RiDeleteBinLine, RiMapPinLine, RiArrowDownSLine } from 'react-icons/ri'
+import { getQuizzes, togglePublishQuiz, deleteQuiz } from '@/lib/api/quizzes'
+import { RiEditLine, RiListCheck, RiDeleteBinLine, RiMapPinLine, RiArrowDownSLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 import type { Quiz } from '@/lib/types'
 
 const LEVEL_BADGE: Record<number, string> = {
@@ -38,7 +38,6 @@ export default function QuizList() {
   useEffect(() => {
     getQuizzes().then(data => {
       setQuizzes(data)
-      // všechny regiony otevřené na začátku
       const grouped = groupByRegion(data)
       setOpenRegions(Object.fromEntries(Object.keys(grouped).map(r => [r, true])))
       setLoading(false)
@@ -48,6 +47,29 @@ export default function QuizList() {
   const toggleRegion = (region: string) => {
     setOpenRegions(prev => ({ ...prev, [region]: !prev[region] }))
   }
+
+  const handleTogglePublish = async (e: React.MouseEvent, quiz: Quiz) => {
+    e.stopPropagation()
+    try {
+      const res = await togglePublishQuiz(quiz.id)
+      setQuizzes(prev =>
+        prev.map(q => q.id === quiz.id ? { ...q, is_published: res.is_published } : q)
+      )
+    } catch {
+      alert('Nepodařilo se změnit stav kvízu.')
+    }
+  }
+
+  const handleDelete = async (e: React.MouseEvent, quiz: Quiz) => {
+        e.stopPropagation()
+        if (!confirm(`Opravdu chceš smazat kvíz "${quiz.name}"? Smažou se i všechny otázky a odpovědi.`)) return
+        try {
+            await deleteQuiz(quiz.id)
+            setQuizzes(prev => prev.filter(q => q.id !== quiz.id))
+        } catch {
+            alert('Nepodařilo se smazat kvíz.')
+        }
+    }
 
   if (loading) return <p className="text-lg text-gray-400 p-6 cus-font-impacted">Načítám...</p>
 
@@ -85,6 +107,8 @@ export default function QuizList() {
                     </div>
 
                     <div className="flex gap-2 flex-col">
+                      <div className="flex items-center gap-2">
+                      </div>
                       <p className="text-md text-gray-600">{region}</p>
                       <div className="flex flex-row gap-4 items-center">
                         <p className={`text-md font-medium px-2 py-0.5 rounded-full ${LEVEL_BADGE[quiz.level] ?? 'bg-gray-100 text-gray-600'}`}>
@@ -92,6 +116,15 @@ export default function QuizList() {
                         </p>
                         <p className="text-md text-gray-400">{quiz.total_questions} otázek</p>
                         <p className="text-md text-gray-400">{quiz.total_points} bodů</p>
+                           {quiz.is_published ? (
+                          <span className="text-md font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-800">
+                            Publikován
+                          </span>
+                        ) : (
+                          <span className="text-md font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                            Nepublikován
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -109,7 +142,19 @@ export default function QuizList() {
                         <RiListCheck /> Otázky
                       </button>
                       <button
-                        onClick={e => { e.stopPropagation(); console.log('smazat', quiz.id) }}
+                        onClick={e => handleTogglePublish(e, quiz)}
+                        disabled={!quiz.is_published && quiz.total_questions === 0}
+                        title={quiz.is_published ? 'Skrýt kvíz' : (quiz.total_questions > 0 ? 'Publikovat' : 'Nejprve přidej otázky')}
+                        className={`flex items-center gap-1 text-lg text-white border-2 border-transparent px-2 py-1 rounded transition-colors cursor-pointer h-full
+                          ${quiz.is_published
+                            ? 'bg-green-600 hover:bg-green-800'
+                            : 'bg-gray-400 hover:bg-gray-600 disabled:opacity-40 disabled:cursor-not-allowed'
+                          }`}
+                      >
+                        {quiz.is_published ? <RiEyeLine /> : <RiEyeOffLine />}
+                      </button>
+                      <button
+                        onClick={e => handleDelete(e, quiz)}
                         className="flex items-center h-full gap-1 text-xl text-red-600 hover:text-white border-2 border-transparent px-2 py-1 rounded hover:bg-red-600 transition-colors ml-auto cursor-pointer"
                       >
                         <RiDeleteBinLine />

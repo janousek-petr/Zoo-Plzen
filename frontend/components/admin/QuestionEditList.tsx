@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getQuiz, getQuestions } from '@/lib/api/quizzes'
+import { getQuiz, getQuestions, deleteQuestion } from '@/lib/api/quizzes'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiCheckLine } from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
 import { MenuCard, MenuCardProps} from '@/components/admin/MenuCard'
 
 const CATEGORY_LABEL: Record<string, string> = {
     select: 'Výběr',
-    true_false: 'Pravda / Nepravda',
+    true_false: 'Ano / Ne',
     image_select: 'Výběr obrázku',
 }
 
@@ -32,6 +32,16 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
             setLoading(false)
         })
     }, [quizId])
+
+    const handleDeleteQuestion = async (question: Question) => {
+        if (!confirm(`Opravdu chceš smazat otázku "${question.text}"? Smažou se i všechny odpovědi.`)) return
+        try {
+            await deleteQuestion(quizId, question.id!)
+            setQuestions(prev => prev.filter(q => q.id !== question.id))
+        } catch {
+            alert('Nepodařilo se smazat otázku.')
+        }
+    }
 
     if (loading) return <p className="text-lg text-gray-400 p-6 cus-font-impacted uppercase">Načítám...</p>
     if (!quiz) return <p className="text-lg text-red-400 p-6">Kvíz nenalezen.</p>
@@ -73,7 +83,7 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
                                     <RiEditLine /> Upravit
                                 </button>
                                 <button
-                                    onClick={() => console.log('smazat', question.id)}
+                                    onClick={() => handleDeleteQuestion(question)}
                                     className="flex items-center gap-1 text-sm text-red-600 hover:text-white px-2 py-1 rounded border border-transparent hover:bg-red-600 transition-colors"
                                 >
                                     <RiDeleteBinLine />

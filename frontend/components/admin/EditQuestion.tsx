@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateQuestion, getQuestionCategories } from '@/lib/api/quizzes'
+import { updateQuestion, getQuestionCategories, deleteQuestion } from '@/lib/api/quizzes'
 import MediaPickerButton from './MediaPickerButton'
 import { MediaItem, Question } from "@/lib/types"
+import { RiDeleteBinLine } from 'react-icons/ri'
 
 const CATEGORY_LABEL: Record<string, string> = {
     select: 'Výběr',
-    true_false: 'Pravda / Nepravda',
+    true_false: 'Ano / Ne',
     image_select: 'Výběr obrázku',
 }
 
@@ -22,8 +23,8 @@ type AnswerForm = {
 }
 
 const TRUE_FALSE_ANSWERS: AnswerForm[] = [
-    { text: 'Pravda', is_correct: true },
-    { text: 'Nepravda', is_correct: false },
+    { text: 'Ano', is_correct: true },
+    { text: 'Ne', is_correct: false },
 ]
 
 interface Props {
@@ -110,6 +111,16 @@ export default function EditQuestion({ quizId, question }: Props) {
     const removeAnswer = (index: number) => {
         if (answers.length <= 2) return
         setAnswers(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const handleDelete = async () => {
+        if (!confirm(`Opravdu chceš smazat otázku "${question.text}"? Smažou se i všechny odpovědi.`)) return
+        try {
+            await deleteQuestion(quizId, question.id!)
+            router.push(`/admin/quizzes/${quizId}/questions`)
+        } catch {
+            alert('Nepodařilo se smazat otázku.')
+        }
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -325,13 +336,22 @@ export default function EditQuestion({ quizId, question }: Props) {
                     </div>
                 )}
 
-                <button
-                    type="submit"
-                    disabled={loading || !categoryName}
-                    className="bg-green-700 hover:bg-green-800 text-white font-semibold py-4 px-4 rounded disabled:opacity-50"
-                >
-                    {loading ? 'Ukládám...' : 'Uložit změny'}
-                </button>
+                <div className="flex gap-3">
+                    <button
+                        type="submit"
+                        disabled={loading || !categoryName}
+                        className="flex-1 bg-green-700 hover:bg-green-800 text-white font-semibold py-4 px-4 rounded disabled:opacity-50 cursor-pointer"
+                    >
+                        {loading ? 'Ukládám...' : 'Uložit změny'}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="flex items-center gap-2 bg-red-700 text-white border hover:bg-red-800 px-4 py-4 rounded transition-colors cursor-pointer"
+                    >
+                        <RiDeleteBinLine /> Smazat
+                    </button>
+                </div>
             </form>
         </div>
     )

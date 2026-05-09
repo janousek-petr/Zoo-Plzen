@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getQuiz, updateQuiz, getRegions } from '@/lib/api/quizzes'
+import { RiEyeLine, RiEyeOffLine } from 'react-icons/ri'
 import type { Region } from '@/lib/types'
 
 export default function UpdateQuiz({ id }: { id: number }) {
@@ -11,12 +12,14 @@ export default function UpdateQuiz({ id }: { id: number }) {
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [totalQuestions, setTotalQuestions] = useState(0)
 
   const [form, setForm] = useState({
     name: '',
     description: '',
     region_id: '',
     level: 1,
+    is_published: false,
   })
 
   useEffect(() => {
@@ -26,7 +29,9 @@ export default function UpdateQuiz({ id }: { id: number }) {
         description: quiz.description ?? '',
         region_id: quiz.region ? String(quiz.region.id) : '',
         level: quiz.level ?? 1,
+        is_published: quiz.is_published ?? false,
       })
+      setTotalQuestions(quiz.total_questions)
       setRegions(regions)
       setFetching(false)
     })
@@ -38,7 +43,6 @@ export default function UpdateQuiz({ id }: { id: number }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('form data:', form)
     setLoading(true)
     setError(null)
     try {
@@ -47,7 +51,8 @@ export default function UpdateQuiz({ id }: { id: number }) {
         description: form.description,
         region_id: form.region_id ? Number(form.region_id) : null,
         level: Number(form.level),
-    })
+        is_published: form.is_published,
+      })
       router.push(`/admin/quizzes/${id}`)
     } catch {
       setError('Nepodařilo se uložit kvíz.')
@@ -111,7 +116,7 @@ export default function UpdateQuiz({ id }: { id: number }) {
                 key={lvl}
                 type="button"
                 onClick={() => setForm(prev => ({ ...prev, level: lvl }))}
-                className={`flex-1 py-2 rounded-lg text-lg uppercase font-medium transition-colors ${
+                className={`flex-1 py-2 rounded-lg text-lg uppercase font-medium transition-colors border-2 ${
                   Number(form.level) === lvl
                     ? lvl === 1 ? 'bg-green-100 text-green-800'
                     : lvl === 2 ? 'bg-amber-100 text-amber-800'
@@ -122,6 +127,36 @@ export default function UpdateQuiz({ id }: { id: number }) {
                 Level {lvl}
               </button>
             ))}
+          </div>
+        </div>
+
+        <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-2">
+          <label className="text-sm text-gray-400">Stav kvízu</label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={totalQuestions === 0}
+              title={totalQuestions === 0 ? 'Nejprve přidej otázky' : ''}
+              onClick={() => setForm(prev => ({ ...prev, is_published: true }))}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-lg font-medium border-2 transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
+                form.is_published
+                  ? 'bg-green-100 text-green-800'
+                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+              }`}
+            >
+              <RiEyeLine /> Publikován
+            </button>
+            <button
+              type="button"
+              onClick={() => setForm(prev => ({ ...prev, is_published: false }))}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-lg font-medium border-2 transition-colors ${
+                !form.is_published
+                  ? 'bg-red-50 text-red-500'
+                  : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+              }`}
+            >
+              <RiEyeOffLine /> Nepublikován
+            </button>
           </div>
         </div>
 
