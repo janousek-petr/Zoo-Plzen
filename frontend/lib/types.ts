@@ -24,6 +24,7 @@ export type Quiz = {
     name: string
     description: string | null
     level: number
+    is_published: boolean
     created_at: string
     total_points: number | string
     total_questions: number

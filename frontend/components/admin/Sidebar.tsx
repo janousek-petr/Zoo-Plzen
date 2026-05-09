@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import { RiLayoutGridFill, RiLayoutGridLine, RiUserLine, RiBarChartLine, RiSettingsLine, RiLogoutBoxLine, RiImageLine } from "react-icons/ri";
 
 const NAV_ITEMS = [
-  { label: "Správa kvízů", href: "/admin/quizzes", icon: RiLayoutGridLine },
-  { label: "Správa uživatelů", href: "/admin/users", icon: RiUserLine },
+  { label: "Kvízy", href: "/admin/quizzes", icon: RiLayoutGridLine },
+  { label: "Uživatelé", href: "/admin/users", icon: RiUserLine },
   { label: "Média", href: "/admin/media", icon: RiImageLine }
 ];
 
@@ -18,7 +18,7 @@ export default function Sidebar({ onNavigate }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex md:w-70 w-40 shrink-0 flex-col border-r border-gray-200 bg-white">
+    <aside className="flex md:w-60 w-40 shrink-0 flex-col border-r border-gray-200 bg-white">
       {/* Logo */}
       <div className="flex items-center justify-center border-b border-gray-200 px-4 py-4">
         <Link href="/admin">

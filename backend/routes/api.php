@@ -20,12 +20,14 @@ Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->midd
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('guest:sanctum');
 
 // Kvíz (apiResource = GET, POST, GET, PUT, DELETE v jednom)
+Route::patch('/quizzes/{id}/toggle-publish', [QuizController::class, 'togglePublish']);
 Route::apiResource('quizzes', QuizController::class);
 
 Route::get('/quizzes/{id}/questions', [QuizController::class, 'questions']);
 Route::post('/quizzes/{id}/questions', [QuestionController::class, 'store']);
 Route::get('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'show']);
 Route::put('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'update']);
+Route::delete('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'destroy']);
 
 Route::get('/question-categories', [QuestionCategoryController::class, 'index']);
 

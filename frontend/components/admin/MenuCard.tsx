@@ -16,7 +16,7 @@ export function MenuCard({ label, icon: Icon, href}: MenuCardProps) {
     <button
         onClick={() => router.push(href)}
         className={[
-            "flex flex-col items-center gap-3 rounded-xl bg-gray-200 lg:py-10 text-center transition-all hover:shadow-sm hover:text-white hover:bg-gray-300 cursor-pointer"
+            "flex flex-col items-center gap-3 rounded-xl bg-gray-200 lg:py-10 text-center transition-all hover:shadow-sm hover:bg-gray-300 cursor-pointer"
         ].join(" ")}
         >
 

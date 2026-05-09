@@ -5,8 +5,8 @@ import { MenuCard, MenuCardProps } from "./MenuCard";
 
 
 const menuItems: MenuCardProps[] = [
-  { label: "Správa kvízů", icon: RiLayoutGridLine, href: "/admin/quizzes"},
-  { label: "Správa uživatelů", icon: RiUserLine, href: "/admin/users"},
+  { label: "Kvízy", icon: RiLayoutGridLine, href: "/admin/quizzes"},
+  { label: "Uživatelé", icon: RiUserLine, href: "/admin/users"},
   { label: "Média", icon: RiImageLine, href: "/admin/media"}
 ];
 

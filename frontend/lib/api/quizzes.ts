@@ -144,3 +144,23 @@ export async function updateQuestion(quizId: number, questionId: number, data: {
         throw err
     }
 }
+
+export async function deleteQuestion(quizId: number, questionId: number) {
+    try {
+        const res = await axiosClient.delete(`/api/quizzes/${quizId}/questions/${questionId}`);
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+export async function togglePublishQuiz(id: number) {
+    try {
+        const res = await axiosClient.patch(`/api/quizzes/${id}/toggle-publish`);
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}

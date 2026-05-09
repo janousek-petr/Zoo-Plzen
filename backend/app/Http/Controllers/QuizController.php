@@ -90,6 +90,7 @@ class QuizController extends Controller
             'description' => 'required',
             'region_id' => 'required',
             'level' => 'required|integer|min:1|max:3',
+            'is_published' => 'boolean',
         ]);
 
         DB::table('quiz')->where('id', $id)->update($validated);
@@ -102,7 +103,12 @@ class QuizController extends Controller
      */
     public function destroy(int $id)
     {
-        //
+        $questionIds = DB::table('quiz_question')
+            ->where('quiz_id', $id)
+            ->pluck('question_id');
+
+        DB::table('answer')->whereIn('question_id', $questionIds)->delete();
+        DB::table('question')->whereIn('id', $questionIds)->delete();
         DB::table('quiz')->where('id', $id)->delete();
 
         return response()->noContent();
@@ -124,4 +130,29 @@ class QuizController extends Controller
 
         return response()->json($questions);
     }
+
+    public function togglePublish(int $id)
+    {
+        $quiz = Quiz::findOrFail($id);
+
+        if (!$quiz->is_published) {
+            $hasQuestions = DB::table('quiz_question')
+                ->where('quiz_id', $id)
+                ->exists();
+
+            if (!$hasQuestions) {
+                return response()->json(
+                    ['message' => 'Kvíz musí mít alespoň jednu otázku.'],
+                    422
+                );
+            }
+        }
+
+        $quiz->update(['is_published' => !$quiz->is_published]);
+
+        return response()->json(['is_published' => $quiz->is_published]);
+    }
+
 }
+
+

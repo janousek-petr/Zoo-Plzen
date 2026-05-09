@@ -49,48 +49,60 @@ class QuestionController extends Controller
     }
 
     public function show(int $quizId, int $questionId)
-{
-    $question = Question::with(['answers', 'category'])
-        ->whereHas('quizzes', fn($q) => $q->where('quiz_id', $quizId))
-        ->findOrFail($questionId);
+    {
+        $question = Question::with(['answers', 'category'])
+            ->whereHas('quizzes', fn($q) => $q->where('quiz_id', $quizId))
+            ->findOrFail($questionId);
 
-    return response()->json($question);
-}
-
-public function update(Request $request, int $quizId, int $questionId)
-{
-    $validated = $request->validate([
-        'text' => 'required|string',
-        'points' => 'required|integer|min:1',
-        'question_category' => 'required|integer|exists:question_category,id',
-        'image' => 'nullable|string',
-        'answers' => 'required|array|min:2',
-        'answers.*.text' => 'nullable|string',
-        'answers.*.is_correct' => 'required|boolean',
-        'answers.*.image' => 'nullable|string',
-    ]);
-
-    $question = Question::whereHas('quizzes', fn($q) => $q->where('quiz_id', $quizId))
-        ->findOrFail($questionId);
-
-    $question->update([
-        'text' => $validated['text'],
-        'points' => $validated['points'],
-        'question_category' => $validated['question_category'],
-        'image' => $validated['image'] ?? null,
-    ]);
-
-    // Smazat staré a vytvořit nové odpovědi
-    $question->answers()->delete();
-    foreach ($validated['answers'] as $answer) {
-        Answer::create([
-            'text' => $answer['text'] ?? null,
-            'is_correct' => $answer['is_correct'],
-            'image' => $answer['image'] ?? null,
-            'question_id' => $question->id,
-        ]);
+        return response()->json($question);
     }
 
-    return response()->json($question->load(['answers', 'category']));
-}
+    public function update(Request $request, int $quizId, int $questionId)
+    {
+        $validated = $request->validate([
+            'text' => 'required|string',
+            'points' => 'required|integer|min:1',
+            'question_category' => 'required|integer|exists:question_category,id',
+            'image' => 'nullable|string',
+            'answers' => 'required|array|min:2',
+            'answers.*.text' => 'nullable|string',
+            'answers.*.is_correct' => 'required|boolean',
+            'answers.*.image' => 'nullable|string',
+        ]);
+
+        $question = Question::whereHas('quizzes', fn($q) => $q->where('quiz_id', $quizId))
+            ->findOrFail($questionId);
+
+        $question->update([
+            'text' => $validated['text'],
+            'points' => $validated['points'],
+            'question_category' => $validated['question_category'],
+            'image' => $validated['image'] ?? null,
+        ]);
+
+        // Smazat staré a vytvořit nové odpovědi
+        $question->answers()->delete();
+        foreach ($validated['answers'] as $answer) {
+            Answer::create([
+                'text' => $answer['text'] ?? null,
+                'is_correct' => $answer['is_correct'],
+                'image' => $answer['image'] ?? null,
+                'question_id' => $question->id,
+            ]);
+        }
+
+        return response()->json($question->load(['answers', 'category']));
+    }
+
+    public function destroy(int $quizId, int $questionId)
+    {
+        $question = Question::whereHas('quizzes', fn($q) => $q->where('quiz_id', $quizId))
+            ->findOrFail($questionId);
+
+        DB::table('answer')->where('question_id', $questionId)->delete();
+        DB::table('quiz_question')->where('question_id', $questionId)->delete();
+        DB::table('question')->where('id', $questionId)->delete();
+
+        return response()->noContent();
+    }
 }

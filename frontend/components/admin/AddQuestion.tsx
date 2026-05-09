@@ -8,7 +8,7 @@ import { MediaItem } from "@/lib/types"
 
 const CATEGORY_LABEL: Record<string, string> = {
     select: 'Výběr',
-    true_false: 'Pravda / Nepravda',
+    true_false: 'Ano / Ne',
     image_select: 'Výběr obrázku',
 }
 
@@ -21,8 +21,8 @@ type AnswerForm = {
 }
 
 const TRUE_FALSE_ANSWERS: AnswerForm[] = [
-    { text: 'Pravda', is_correct: true },
-    { text: 'Nepravda', is_correct: false },
+    { text: 'Ano', is_correct: true },
+    { text: 'Ne', is_correct: false },
 ]
 
 const defaultAnswers = (): AnswerForm[] => [
