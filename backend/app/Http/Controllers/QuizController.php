@@ -37,46 +37,35 @@ class QuizController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'description' => 'required',
-            'region_id' => 'required',
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'description' => 'nullable|string',
+            'region_id' => 'integer|exists:region,id',
+            'level' => 'required|integer|min:1|max:3',
         ]);
 
-        Quiz::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'region_id' => $request->region_id,
-        ]);
+        $quiz = Quiz::create($validated);
 
-        return response()->noContent();
+        return response()->json($quiz);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(int $id)
+    public function show($id)
     {
-        //
-        /*
-        $questions = QuizQuestionView::where('quiz_id', $id)->inRandomOrder()->get();
-        $questionsId = $questions->pluck('question_id');
-        $answers = Answer::whereIn('question_id', $questionsId)->inRandomOrder()->get();
 
-        $groupedAnswers = $answers->groupBy('question_id');
-        $questions->each(function ($q) use ($groupedAnswers) {
-            $q->answers = $groupedAnswers[$q->question_id] ?? [];
-        });
 
-        return response()->json($questions);
-        */
-
-        $questions = Question::with(['answers', 'category'])
+        /*$questions = Question::with(['answers', 'category'])
             ->whereHas('quizzes', fn ($q) => $q->where('quiz_id', $id))
             ->get();
 
-        return response()->json($questions);
+        return response()->json($questions);*/
+
+        $quiz = Quiz::with('region')->where('id', $id)->first();
+
+        return response()->json($quiz);
+
     }
 
     /**
@@ -100,6 +89,8 @@ class QuizController extends Controller
             'name' => 'required',
             'description' => 'required',
             'region_id' => 'required',
+            'level' => 'required|integer|min:1|max:3',
+            'is_published' => 'boolean',
         ]);
 
         DB::table('quiz')->where('id', $id)->update($validated);
@@ -112,9 +103,56 @@ class QuizController extends Controller
      */
     public function destroy(int $id)
     {
-        //
+        $questionIds = DB::table('quiz_question')
+            ->where('quiz_id', $id)
+            ->pluck('question_id');
+
+        DB::table('answer')->whereIn('question_id', $questionIds)->delete();
+        DB::table('question')->whereIn('id', $questionIds)->delete();
         DB::table('quiz')->where('id', $id)->delete();
 
         return response()->noContent();
     }
+
+    public function byRegion(int $id)
+    {
+        $quizzes = Quiz::where('region_id', $id)
+            ->orderBy('level')
+            ->get();
+
+        return response()->json($quizzes);
+    }
+
+    public function questions($id){
+        $questions = Question::with(['answers', 'category'])
+            ->whereHas('quizzes', fn ($q) => $q->where('quiz_id', $id))
+            ->get();
+
+        return response()->json($questions);
+    }
+
+    public function togglePublish(int $id)
+    {
+        $quiz = Quiz::findOrFail($id);
+
+        if (!$quiz->is_published) {
+            $hasQuestions = DB::table('quiz_question')
+                ->where('quiz_id', $id)
+                ->exists();
+
+            if (!$hasQuestions) {
+                return response()->json(
+                    ['message' => 'Kvíz musí mít alespoň jednu otázku.'],
+                    422
+                );
+            }
+        }
+
+        $quiz->update(['is_published' => !$quiz->is_published]);
+
+        return response()->json(['is_published' => $quiz->is_published]);
+    }
+
 }
+
+

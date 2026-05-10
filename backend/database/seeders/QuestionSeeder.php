@@ -10,35 +10,43 @@ class QuestionSeeder extends Seeder
 {
     public function run(): void
     {
-        $quiz = Quiz::first();
+        $quiz = Quiz::where('level', 1)->first();
         if (!$quiz) return;
 
-        // 1. Vytvoříme otázku a získáme její ID
-        // (Předpokládám, že question_category v tabulce question je ID kategorie)
-        $questionId = DB::table('question')->insertGetId([
+        // === select — klasický výběr z textu ===
+        $q1 = DB::table('question')->insertGetId([
+            'text' => 'Jaké zvíře je největší suchozemský savec?',
+            'points' => 10,
+            'question_category' => 2, // select
+            'image' => null,
+        ]);
+        DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q1]);
+
+        // === select s obrázkem otázky ===
+        $q2 = DB::table('question')->insertGetId([
             'text' => 'Jaké zvíře je na obrázku?',
             'points' => 10,
-            'question_category' => 1, // ID kategorie z tabulky question_category
-            'image' => "/img/photo/image-1.jpg",
+            'question_category' => 2, // select
+            'image' => '/img/photo-no-bg/giraffe.png',
         ]);
+        DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q2]);
 
-        // 2. Propojíme otázku s kvízem v tabulce quiz_question
-        DB::table('quiz_question')->insert([
-            'quiz_id' => $quiz->id,
-            'question_id' => $questionId,
+        // === true_false ===
+        $q3 = DB::table('question')->insertGetId([
+            'text' => 'Je žirafa největší zvíře na světě?',
+            'points' => 10,
+            'question_category' => 1, // true_false
+            'image' => null,
         ]);
+        DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q3]);
 
-        // Přidáme druhou otázku pro jistotu
-        $questionId2 = DB::table('question')->insertGetId([
-            'text' => 'Jaké zvíře je na obrázku?',
-            'points' => 20,
-            'question_category' => 1,
-            'image' => "/img/photo/image-2.jpg",
+        // === image_select ===
+        $q4 = DB::table('question')->insertGetId([
+            'text' => 'Vyber správné zvíře z etiopské oblasti.',
+            'points' => 10,
+            'question_category' => 3, // image_select
+            'image' => null,
         ]);
-
-        DB::table('quiz_question')->insert([
-            'quiz_id' => $quiz->id,
-            'question_id' => $questionId2,
-        ]);
+        DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q4]);
     }
 }

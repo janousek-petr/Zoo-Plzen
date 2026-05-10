@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('region_id')->nullable()->constrained('region');
+            $table->unsignedTinyInteger('level')->default(1);
+            $table->boolean('is_published')->default(false);
             $table->date('created_at')->default(now());
         });
     }

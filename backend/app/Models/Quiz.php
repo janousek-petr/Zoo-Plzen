@@ -11,6 +11,12 @@ class Quiz extends Model
         'name',
         'description',
         'region_id',
+        'level',
+        'is_published',
+    ];
+
+    protected $casts = [
+        'is_published' => 'boolean',
     ];
 
     protected $table = 'quiz';
