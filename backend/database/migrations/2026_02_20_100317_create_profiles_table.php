@@ -13,15 +13,16 @@ return new class extends Migration
     {
         Schema::create('profiles', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('user_id')
-                    ->constrained()
-                    ->onDelete('cascade');
-
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('first_name');
             $table->string('last_name');
+            $table->string('nickname')->nullable();
             $table->string('avatar_url')->nullable();
-
+            $table->string('accessory_url')->nullable();
+            $table->string('wallpaper_url')->nullable();
+            $table->json('displayed_medals')->nullable();
+            $table->integer('level')->default(1);
+            $table->integer('xp')->default(0);
             $table->timestamps();
         });
     }

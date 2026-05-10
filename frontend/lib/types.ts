@@ -48,3 +48,23 @@ export type MediaItem = {
     size: number;
     created_at: string;
 };
+
+export type Profile = {
+    id: number;
+    first_name: string;
+    last_name: string | null;
+    nickname: string | null;
+    avatar_url: string | null;
+    accessory_url: string | null;
+    wallpaper_url: string | null;
+    level: number;
+    xp: number;
+}
+
+export interface User {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: string;
+}
