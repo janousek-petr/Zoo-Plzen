@@ -13,9 +13,11 @@ return new class extends Migration
     {
         Schema::create('store', function (Blueprint $table) {
             $table->id();
-            $table->integer('max_items');
+            $table->integer('max_items')->default(6);
             $table->foreignId('user_id')->references('id')->on('users');
             $table->boolean('is_available')->default(true);
+            $table->timestamps();
+            $table->date('last_refresh_at')->nullable();
         });
     }
 

@@ -51,4 +51,23 @@ class User extends Authenticatable
         return $this->hasMany(Profile::class);
     }
 
+    public function answeredQuizzes()
+    {
+        return $this->hasMany(AnsweredQuestions::class);
+    }
+
+    public function shop()
+    {
+        return $this->hasOne(Store::class);
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
+
+    public function preferences()
+    {
+        return $this->hasMany(Preference::class);
+    }
 }

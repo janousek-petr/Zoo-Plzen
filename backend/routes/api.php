@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -20,3 +22,10 @@ Route::get('/quizInfo', QuizController::class.'@index')->middleware('guest:sanct
 
 //Otázky
 Route::get('/quiz/{id}', QuizController::class.'@show')->middleware('guest:sanctum');
+
+//Vyřešené kvízy
+Route::get('/answeredQuizzes/', AnsweredQuizzesController::class.'@index')->middleware('auth:sanctum');
+Route::get('/answeredQuizzes/{id}', AnsweredQuizzesController::class.'@show')->middleware('auth:sanctum');
+
+//Obchod
+Route::get('/itemsInStore', StoreController::class.'@index')->middleware('auth:sanctum');
