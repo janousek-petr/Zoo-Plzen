@@ -7,6 +7,39 @@ use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProfileFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'user_id',
+        'first_name',
+        'last_name',
+        'nickname',
+        'avatar_url',
+        'accessory_url',
+        'wallpaper_url',
+        'displayed_medals',
+        'level',
+        'xp',
+    ];
+
+    protected $casts = [
+        'displayed_medals' => 'array',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function medals()
+    {
+        return $this->belongsToMany(Medal::class, 'profile_medals')
+                    ->withPivot('earned_at')
+                    ->withTimestamps();
+    }
+
+    public function inventory()
+    {
+        return $this->hasOne(Inventory::class);
+    }
 }

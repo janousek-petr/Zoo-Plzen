@@ -36,11 +36,5 @@ class AnswerSeeder extends Seeder
             ['question_id' => $questions[2]->id, 'text' => 'Ne', 'is_correct' => 1, 'image' => null, 'correct_input' => null],
         ]);
 
-        // Odpovědi pro image_select (q4)
-        DB::table('answer')->insert([
-            ['question_id' => $questions[3]->id, 'text' => 'Žirafa', 'is_correct' => 1, 'image' => '/img/photo-no-bg/giraffe-2.png', 'correct_input' => null],
-            ['question_id' => $questions[3]->id, 'text' => 'Medvěd', 'is_correct' => 0, 'image' => '/img/photo-no-bg/bear.png', 'correct_input' => null],
-            ['question_id' => $questions[3]->id, 'text' => 'Klokan', 'is_correct' => 0, 'image' => '/img/photo-no-bg/kangaroo.png', 'correct_input' => null],
-        ]);
     }
 }

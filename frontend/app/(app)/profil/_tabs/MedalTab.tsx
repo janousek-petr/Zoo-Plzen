@@ -7,15 +7,15 @@ import SpeechBalloon from "@/components/ui/SpeechBalloon";
 
 // ── Simulace dat ─────────────────────────────────────────────────────────────
 const allMedals: GalleryItem[] = [
-  { id: 1, src: "/img/medals/medal-america.png",     alt: "Amerika I"    },
-  { id: 2, src: "/img/medals/medal-asia.png",     alt: "Asie I"      },
-  { id: 3, src: "/img/medals/medal-africa.png",     alt: "Afrika I"    },
-  { id: 4, src: "/img/medals/medal-europe.png",     alt: "Evropa I"      },
-  { id: 5, src: "/img/medals/medal-australia.png",     alt: "Austrálie I" },
-  { id: 6, src: "/img/icons/lock-icon.png", alt: "Zamčeno"     },
-  { id: 7, src: "/img/icons/lock-icon.png", alt: "Zamčeno"     },
-  { id: 8, src: "/img/icons/lock-icon.png", alt: "Zamčeno"     },
-  { id: 9, src: "/img/icons/lock-icon.png", alt: "Zamčeno"     },
+  { id: 1, src: "/img/medals/medal-america.png", alt: "Amerika I" },
+  { id: 2, src: "/img/medals/medal-asia.png", alt: "Asie I" },
+  { id: 3, src: "/img/medals/medal-africa.png", alt: "Afrika I" },
+  { id: 4, src: "/img/medals/medal-europe.png", alt: "Evropa I" },
+  { id: 5, src: "/img/medals/medal-australia.png", alt: "Austrálie I" },
+  { id: 6, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
+  { id: 7, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
+  { id: 8, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
+  { id: 9, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
 ];
 
 const UNLOCKED_COUNT = 5;

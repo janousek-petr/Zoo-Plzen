@@ -27,7 +27,7 @@ class QuestionSeeder extends Seeder
             'text' => 'Jaké zvíře je na obrázku?',
             'points' => 10,
             'question_category' => 2, // select
-            'image' => '/img/photo-no-bg/giraffe.png',
+            'image' => null,
         ]);
         DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q2]);
 
@@ -40,13 +40,6 @@ class QuestionSeeder extends Seeder
         ]);
         DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q3]);
 
-        // === image_select ===
-        $q4 = DB::table('question')->insertGetId([
-            'text' => 'Vyber správné zvíře z etiopské oblasti.',
-            'points' => 10,
-            'question_category' => 3, // image_select
-            'image' => null,
-        ]);
-        DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q4]);
+        
     }
 }

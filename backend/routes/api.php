@@ -3,6 +3,7 @@
 use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
@@ -20,6 +21,10 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest:sanctum');
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('guest:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('profiles', ProfileController::class);
+});
 
 // Kvíz (apiResource = GET, POST, GET, PUT, DELETE v jednom)
 Route::patch('/quizzes/{id}/toggle-publish', [QuizController::class, 'togglePublish']);
