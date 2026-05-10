@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\StoreController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\MediaController;
 use Illuminate\Http\Request;
@@ -23,6 +25,12 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middlew
 Route::patch('/quizzes/{id}/toggle-publish', [QuizController::class, 'togglePublish']);
 Route::apiResource('quizzes', QuizController::class);
 
+//Vyřešené kvízy
+Route::get('/answeredQuizzes/', AnsweredQuizzesController::class.'@index')->middleware('auth:sanctum');
+Route::get('/answeredQuizzes/{id}', AnsweredQuizzesController::class.'@show')->middleware('auth:sanctum');
+
+//Obchod
+Route::get('/itemsInStore', StoreController::class.'@index')->middleware('auth:sanctum');
 Route::get('/quizzes/{id}/questions', [QuizController::class, 'questions']);
 Route::post('/quizzes/{id}/questions', [QuestionController::class, 'store']);
 Route::get('/quizzes/{quizId}/questions/{questionId}', [QuestionController::class, 'show']);

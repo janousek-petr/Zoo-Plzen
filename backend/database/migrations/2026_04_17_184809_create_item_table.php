@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('item', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('price');
+            $table->integer('price')->default(0);
             $table->text('description')->nullable();
             $table->integer('item_unlock_level')->nullable();
             $table->foreignId('category_id')->constrained('item_category');

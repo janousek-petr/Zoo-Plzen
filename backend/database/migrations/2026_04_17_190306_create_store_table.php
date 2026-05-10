@@ -16,6 +16,8 @@ return new class extends Migration
             $table->integer('max_items');
             $table->foreignId('profile_id')->references('id')->on('profiles');
             $table->boolean('is_available')->default(true);
+            $table->timestamps();
+            $table->date('last_refresh_at')->nullable();
         });
     }
 
