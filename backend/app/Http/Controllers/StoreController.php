@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Item;
+use App\Models\Profile;
 use DB;
 use Illuminate\Http\Request;
 
@@ -11,9 +12,9 @@ class StoreController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(int $profileId)
     {
-        $user = auth()->user();
+        $user = Profile::find($profileId);
 
         // Zkontroluj, zda má uživatel obchod
         $store = $user->shop;
@@ -87,7 +88,7 @@ class StoreController extends Controller
     /**
      * Podívá se, zda je zapotřebí obnovit položky v obchodě
      *
-     * @return true Pokud je datum _null_, nebo _last_refresh_at_ je 24 hodin starý
+     * @return true Pokud je datum _null_, nebo _last_refresh_at_ je statší než 24 hodin
      */
     private function shouldRefresh($store)
     {
@@ -127,13 +128,7 @@ class StoreController extends Controller
                 $newItems = $this->generateItems($preferences, $ownedItemsIds, $store->maxItems);
 
                 // 4) Uložení nových itemů do tabulky items_in_store
-                foreach ($newItems as $item) {
-                    $store->itemsInStore()->create([
-                        'item_id' => $item->id,
-                        'arrival_date' => today(),
-                        'leave_date' => null,
-                    ]);
-                }
+                $this->saveStoreItems($store, $newItems);
 
                 // 5) Aktualizace času posledního refreshe (timestamp)
                 $store->update(['last_refresh_at' => now()]);
@@ -148,7 +143,7 @@ class StoreController extends Controller
      *
      * Pokud _$preferences_ není prázdný, vyberou se primárně jenom položy patřící do preferencí.
      *
-     * Pokud je se nic ne
+     * Pokud je počet vybraných položek menší než nastavený limit, přidají se do seznamu náhodné položky.
      *
      * @return \Illuminate\Database\Eloquent\Collection
      */
@@ -207,7 +202,8 @@ class StoreController extends Controller
         foreach ($items as $item) {
             $store->itemsInStore()->create([
                 'item_id' => $item->id,
-                'arrival_date' => now(),
+                'arrival_date' => today(),
+                'leave_date' => null,
             ]);
         }
     }
