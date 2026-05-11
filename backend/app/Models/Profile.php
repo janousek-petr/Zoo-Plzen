@@ -42,4 +42,19 @@ class Profile extends Model
     {
         return $this->hasOne(Inventory::class);
     }
+
+    public function answeredQuizzes()
+    {
+        return $this->hasMany(AnsweredQuestions::class);
+    }
+
+    public function shop()
+    {
+        return $this->hasOne(Store::class);
+    }
+
+    public function preferences()
+    {
+        return $this->hasMany(Preference::class);
+    }
 }
