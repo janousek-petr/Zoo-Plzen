@@ -11,7 +11,7 @@ class AnswerSeeder extends Seeder
     public function run(): void
     {
         $questions = Question::orderBy('id')->get();
-        if ($questions->count() < 4) {
+        if ($questions->count() < 3) {
             $this->command->warn('Nenalezeny dostatečné otázky.');
             return;
         }

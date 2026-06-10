@@ -49,22 +49,27 @@ export type MediaItem = {
     created_at: string;
 };
 
-export type Profile = {
-    id: number;
-    first_name: string;
-    last_name: string | null;
-    nickname: string | null;
-    avatar_url: string | null;
-    accessory_url: string | null;
-    wallpaper_url: string | null;
-    level: number;
-    xp: number;
+export interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  is_active?: boolean;
+  created_at?: string;
+  profiles?: Profile[];       // pro detail
+  profiles_count?: number;    // pro výpis (withCount z Laravelu)
 }
 
-export interface User {
-    id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    role: string;
+export type Profile = {
+  id: number;
+  user_id: number;            // vazba na účet
+  first_name: string;
+  last_name: string | null;
+  nickname: string | null;
+  avatar_url: string | null;
+  accessory_url: string | null;
+  wallpaper_url: string | null;
+  level: number;
+  xp: number;
 }
