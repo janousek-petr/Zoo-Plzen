@@ -53,15 +53,19 @@ export default function Navbar() {
           </Link>
 
           <Link href={RIGHT_ICON_HREF} className="w-10 h-10 shrink-0 flex items-center justify-center" aria-label="Profil">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden">
-              <Image
-                src={activeProfile?.avatar_url ?? '/img/startpage-1.png'}
-                alt="Profil"
-                fill
-                className="object-cover"
-              />
-            </div>
-          </Link>
+                <div className="relative w-10 h-10 rounded-full overflow-hidden">
+                    {activeProfile?.avatar_url ? (
+                    <Image
+                        src={activeProfile.avatar_url}
+                        alt="Profil"
+                        fill
+                        className="object-cover"
+                    />
+                    ) : (
+                    <div className="absolute inset-0 bg-gray-200 animate-pulse" />
+                    )}
+                </div>
+            </Link>
 
         </div>
       </nav>

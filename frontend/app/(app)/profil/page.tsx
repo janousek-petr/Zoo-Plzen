@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"; // Přidán useEffect
 import { useSearchParams } from "next/navigation"; // Přidán hook pro parametry
 import { SlidingTabBar } from "@/components/ui/SlidingTabBar";
 import ProfileTab from "./_tabs/ProfileTab";
-import SettingsTab from "./_tabs/SettingsTab";
 import BackpackTab from "./_tabs/BackpackTab";
 import MedalTab from "./_tabs/MedalTab";
 
@@ -12,7 +11,6 @@ const tabs = [
   { id: "profil",    name: "Profil" },
   { id: "batoh",     name: "Batoh" },
   { id: "medaile",   name: "Medaile" },
-  { id: "nastaveni", name: "Nastavení profilu" },
 ];
 
 export default function Profile() {
@@ -43,7 +41,6 @@ export default function Profile() {
       <div className={activeTab === 0 ? "block" : "hidden"}><ProfileTab /></div>
       <div className={activeTab === 1 ? "block" : "hidden"}><BackpackTab /></div>
       <div className={activeTab === 2 ? "block" : "hidden"}><MedalTab /></div>
-      <div className={activeTab === 3 ? "block" : "hidden"}><SettingsTab /></div>
     </main>
   );
 }

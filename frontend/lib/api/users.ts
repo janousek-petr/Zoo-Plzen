@@ -1,6 +1,11 @@
 import axios from "@/lib/axios";
 import type { User, Profile } from "@/lib/types";
 
+export type CreateUserResponse = {
+    user: User;
+    generated_password: string;
+}
+
 const userService = {
     getAll: async () => {
         return await axios.get<User[]>('/api/users');
@@ -9,7 +14,7 @@ const userService = {
         return await axios.get<User>(`/api/users/${id}`);
     },
     create: async (data: Partial<User>) => {
-        return await axios.post<User>('/api/users', data);
+        return await axios.post<CreateUserResponse>('/api/users', data);
     },
     update: async (id: number, data: Partial<User>) => {
         return await axios.put<User>(`/api/users/${id}`, data);

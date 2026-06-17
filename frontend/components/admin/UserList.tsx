@@ -19,12 +19,17 @@ export default function UserList() {
   if (!users.length) return <p className="text-gray-400 p-3">Žádní uživatelé.</p>
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 max-w-6xl">
       {users.map(user => (
         <UserTab
           key={user.id}
+          id={user.id}
+          first_name={user.first_name}
+          last_name={user.last_name}
           email={user.email}
+          role={user.role}
           profiles={user.profiles_count ?? 0}
+          created_at={user.created_at ?? ""}
         />
       ))}
     </div>

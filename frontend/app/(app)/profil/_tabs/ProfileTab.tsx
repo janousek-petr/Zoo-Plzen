@@ -1,101 +1,93 @@
+"use client";
+
 import Image from "next/image";
 import ExperienceBar from "@/components/ui/ExperienceBar";
 import StatCard from "@/components/ui/StatCard";
+import { useProfile } from "@/hooks/useProfile";
 
-// Typ dat profilu — přesuň do types/index.ts pokud ho používáš na více místech
-interface UserProfile {
-  firstName: string;
-  lastName: string;
-  avatarUrl: string;
-  level: number;
-  currentXp: number;
-  nextLevelXp: number;
-  achievementsCount: number;
-  totalAchievements: number;
-  medalsCount: number;
-  totalMedals: number;
-  wallpapersCount: number;
-  totalWallpapers: number;
-  photosCount: number;
-  totalPhotos: number;
+// XP potřebné pro další level — jednoduchá formule, uprav dle svého systému
+function xpForNextLevel(level: number): number {
+  return level * 100 + 100;
 }
 
-// Simulace dat — nahraď API voláním (např. přes fetch nebo React Query)
-const userData: UserProfile = {
-  firstName: "Eliška",
-  lastName: "Šťastná",
-  avatarUrl: "/img/startpage-1.png",
-  level: 12,
-  currentXp: 31,
-  nextLevelXp: 256,
-  achievementsCount: 13,
-  totalAchievements: 42,
-  medalsCount: 5,
-  totalMedals: 13,
-  wallpapersCount: 49,
-  totalWallpapers: 50,
-  photosCount: 131,
-  totalPhotos: 150,
-};
-
 export default function ProfileTab() {
+  const { profile, isLoading, error } = useProfile();
+
+    if (isLoading) return <ProfileSkeleton />;
+    if (!profile) return <p className="text-center py-20 text-red-500">Profil nenalezen.</p>;
+    if (error) return <p className="text-center py-20 text-red-500">{error}</p>;
+
+  const xpMax = xpForNextLevel(profile.level);
+
   return (
     <>
       {/* Avatar + jméno */}
       <div className="flex md:flex-row flex-col justify-center items-center gap-10">
         <div className="relative">
           <Image
-            src={userData.avatarUrl}
-            alt={`Profilová fotka ${userData.firstName}`}
+            src={profile.avatar_url ?? "/img/startpage-1.png"}
+            alt={`Profilová fotka ${profile.first_name}`}
             width={200}
             height={200}
             className="rounded-full object-cover"
           />
-
           {/* Level badge */}
           <div className="absolute bottom-0 right-0 flex items-center justify-center bg-yellow-400 rounded-full w-16 h-16 shadow-lg">
-            <span className="font-bold text-2xl text-gray-800">
-              {userData.level}
-            </span>
+            <span className="font-bold text-2xl text-gray-800">{profile.level}</span>
           </div>
-
-          {/* Doplněk (klobouk) */}
+          {/* Doplněk */}
           <div className="absolute top-0 right-0 w-16 h-16 rotate-30">
             <Image
-              src={"/img/accessories/accessory-1.png"}
-              alt="Hat"
-              width={64}
-              height={64}
-              className="rounded-full"
+                src={profile.accessory_url ?? "/img/accessories/accessory-1.png"}
+                alt="Hat"
+                width={64}
+                height={64}
+                className="rounded-full"
             />
-          </div>
+            </div>
         </div>
 
         <div>
           <h1 className="text-8xl cus-font-impacted-2 uppercase leading-none text-sky-600">
-            {userData.firstName}
+            {profile.first_name}
             <br />
-            {userData.lastName}
+            {profile.last_name}
           </h1>
+          {profile.nickname && (
+            <p className="text-center text-gray-500 text-xl mt-2">@{profile.nickname}</p>
+          )}
         </div>
       </div>
 
       {/* XP bar */}
       <div className="flex justify-center my-10 px-4">
         <ExperienceBar
-          level={userData.level}
-          currentXp={userData.currentXp}
-          nextLevelXp={userData.nextLevelXp}
+          level={profile.level}
+          currentXp={profile.xp}
+          nextLevelXp={xpMax}
         />
       </div>
 
-      {/* Statistiky */}
+      {/* Statistiky — zatím placeholdery, až budeš mít endpointy rozšíř */}
       <div className="grid md:grid-cols-2 gap-x-15 gap-y-10 justify-self-center">
-        <StatCard label="Úspěchy"  current={userData.achievementsCount} total={userData.totalAchievements} bgColor="bg-red-500"    />
-        <StatCard label="Medaile"  current={userData.medalsCount}       total={userData.totalMedals}       bgColor="bg-sky-600"    />
-        <StatCard label="Tapety"   current={userData.wallpapersCount}   total={userData.totalWallpapers}   bgColor="cus-bg-beige"  />
-        <StatCard label="Fotky"    current={userData.photosCount}       total={userData.totalPhotos}       bgColor="bg-green-700"  />
+        <StatCard label="Úspěchy"  current={0}  total={42}  bgColor="bg-red-500"   />
+        <StatCard label="Medaile"  current={0}  total={13}  bgColor="bg-sky-600"   />
+        <StatCard label="Tapety"   current={0}  total={50}  bgColor="cus-bg-beige" />
+        <StatCard label="Fotky"    current={0}  total={150} bgColor="bg-green-700" />
       </div>
     </>
+  );
+}
+
+function ProfileSkeleton() {
+  return (
+    <div className="flex flex-col items-center gap-10 py-20 animate-pulse">
+      <div className="w-48 h-48 rounded-full bg-gray-200" />
+      <div className="h-16 w-64 bg-gray-200 rounded" />
+      <div className="h-6 w-80 bg-gray-200 rounded" />
+      <div className="grid md:grid-cols-2 gap-10 mt-10">
+        {[...Array(4)].map((_, i) => <div key={i} className="h-20 w-52 bg-gray-200 rounded-2xl" />)}
+      </div>
+    </div>
   );
 }
