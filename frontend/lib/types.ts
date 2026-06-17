@@ -70,6 +70,7 @@ export type Profile = {
   avatar_url: string | null;
   accessory_url: string | null;
   wallpaper_url: string | null;
+  displayed_medals: number[] | null;
   level: number;
   xp: number;
 }

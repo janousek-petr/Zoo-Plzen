@@ -4,18 +4,19 @@ import { useState } from "react";
 import Image from "next/image";
 import ExpandableGallery, { GalleryItem } from "@/components/ui/ExpandableGallery";
 import SpeechBalloon from "@/components/ui/SpeechBalloon";
+import { useProfile } from "@/hooks/useProfile";
 
-// ── Simulace dat ─────────────────────────────────────────────────────────────
+// Katalog medailí — id odpovídá medal_id v DB (displayed_medals: number[])
 const allMedals: GalleryItem[] = [
-  { id: 1, src: "/img/medals/medal-america.png", alt: "Amerika I" },
-  { id: 2, src: "/img/medals/medal-asia.png", alt: "Asie I" },
-  { id: 3, src: "/img/medals/medal-africa.png", alt: "Afrika I" },
-  { id: 4, src: "/img/medals/medal-europe.png", alt: "Evropa I" },
-  { id: 5, src: "/img/medals/medal-australia.png", alt: "Austrálie I" },
-  { id: 6, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
-  { id: 7, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
-  { id: 8, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
-  { id: 9, src: "/img/icons/lock-icon.png", alt: "Zamčeno" },
+  { id: 1, src: "/img/medals/medal-america.png",  alt: "Amerika I"  },
+  { id: 2, src: "/img/medals/medal-asia.png",     alt: "Asie I"     },
+  { id: 3, src: "/img/medals/medal-africa.png",   alt: "Afrika I"   },
+  { id: 4, src: "/img/medals/medal-europe.png",   alt: "Evropa I"   },
+  { id: 5, src: "/img/medals/medal-australia.png",alt: "Austrálie I"},
+  { id: 6, src: "/img/icons/lock-icon.png",       alt: "Zamčeno"    },
+  { id: 7, src: "/img/icons/lock-icon.png",       alt: "Zamčeno"    },
+  { id: 8, src: "/img/icons/lock-icon.png",       alt: "Zamčeno"    },
+  { id: 9, src: "/img/icons/lock-icon.png",       alt: "Zamčeno"    },
 ];
 
 const UNLOCKED_COUNT = 5;
@@ -23,31 +24,41 @@ const TOTAL_COUNT    = 9;
 const MAX_DISPLAYED  = 3;
 const PREVIEW_COUNT  = 6;
 
-// ─────────────────────────────────────────────────────────────────────────────
 export default function MedalTab() {
-  // `displayed` je jediný zdroj pravdy pro zvýraznění.
-  // selectedGalleryId se vůbec nepoužívá pro highlight — jen pro případné
-  // budoucí detailní zobrazení. Zde ho odstraňujeme úplně.
-  const [displayed, setDisplayed] = useState<number[]>([1, 2]);
+  const { profile, isSaving, update } = useProfile();
+
+  // Inicializuj z profilu — fallback na první dvě odemčené
+  const [displayed, setDisplayed] = useState<number[]>(
+    profile?.displayed_medals ?? [1, 2]
+  );
 
   const toggleDisplay = (id: number) => {
-    // Zamčené medaile (id > UNLOCKED_COUNT) nelze vybrat
-    if (id > UNLOCKED_COUNT) return;
-    setDisplayed((prev) =>
-      prev.includes(id)
-        ? prev.filter((x) => x !== id)          // odznačit
-        : prev.length < MAX_DISPLAYED
-        ? [...prev, id]                          // přidat
-        : prev                                   // plno — nic nedělat
-    );
+    if (id > UNLOCKED_COUNT) return; // zamčená medaile
+
+    let next: number[];
+    if (displayed.includes(id)) {
+      next = displayed.filter((x) => x !== id);
+    } else if (displayed.length < MAX_DISPLAYED) {
+      next = [...displayed, id];
+    } else {
+      return; // plno slotů
+    }
+
+    setDisplayed(next);
+    update({ displayed_medals: next });
   };
+
+  if (!profile) return null;
 
   return (
     <div className="w-full">
+      {isSaving && (
+        <div className="fixed top-4 right-4 z-50 bg-amber-400 text-white px-4 py-2 rounded-xl font-bold shadow-lg animate-pulse">
+          Ukládám...
+        </div>
+      )}
 
-      {/* ── NADPIS + PROGRESS BAR ───────────────────────────────────── */}
-
-      {/* ── VYSTAVENÉ MEDAILE NA PROFILU ────────────────────────────── */}
+      {/* VYSTAVENÉ MEDAILE */}
       <SectionBlock title="Vystavené medaile na profilu">
         <div className="flex justify-center items-center gap-6 flex-wrap py-2">
           {Array.from({ length: MAX_DISPLAYED }).map((_, i) => {
@@ -74,8 +85,7 @@ export default function MedalTab() {
         </div>
       </SectionBlock>
 
-      {/* ── VLASTNĚNÉ MEDAILE ───────────────────────────────────────── */}
-      <>
+      {/* VLASTNĚNÉ MEDAILE */}
       <SectionBlock title="Vlastněné medaile">
         <ExpandableGallery
           title="Medaile"
@@ -88,35 +98,27 @@ export default function MedalTab() {
           previewCount={PREVIEW_COUNT}
         />
       </SectionBlock>
-    </>
-      {/* ── CTA ─────────────────────────────────────────────────────── */}
-      <div className="relative flex flex-col lg:flex-row items-center md:items-end justify-center h-auto md:h-150 md:p-20">
-                <SpeechBalloon
-                    title="Věděl jsi, že..."
-                    text="Martin Brejcha, známý jako Martas Shots, je český fotograf zaměřený na automotive scénu..."
-                    bgColorClass="cus-bg-beige"
-                />
-                <Image
-                    src="/img/photo-no-bg/giraffe-2.png"
-                    alt="Žirafa"
-                    width={600}
-                    height={600}
-                    className="md:absolute left-0 xl:left-35 bottom-0 object-contain self-start"
-                />
-            </div>
 
+      {/* CTA */}
+      <div className="relative flex flex-col lg:flex-row items-center md:items-end justify-center h-auto md:h-150 md:p-20">
+        <SpeechBalloon
+          title="Věděl jsi, že..."
+          text="Martin Brejcha, známý jako Martas Shots, je český fotograf zaměřený na automotive scénu..."
+          bgColorClass="cus-bg-beige"
+        />
+        <Image
+          src="/img/photo-no-bg/giraffe-2.png"
+          alt="Žirafa"
+          width={600}
+          height={600}
+          className="md:absolute left-0 xl:left-35 bottom-0 object-contain self-start"
+        />
+      </div>
     </div>
   );
 }
 
-// ── Sekce s nadpisem a béžovým blokem ────────────────────────────────────────
-function SectionBlock({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function SectionBlock({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
       <div className="bg-white py-8 px-6">
@@ -124,9 +126,7 @@ function SectionBlock({
           {title}
         </h2>
       </div>
-      <div className="bg-[#c8bfb0] px-6 py-6">
-        {children}
-      </div>
+      <div className="bg-[#c8bfb0] px-6 py-6">{children}</div>
     </div>
   );
 }

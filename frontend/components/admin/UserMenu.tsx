@@ -7,7 +7,7 @@ import UserList from "./UserList";
 export default function UserMenu(){
 
     const menuItems: MenuCardProps[] = [
-      { label: "Vytvořit uživatele", icon: RiAddFill, href: "/admin/quizzes/create"},
+      { label: "Vytvořit uživatele", icon: RiAddFill, href: "/admin/users/create"},
     ];
 
     return(

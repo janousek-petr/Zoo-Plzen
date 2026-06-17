@@ -7,6 +7,32 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    /**
+     * Vygeneruje heslo: pouze A-Z, a-z, 0-9, min. 10 znaků,
+     * obsahuje aspoň jedno velké písmeno a jednu číslici.
+     */
+    private function generatePassword(int $length = 10): string
+    {
+        $lower  = 'abcdefghijklmnopqrstuvwxyz';
+        $upper  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $digits = '0123456789';
+        $all    = $lower . $upper . $digits;
+
+        // zaručíme aspoň 1 velké písmeno a 1 číslici
+        $password = [
+            $upper[random_int(0, strlen($upper) - 1)],
+            $digits[random_int(0, strlen($digits) - 1)],
+        ];
+
+        for ($i = count($password); $i < $length; $i++) {
+            $password[] = $all[random_int(0, strlen($all) - 1)];
+        }
+
+        shuffle($password);
+
+        return implode('', $password);
+    }
+
     public function index()
     {
         $users = User::withCount('profiles')
@@ -31,17 +57,20 @@ class UserController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name'  => 'required|string|max:255',
             'email'      => 'required|email|unique:users,email',
-            'password'   => 'required|string|min:8',
-            'role'       => 'sometimes|string|in:admin,user',
         ]);
+
+        $plainPassword = $this->generatePassword(10); // A-Z, a-z, 0-9, min. velké písmeno + číslice
 
         $user = User::create([
             ...$validated,
-            'password' => bcrypt($validated['password']),
-            'role'     => $validated['role'] ?? 'user',
+            'password' => bcrypt($plainPassword),
+            'role'     => 'user',
         ]);
 
-        return response()->json($user, 201);
+        return response()->json([
+            'user' => $user,
+            'generated_password' => $plainPassword, // vrátí se JEN při vytvoření
+        ], 201);
     }
 
     public function update(Request $request, $id)
@@ -52,7 +81,6 @@ class UserController extends Controller
             'first_name' => 'sometimes|string|max:255',
             'last_name'  => 'sometimes|string|max:255',
             'email'      => 'sometimes|email|unique:users,email,' . $id,
-            'role'       => 'sometimes|string|in:admin,user',
         ]);
 
         $user->update($validated);
