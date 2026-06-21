@@ -74,3 +74,20 @@ export type Profile = {
   level: number;
   xp: number;
 }
+
+export type ItemCategory = {
+    id: number;
+    parent_id: number | null;
+    name: string;
+};
+ 
+export type Item = {
+    id: number;
+    name: string;
+    price: number;
+    description: string | null;
+    image: string | null;
+    item_unlock_level: number | null;
+    category_id?: number;
+    category?: ItemCategory;
+};

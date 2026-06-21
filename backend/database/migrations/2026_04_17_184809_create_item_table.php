@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->integer('price')->default(0);
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->integer('item_unlock_level')->nullable();
             $table->foreignId('category_id')->constrained('item_category');
         });

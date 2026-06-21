@@ -11,6 +11,8 @@ use App\Http\Controllers\StoreController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\ItemCategoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -34,6 +36,10 @@ Route::apiResource('quizzes', QuizController::class);
 // Vyřešené kvízy
 Route::get('/answeredQuizzes/', [AnsweredQuizzesController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/answeredQuizzes/{id}', [AnsweredQuizzesController::class, 'show'])->middleware('auth:sanctum');
+
+//Předměty
+Route::apiResource('items', ItemController::class);
+Route::get('/item-categories', [ItemCategoryController::class, 'index']);
 
 // Obchod
 Route::get('/itemsInStore', [StoreController::class, 'index'])->middleware('auth:sanctum');
