@@ -5,7 +5,7 @@ export default async function EditItemPage({ params }: { params: Promise<{ categ
     const { categoryId, itemId } = await params
     return (
         <>
-            <Header title="Upravit předmět" href={`/admin/items/${categoryId}`} />
+            <Header title="Upravit předmět" href={`/admin/items`} />
             <div className="p-6">
                 <EditItem categoryId={Number(categoryId)} itemId={Number(itemId)} />
             </div>

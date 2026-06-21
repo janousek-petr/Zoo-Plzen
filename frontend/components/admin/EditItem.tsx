@@ -53,7 +53,7 @@ export default function EditItem({ categoryId, itemId }: { categoryId: number; i
                 image: image?.path ?? null,
                 item_unlock_level: form.item_unlock_level ? Number(form.item_unlock_level) : null,
             })
-            router.back()
+            router.back();
         } catch {
             setError('Nepodařilo se uložit předmět.')
         } finally {

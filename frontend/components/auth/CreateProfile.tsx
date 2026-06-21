@@ -1,25 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import profileService from "@/lib/api/profiles";
+import { getItems } from "@/lib/api/items";
+import type { Item } from "@/lib/types";
 
-const AVATARS = [
-    { id: 1, src: "/img/startpage-1.png", alt: "Profilovka 1" },
-    { id: 2, src: "/img/startpage-2.png", alt: "Profilovka 2" },
-    { id: 3, src: "/img/startpage-3.png", alt: "Profilovka 3" },
-];
+// ID kategorií podle tabulky item_category (zkontrolováno v DB)
+const CATEGORY_AVATAR = 1;     // Profilovky
+const CATEGORY_ACCESSORY = 2;  // Čepice
+const CATEGORY_WALLPAPER = 3;  // Tapety
 
-const ACCESSORIES = [
-    { id: 1, src: "/img/accessories/accessory-1.png", alt: "Čepička 1" },
-];
+const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const WALLPAPERS = [
-    { id: 1, src: "/img/photo/image-1.jpg", alt: "Tapeta 1" },
-    { id: 2, src: "/img/photo/image-2.jpg", alt: "Tapeta 2" },
-    { id: 3, src: "/img/photo/image-3.png", alt: "Tapeta 3" },
-];
+// image z backendu chodí jako relativní cesta (/storage/media/xyz.png) -> potřebuje prefix
+const resolveUrl = (path: string | null | undefined) =>
+    path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : null;
 
 const ADJECTIVES = ["Rychlý", "Chytrý", "Veselý", "Modrý", "Silný", "Tichý", "Barevný"];
 const ANIMALS    = ["Papoušek", "Lev", "Vlk", "Tygr", "Medvěd", "Sokol", "Delfín"];
@@ -34,15 +31,49 @@ function generateNickname() {
 export default function CreateProfile() {
     const router = useRouter();
 
-    const [step, setStep]           = useState(1);
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName]   = useState('');
-    const [avatar, setAvatar]       = useState(AVATARS[0].src);
-    const [accessory, setAccessory] = useState(ACCESSORIES[0].src);
-    const [wallpaper, setWallpaper] = useState(WALLPAPERS[0].src);
-    const [nickname, setNickname]   = useState(generateNickname);
-    const [saving, setSaving]       = useState(false);
-    const [error, setError]         = useState<string | null>(null);
+    const [step, setStep]               = useState(1);
+    const [firstName, setFirstName]     = useState('');
+    const [lastName, setLastName]       = useState('');
+    const [nickname, setNickname]       = useState(generateNickname);
+    const [saving, setSaving]           = useState(false);
+    const [error, setError]             = useState<string | null>(null);
+
+    // Items stažené z backendu, rozdělené podle kategorie
+    const [itemsLoading, setItemsLoading] = useState(true);
+    const [itemsError, setItemsError]     = useState<string | null>(null);
+    const [avatars, setAvatars]       = useState<Item[]>([]);
+    const [accessories, setAccessories] = useState<Item[]>([]);
+    const [wallpapers, setWallpapers] = useState<Item[]>([]);
+
+    // Vybrané hodnoty držíme jako celou položku (ne jen URL), ať máme i id/name k dispozici
+    const [avatar, setAvatar]       = useState<Item | null>(null);
+    const [accessory, setAccessory] = useState<Item | null>(null);
+    const [wallpaper, setWallpaper] = useState<Item | null>(null);
+
+    useEffect(() => {
+        getItems()
+            .then((data: Item[]) => {
+                // Vždy jen první 3 položky (podle nejnižšího id) z každé kategorie
+                const byIdAsc = (a: Item, b: Item) => a.id - b.id;
+                const firstThree = (cat: number) =>
+                    data.filter(i => i.category?.id === cat).sort(byIdAsc).slice(0, 3);
+
+                const av = firstThree(CATEGORY_AVATAR);
+                const ac = firstThree(CATEGORY_ACCESSORY);
+                const wp = firstThree(CATEGORY_WALLPAPER);
+
+                setAvatars(av);
+                setAccessories(ac);
+                setWallpapers(wp);
+
+                // Předvyplň první dostupnou položku v každé kategorii (pokud existuje)
+                setAvatar(av[0] ?? null);
+                setAccessory(ac[0] ?? null);
+                setWallpaper(wp[0] ?? null);
+            })
+            .catch(() => setItemsError('Nepodařilo se načíst předměty.'))
+            .finally(() => setItemsLoading(false));
+    }, []);
 
     const handleFinish = async () => {
         setSaving(true);
@@ -51,9 +82,9 @@ export default function CreateProfile() {
             await profileService.create({
                 first_name:    firstName,
                 last_name:     lastName,
-                avatar_url:    avatar,
-                accessory_url: accessory,
-                wallpaper_url: wallpaper,
+                avatar_url:    resolveUrl(avatar?.image) ?? '',
+                accessory_url: resolveUrl(accessory?.image) ?? '',
+                wallpaper_url: resolveUrl(wallpaper?.image) ?? '',
                 nickname:      nickname,
             });
             router.push('/domov');
@@ -152,21 +183,14 @@ export default function CreateProfile() {
                     onBack={() => setStep(2)}
                     onNext={() => setStep(4)}
                 >
-                    <div className="flex gap-6 flex-wrap justify-center">
-                        {AVATARS.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => setAvatar(item.src)}
-                                className={`relative w-36 h-36 rounded-full overflow-hidden border-8 transition-all duration-200 ${
-                                    avatar === item.src
-                                        ? 'border-yellow-400 scale-110 shadow-2xl'
-                                        : 'border-transparent hover:border-sky-300 hover:scale-105'
-                                }`}
-                            >
-                                <Image src={item.src} alt={item.alt} fill className="object-cover" />
-                            </button>
-                        ))}
-                    </div>
+                    <ItemGrid
+                        items={avatars}
+                        selected={avatar}
+                        onSelect={setAvatar}
+                        loading={itemsLoading}
+                        error={itemsError}
+                        shape="circle"
+                    />
                 </ChildStep>
             )}
 
@@ -177,21 +201,14 @@ export default function CreateProfile() {
                     onBack={() => setStep(3)}
                     onNext={() => setStep(5)}
                 >
-                    <div className="flex gap-6 flex-wrap justify-center">
-                        {ACCESSORIES.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => setAccessory(item.src)}
-                                className={`relative w-36 h-36 transition-all duration-200 ${
-                                    accessory === item.src
-                                        ? 'scale-110 drop-shadow-2xl'
-                                        : 'opacity-60 hover:opacity-100 hover:scale-105'
-                                }`}
-                            >
-                                <Image src={item.src} alt={item.alt} fill className="object-contain" />
-                            </button>
-                        ))}
-                    </div>
+                    <ItemGrid
+                        items={accessories}
+                        selected={accessory}
+                        onSelect={setAccessory}
+                        loading={itemsLoading}
+                        error={itemsError}
+                        shape="contain"
+                    />
                 </ChildStep>
             )}
 
@@ -202,22 +219,14 @@ export default function CreateProfile() {
                     onBack={() => setStep(4)}
                     onNext={() => setStep(6)}
                 >
-                    <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-lg">
-                        {WALLPAPERS.map((item) => (
-                            <button
-                                key={item.id}
-                                onClick={() => setWallpaper(item.src)}
-                                className={`relative rounded-2xl overflow-hidden transition-all duration-200 ${
-                                    wallpaper === item.src
-                                        ? 'ring-4 ring-yellow-400 ring-offset-2 scale-[1.05] shadow-xl'
-                                        : 'hover:scale-[1.03] hover:shadow-md'
-                                }`}
-                                style={{ aspectRatio: '16/9' }}
-                            >
-                                <Image src={item.src} alt={item.alt} fill className="object-cover" />
-                            </button>
-                        ))}
-                    </div>
+                    <ItemGrid
+                        items={wallpapers}
+                        selected={wallpaper}
+                        onSelect={setWallpaper}
+                        loading={itemsLoading}
+                        error={itemsError}
+                        shape="wide"
+                    />
                 </ChildStep>
             )}
 
@@ -245,6 +254,85 @@ export default function CreateProfile() {
                 </ChildStep>
             )}
         </main>
+    );
+}
+
+// Společná mřížka pro výběr předmětu (avatar / accessory / wallpaper)
+function ItemGrid({
+    items,
+    selected,
+    onSelect,
+    loading,
+    error,
+    shape,
+}: {
+    items: Item[];
+    selected: Item | null;
+    onSelect: (item: Item) => void;
+    loading: boolean;
+    error: string | null;
+    shape: "circle" | "contain" | "wide";
+}) {
+    if (loading) {
+        return <p className="text-gray-400 text-lg">Načítám nabídku...</p>;
+    }
+    if (error) {
+        return <p className="text-red-500 text-lg">{error}</p>;
+    }
+    if (items.length === 0) {
+        return <p className="text-gray-400 text-lg">Zatím nic k výběru. Doplň předměty v adminu.</p>;
+    }
+
+    if (shape === "wide") {
+        return (
+            <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-lg">
+                {items.map((item) => (
+                    <button
+                        key={item.id}
+                        onClick={() => onSelect(item)}
+                        className={`relative rounded-2xl overflow-hidden transition-all duration-200 ${
+                            selected?.id === item.id
+                                ? 'ring-4 ring-yellow-400 ring-offset-2 scale-[1.05] shadow-xl'
+                                : 'hover:scale-[1.03] hover:shadow-md'
+                        }`}
+                        style={{ aspectRatio: '16/9' }}
+                    >
+                        <Image src={resolveUrl(item.image) ?? ''} alt={item.name} fill className="object-cover" />
+                    </button>
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex gap-6 flex-wrap justify-center">
+            {items.map((item) => (
+                <button
+                    key={item.id}
+                    onClick={() => onSelect(item)}
+                    className={
+                        shape === "circle"
+                            ? `relative w-36 h-36 rounded-full overflow-hidden border-8 transition-all duration-200 ${
+                                  selected?.id === item.id
+                                      ? 'border-yellow-400 scale-110 shadow-2xl'
+                                      : 'border-transparent hover:border-sky-300 hover:scale-105'
+                              }`
+                            : `relative w-36 h-36 rounded-2xl border-8 transition-all duration-200 ${
+                                  selected?.id === item.id
+                                      ? 'border-yellow-400 scale-110 shadow-2xl'
+                                      : 'border-transparent opacity-60 hover:opacity-100 hover:border-sky-300 hover:scale-105'
+                              }`
+                    }
+                >
+                    <Image
+                        src={resolveUrl(item.image) ?? ''}
+                        alt={item.name}
+                        fill
+                        className={shape === "circle" ? "object-cover" : "object-contain"}
+                    />
+                </button>
+            ))}
+        </div>
     );
 }
 
