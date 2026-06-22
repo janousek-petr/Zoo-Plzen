@@ -17,6 +17,9 @@ class Profile extends Model
         'avatar_url',
         'accessory_url',
         'wallpaper_url',
+        'avatar_item_id',
+        'accessory_item_id',
+        'wallpaper_item_id',
         'displayed_medals',
         'level',
         'xp',
@@ -56,5 +59,20 @@ class Profile extends Model
     public function preferences()
     {
         return $this->hasMany(Preference::class);
+    }
+
+    public function avatarItem()
+    {
+        return $this->belongsTo(Item::class, 'avatar_item_id');
+    }
+
+    public function accessoryItem()
+    {
+        return $this->belongsTo(Item::class, 'accessory_item_id');
+    }
+
+    public function wallpaperItem()
+    {
+        return $this->belongsTo(Item::class, 'wallpaper_item_id');
     }
 }

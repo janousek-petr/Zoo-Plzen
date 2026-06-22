@@ -4,9 +4,9 @@ import Image from "next/image";
 import ExperienceBar from "@/components/ui/ExperienceBar";
 
 interface BackpackHeroProps {
-  wallpaper: string;
-  avatar: string;
-  accessory?: string;
+  wallpaper: string | null;
+  avatar: string | null;
+  accessory?: string | null;
   level: number;
   xp: number;
   xpMax: number;
@@ -24,13 +24,17 @@ export default function BackpackHero({
     <div className="relative w-full overflow-hidden" style={{ height: "320px" }}>
 
       {/* TAPETA */}
-      <Image
-        src={wallpaper}
-        alt="Tapeta pozadí"
-        fill
-        className="object-cover"
-        priority
-      />
+      {wallpaper ? (
+        <Image
+          src={wallpaper}
+          alt="Tapeta pozadí"
+          fill
+          className="object-cover"
+          priority
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gray-200" />
+      )}
 
       {/* Přechod dole */}
       <div
@@ -46,20 +50,24 @@ export default function BackpackHero({
         style={{ top: "45%" }}
       >
         <div className="relative py-5 pb-10">
-          <Image
-            src={avatar}
-            alt="Profilový obrázek"
-            width={120}
-            height={120}
-            className="rounded-full object-cover border-4 border-white shadow-xl"
-          />
+          {avatar ? (
+            <div className="relative w-30 h-30 rounded-full overflow-hidden border-4 border-white shadow-xl">
+              <Image
+                src={avatar}
+                alt="Profilový obrázek"
+                fill
+                className="object-cover"
+              />
+            </div>
+          ) : (
+            <div className="w-30 h-30 rounded-full bg-gray-300 border-4 border-white shadow-xl" />
+          )}
           {accessory && (
             <div className="absolute top-0 right-0 w-12 h-12 rotate-12">
               <Image
                 src={accessory}
                 alt="Doplněk"
-                width={48}
-                height={48}
+                fill
                 className="object-contain"
               />
             </div>

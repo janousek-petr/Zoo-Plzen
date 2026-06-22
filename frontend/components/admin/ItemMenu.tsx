@@ -1,6 +1,6 @@
 "use client"
 
-import { RiUserLine, RiMagicLine, RiImageLine, RiMedalLine } from "react-icons/ri";
+import { RiUserLine, RiMagicLine, RiImageLine, RiCamera2Line } from "react-icons/ri";
 import { MenuCard, MenuCardProps } from "./MenuCard";
 
 
@@ -8,7 +8,7 @@ const menuItems: MenuCardProps[] = [
   { label: "Profilovky", icon: RiUserLine, href: "/admin/items/profile-images" },
   { label: "Doplňky",    icon: RiMagicLine, href: "/admin/items/hats" },
   { label: "Tapety",     icon: RiImageLine, href: "/admin/items/wallpapers" },
-  { label: "Medaile",    icon: RiMedalLine, href: "/admin/items/medals" },
+  { label: "Fotky",    icon: RiCamera2Line, href: "/admin/items/photos" },
 ];
 
 export default function ItemMenu() {
