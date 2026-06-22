@@ -63,13 +63,16 @@ export interface User {
 
 export type Profile = {
   id: number;
-  user_id: number;            // vazba na účet
+  user_id: number;
   first_name: string;
   last_name: string | null;
   nickname: string | null;
   avatar_url: string | null;
   accessory_url: string | null;
   wallpaper_url: string | null;
+  avatar_item_id: number | null;
+  accessory_item_id: number | null;
+  wallpaper_item_id: number | null;
   displayed_medals: number[] | null;
   level: number;
   xp: number;
@@ -90,4 +93,5 @@ export type Item = {
     item_unlock_level: number | null;
     category_id?: number;
     category?: ItemCategory;
+    equipped?: boolean;
 };

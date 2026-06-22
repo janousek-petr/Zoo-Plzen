@@ -13,6 +13,7 @@ use App\Http\Controllers\MediaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\InventoryController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -63,3 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('users', UserController::class);
     Route::get('/users/{id}/profiles', [UserController::class, 'profiles']);
 });
+
+Route::get('/profiles/{profile}/inventory', [InventoryController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/profiles/{profile}/equip', [InventoryController::class, 'equip'])->middleware('auth:sanctum');

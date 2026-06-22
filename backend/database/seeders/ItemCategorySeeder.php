@@ -26,7 +26,7 @@ class ItemCategorySeeder extends Seeder
 
         DB::table('item_category')->updateOrInsert(
             ['id' => 4],
-            ['name' => 'Medaile', 'parent_id' => null]
+            ['name' => 'Fotografie', 'parent_id' => null]
         );
     }
 }

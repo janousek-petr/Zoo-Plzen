@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('accessory_url')->nullable();
             $table->string('wallpaper_url')->nullable();
             $table->json('displayed_medals')->nullable();
+            $table->unsignedBigInteger('avatar_item_id')->nullable();
+            $table->unsignedBigInteger('accessory_item_id')->nullable();
+            $table->unsignedBigInteger('wallpaper_item_id')->nullable();
             $table->integer('level')->default(1);
             $table->integer('xp')->default(0);
             $table->timestamps();
