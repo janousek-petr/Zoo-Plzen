@@ -23,6 +23,7 @@ class Profile extends Model
         'displayed_medals',
         'level',
         'xp',
+        'points'
     ];
 
     protected $casts = [

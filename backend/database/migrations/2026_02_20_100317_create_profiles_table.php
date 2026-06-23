@@ -26,6 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('wallpaper_item_id')->nullable();
             $table->integer('level')->default(1);
             $table->integer('xp')->default(0);
+            $table->integer('points')->default(0);
             $table->timestamps();
         });
     }

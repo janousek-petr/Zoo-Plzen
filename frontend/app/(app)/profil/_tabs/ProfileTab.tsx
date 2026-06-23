@@ -16,8 +16,8 @@ const CATEGORY_PHOTO = 4;      // Fotky
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 
-const resolveUrl = (path: string | null | undefined): string | null =>
-    path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : null;
+const resolveUrl = (path: string | null | undefined): string =>
+    path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : "";
 
 // XP potřebné pro další level — jednoduchá formule, uprav dle svého systému
 function xpForNextLevel(level: number): number {
@@ -41,11 +41,14 @@ export default function ProfileTab() {
 
   const xpMax = xpForNextLevel(profile.level);
 
-  const avatarItem = owned.find(i => i.category?.id === CATEGORY_AVATAR && i.id === profile.avatar_item_id);
-  const accessoryItem = owned.find(i => i.category?.id === CATEGORY_ACCESSORY && i.id === profile.accessory_item_id);
+  const avatarItems = owned.filter(i => i.category?.id === CATEGORY_AVATAR);
+  const accessoryItems = owned.filter(i => i.category?.id === CATEGORY_ACCESSORY);
 
-  const avatarSrc = resolveUrl(avatarItem?.image);
-  const accessorySrc = resolveUrl(accessoryItem?.image);
+  const selectedAvatar = avatarItems.find(i => i.id === profile?.avatar_item_id);
+  const selectedAccessory = accessoryItems.find(i => i.id === profile?.accessory_item_id);
+
+  const selectedAvatarSrc = resolveUrl(selectedAvatar?.image) ?? resolveUrl(avatarItems[0]?.image) ?? "";
+  const selectedAccessorySrc = resolveUrl(selectedAccessory?.image) ?? resolveUrl(accessoryItems[0]?.image) ?? "";
 
   // current = kolik z kategorie profil vlastní, total = kolik jich v appce celkem existuje
   const countFor = (categoryId: number) => ({
@@ -64,9 +67,9 @@ export default function ProfileTab() {
       <div className="flex md:flex-row flex-col justify-center items-center gap-10">
         <div className="relative">
           <div className="relative w-50 h-50 rounded-full overflow-hidden bg-gray-200">
-            {avatarSrc && (
+            {selectedAvatar && (
               <Image
-                src={avatarSrc}
+                src={selectedAvatarSrc}
                 alt={`Profilová fotka ${profile.first_name}`}
                 fill
                 className="object-cover"
@@ -78,14 +81,14 @@ export default function ProfileTab() {
             <span className="font-bold text-2xl text-gray-800">{profile.level}</span>
           </div>
           {/* Doplněk */}
-          {accessorySrc && (
+          {selectedAccessory && (
             <div className="absolute top-0 right-0 w-16 h-16 rotate-30">
               <div className="relative w-full h-full">
                 <Image
-                    src={accessorySrc}
+                    src={selectedAccessorySrc}
                     alt="Hat"
                     fill
-                    className="object-contain rounded-full"
+                    className="object-contain"
                 />
               </div>
             </div>

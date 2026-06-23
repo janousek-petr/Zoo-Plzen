@@ -22,3 +22,15 @@ export async function equipItem(profileId: number, itemId: number) {
         throw err;
     }
 }
+
+export async function giveItem(profileId: number, itemId: number) {
+    try {
+        const res = await axiosClient.post(`/api/profiles/${profileId}/inventory/giveItem`, {
+            item_id: itemId,
+        });
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
