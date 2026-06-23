@@ -150,7 +150,7 @@ export default function BackpackTab() {
                 className={[
                   "relative transition-all duration-200 aspect-square w-full disabled:opacity-50",
                   item.id === profile.accessory_item_id
-                    ? "scale-110 drop-shadow-xl"
+                    ? "ring-4 ring-amber-400 ring-offset-1 scale-[1.04] shadow-md"
                     : "opacity-75 hover:opacity-100 hover:scale-105",
                 ].join(" ")}
               >

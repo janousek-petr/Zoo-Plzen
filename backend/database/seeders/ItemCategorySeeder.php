@@ -11,22 +11,22 @@ class ItemCategorySeeder extends Seeder
     {
         DB::table('item_category')->updateOrInsert(
             ['id' => 1],
-            ['name' => 'Profilovky', 'parent_id' => null]
+            ['name' => 'Profilovka', 'parent_id' => null]
         );
 
         DB::table('item_category')->updateOrInsert(
             ['id' => 2],
-            ['name' => 'Doplňky', 'parent_id' => null]
+            ['name' => 'Doplňek', 'parent_id' => null]
         );
 
         DB::table('item_category')->updateOrInsert(
             ['id' => 3],
-            ['name' => 'Tapety', 'parent_id' => null]
+            ['name' => 'Tapeta', 'parent_id' => null]
         );
 
         DB::table('item_category')->updateOrInsert(
             ['id' => 4],
-            ['name' => 'Fotografie', 'parent_id' => null]
+            ['name' => 'Fotka', 'parent_id' => null]
         );
     }
 }

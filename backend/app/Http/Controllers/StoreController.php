@@ -4,37 +4,94 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Profile;
+use App\Models\Store;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class StoreController extends Controller
 {
+    private const DEFAULT_MAX_ITEMS = 5;
+
     /**
      * Display a listing of the resource.
      */
     public function index(int $profileId)
     {
-        $user = Profile::find($profileId);
+        $profile = Profile::findOrFail($profileId);
 
-        // Zkontroluj, zda má uživatel obchod
-        $store = $user->shop;
-
-        if (! $store) {
-            return response()->json(['message' => 'Store not found'], 404);
-        }
+        // Zkontroluj, zda má profil obchod - pokud ne, vytvoř ho
+        $store = $profile->shop ?? Store::create([
+            'profile_id' => $profile->id,
+            'max_items' => self::DEFAULT_MAX_ITEMS,
+            'is_available' => true,
+        ]);
 
         // Pokud je obchod vypnutý, vrať prázdný obchod
         if (! $store->is_available) {
-            return response()->json();
+            return response()->json([]);
         }
 
         // Pokud je obchod starší než 1 den, obnov ho
         if ($this->shouldRefresh($store)) {
-            $this->refreshStore($store, $user);
+            $this->refreshStore($store, $profile);
         }
 
         // Vrať aktuální obsah obchodu
         return $this->getStoreItems($store);
+    }
+
+    /**
+     * Koupí item z aktuální nabídky obchodu profilu.
+     */
+    public function buy(Request $request, int $profileId)
+    {
+        $data = $request->validate([
+            'item_id' => ['required', 'integer', 'exists:item,id'],
+        ]);
+
+        $profile = Profile::findOrFail($profileId);
+        $store = $profile->shop;
+
+        if (! $store) {
+            throw ValidationException::withMessages([
+                'item_id' => 'Obchod ještě nebyl vytvořen.',
+            ]);
+        }
+
+        $offer = $store->itemsInStore()
+            ->whereNull('leave_date')
+            ->where('item_id', $data['item_id'])
+            ->first();
+
+        if (! $offer) {
+            throw ValidationException::withMessages([
+                'item_id' => 'Tento předmět není aktuálně v obchodě.',
+            ]);
+        }
+
+        $item = Item::findOrFail($data['item_id']);
+
+        if ($profile->points < $item->price) {
+            throw ValidationException::withMessages([
+                'item_id' => 'Nemáš dost pacek na nákup tohoto předmětu.',
+            ]);
+        }
+
+        DB::transaction(function () use ($profile, $item, $offer) {
+            $inventory = $profile->inventory ?? \App\Models\Inventory::create(['profile_id' => $profile->id]);
+
+            $inventory->items()->syncWithoutDetaching([
+                $item->id => ['acquisition_date' => now()],
+            ]);
+
+            $profile->decrement('points', $item->price);
+
+            // Item zmizí z nabídky obchodu, jakmile je koupený
+            $offer->update(['leave_date' => now()]);
+        });
+
+        return response()->json($profile->fresh());
     }
 
     /**
@@ -86,118 +143,73 @@ class StoreController extends Controller
     }
 
     /**
-     * Podívá se, zda je zapotřebí obnovit položky v obchodě
+     * Podívá se, zda je zapotřebí obnovit položky v obchodě.
+     * Obnova probíhá podle kalendářního dne (ne rolling 24 hodin) -
+     * pokud last_refresh_at není dnešní datum, obchod se obnoví.
      *
-     * @return true Pokud je datum _null_, nebo _last_refresh_at_ je statší než 24 hodin
+     * @return bool Pokud je datum _null_, nebo neodpovídá dnešnímu dni
      */
-    private function shouldRefresh($store)
+    private function shouldRefresh(Store $store): bool
     {
-        // Pokud je datum null (první návštěva), vratí TRUE (obnovit)
         if (is_null($store->last_refresh_at)) {
             return true;
         }
 
-        // 2. Pokud je datum starší než 24 hodin, vrátí TRUE (obnovit)
-        // 3. Jinak FALSE (nic nedělat)
-        return $store->last_refresh_at->isBefore(now()->subDay());
+        return ! $store->last_refresh_at->isToday();
     }
 
     /**
-     * Obnoví položky v obchodě
-     *
-     * @return \Illuminate\Http\JsonResponse|void
+     * Obnoví položky v obchodě. Pokud cokoliv selže, last_refresh_at se NEuloží,
+     * aby se obnova zkusila znovu při příštím požadavku (žádný "zaseknutý" prázdný obchod).
      */
-    private function refreshStore($store, $user)
+    private function refreshStore(Store $store, Profile $profile): void
     {
         try {
-            DB::transaction(function () use ($store, $user) {
+            DB::transaction(function () use ($store, $profile) {
                 // 1) "Uzavření" aktuálních položek nastavením leave_date
                 $store->itemsInStore()
                     ->whereNull('leave_date')
                     ->update(['leave_date' => now()]);
 
-                // 2) Příprava dat pro generování
-                $preferences = $user->preferences;
+                // 2) Získáme ID věcí, které profil už má v inventáři, abychom je nenabízeli znovu
+                $inventory = $profile->inventory;
+                $ownedItemIds = $inventory
+                    ? $inventory->items()->wherePivotNull('loss_date')->pluck('item.id')
+                    : collect();
 
-                // Získáme ID věcí, které uživatel už má v inventáři, abychom je nenabízeli znovu
-                $ownedItemsIds = $user->inventory->items()
-                    ->whereNull('loss_date')
-                    ->pluck('item_id');
-
-                // 3) Vygenerování nových itemů
-                $newItems = $this->generateItems($preferences, $ownedItemsIds, $store->maxItems);
+                // 3) Vygenerování nových itemů (čistě náhodně, bez preferencí)
+                $newItems = $this->generateItems($ownedItemIds, $store->max_items);
 
                 // 4) Uložení nových itemů do tabulky items_in_store
                 $this->saveStoreItems($store, $newItems);
 
-                // 5) Aktualizace času posledního refreshe (timestamp)
+                // 5) Aktualizace času posledního refreshe — jen pokud se vše povedlo
                 $store->update(['last_refresh_at' => now()]);
             });
         } catch (\Throwable $exception) {
-            return response()->json(['message' => 'Error in Store'], 500);
+            \Log::error('Obnova obchodu selhala', [
+                'store_id' => $store->id,
+                'profile_id' => $profile->id,
+                'error' => $exception->getMessage(),
+            ]);
+            // last_refresh_at zůstává nezměněné -> příští request to zkusí znovu
         }
     }
 
     /**
-     * Vybere položky do obchodu
-     *
-     * Pokud _$preferences_ není prázdný, vyberou se primárně jenom položy patřící do preferencí.
-     *
-     * Pokud je počet vybraných položek menší než nastavený limit, přidají se do seznamu náhodné položky.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection
+     * Vybere náhodné položky do obchodu (bez preferencí), které profil ještě nevlastní.
      */
-    private function generateItems($preferences, $excludeIds, $limit)
+    private function generateItems($excludeIds, int $limit)
     {
-        $query = Item::query()
-            ->whereNotIn('item_id', $excludeIds)
-            ->where('price', '>', 0);
-
-        // Pokud uživatel MÁ nějaké preference
-        if ($preferences && $preferences->isNotEmpty()) {
-            $query->where(function ($mainQuery) use ($preferences) {
-                foreach ($preferences as $pref) {
-                    // Region preference
-                    if ($pref->region_id) {
-                        $mainQuery->orWhereHas('regions', function ($r) use ($pref) {
-                            $r->where('region.id', $pref->region_id);
-                        });
-                    }
-
-                    // Zvíře preference
-                    if ($pref->animal_id) {
-                        $mainQuery->orWhereHas('animals', function ($a) use ($pref) {
-                            $a->where('animal.id', $pref->animal_id);
-                        });
-                    }
-                }
-            });
-        }
-
-        // Vezme jenom počet náhodných položek podle $limit
-        $items = $query->inRandomOrder()->take($limit)->get();
-
-        // Pokud jsme našli méně, než je limit, doplníme zbytek náhodně
-        if ($items->count() < $limit) {
-            $needed = $limit - $items->count();
-
-            // Seznam ID, které už v obchodě máme nebo které uživatel vlastní
-            $alreadySelectedIds = array_merge($excludeIds, $items->pluck('item_id')->toArray());
-
-            $additionalItems = Item::whereNotIn('item_id', $alreadySelectedIds)
-                ->where('price', '>', 0)
-                ->inRandomOrder()
-                ->take($needed)
-                ->get();
-
-            // Sloučíme preferované věci s těmi doplňkovými
-            $items = $items->concat($additionalItems);
-        }
-
-        return $items;
+        return Item::query()
+            ->whereNotIn('id', $excludeIds)
+            ->where('price', '>', 0)
+            ->inRandomOrder()
+            ->take($limit)
+            ->get();
     }
 
-    private function saveStoreItems($store, $items)
+    private function saveStoreItems(Store $store, $items): void
     {
         foreach ($items as $item) {
             $store->itemsInStore()->create([
@@ -210,10 +222,8 @@ class StoreController extends Controller
 
     /**
      * Vrací pouze věci, které jsou "teď" v obchodě (nemají datum odchodu)
-     *
-     * @return mixed
      */
-    private function getStoreItems($store)
+    private function getStoreItems(Store $store)
     {
         return $store->itemsInStore()
             ->whereNull('leave_date')

@@ -43,7 +43,8 @@ Route::apiResource('items', ItemController::class);
 Route::get('/item-categories', [ItemCategoryController::class, 'index']);
 
 // Obchod
-Route::get('/itemsInStore', [StoreController::class, 'index'])->middleware('auth:sanctum');
+Route::get('/profiles/{profile}/store', [StoreController::class, 'index'])->middleware('auth:sanctum');
+Route::post('/profiles/{profile}/store/buy', [StoreController::class, 'buy'])->middleware('auth:sanctum');
 
 // Otázky
 Route::get('/quizzes/{id}/questions', [QuizController::class, 'questions']);
@@ -65,5 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/users/{id}/profiles', [UserController::class, 'profiles']);
 });
 
+//Profil - Inventář
 Route::get('/profiles/{profile}/inventory', [InventoryController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/profiles/{profile}/equip', [InventoryController::class, 'equip'])->middleware('auth:sanctum');
+Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::class, 'giveItem']);

@@ -76,6 +76,7 @@ export type Profile = {
   displayed_medals: number[] | null;
   level: number;
   xp: number;
+  points: number;
 }
 
 export type ItemCategory = {

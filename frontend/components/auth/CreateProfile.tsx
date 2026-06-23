@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import profileService from "@/lib/api/profiles";
 import { getItems } from "@/lib/api/items";
+import { giveItem } from "@/lib/api/inventory";
 import type { Item } from "@/lib/types";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 // ID kategorií podle tabulky item_category (zkontrolováno v DB)
 const CATEGORY_AVATAR = 1;     // Profilovky
@@ -31,12 +33,13 @@ function generateNickname() {
 export default function CreateProfile() {
     const router = useRouter();
 
-    const [step, setStep]               = useState(1);
-    const [firstName, setFirstName]     = useState('');
-    const [lastName, setLastName]       = useState('');
-    const [nickname, setNickname]       = useState(generateNickname);
-    const [saving, setSaving]           = useState(false);
-    const [error, setError]             = useState<string | null>(null);
+    const [step, setStep] = useState(1);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [nickname, setNickname] = useState(generateNickname);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { setActiveProfile } = useAuthContext();
 
     // Items stažené z backendu, rozdělené podle kategorie
     const [itemsLoading, setItemsLoading] = useState(true);
@@ -79,7 +82,7 @@ export default function CreateProfile() {
         setSaving(true);
         setError(null);
         try {
-            await profileService.create({
+            const response = await profileService.create({
                 first_name:    firstName,
                 last_name:     lastName,
                 avatar_url:    resolveUrl(avatar?.image) ?? '',
@@ -87,6 +90,25 @@ export default function CreateProfile() {
                 wallpaper_url: resolveUrl(wallpaper?.image) ?? '',
                 nickname:      nickname,
             });
+
+            const profile = response.data;
+
+            const selectedItems = [avatar, accessory, wallpaper].filter(Boolean) as Item[];
+
+            // Přidá vybrané předměty do inventáře nového profilu (přes axiosClient,
+            // ne ruční fetch - tak appka konzistentně řeší auth/CSRF na všech voláních)
+            await Promise.all(
+                selectedItems.map((item) => giveItem(profile.id, item.id))
+            );
+
+            // Hned equipnout to, co si dítě vybralo, ať se to projeví na profilu
+            await Promise.all([
+                avatar    ? profileService.update(profile.id, { avatar_item_id: avatar.id })       : null,
+                accessory ? profileService.update(profile.id, { accessory_item_id: accessory.id }) : null,
+                wallpaper ? profileService.update(profile.id, { wallpaper_item_id: wallpaper.id }) : null,
+            ]);
+
+            setActiveProfile(profile)
             router.push('/domov');
         } catch (err: any) {
             setError(err.response?.data?.message ?? 'Nepodařilo se vytvořit profil');

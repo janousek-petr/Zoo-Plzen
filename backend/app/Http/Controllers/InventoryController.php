@@ -18,6 +18,10 @@ class InventoryController extends Controller
         3 => 'wallpaper_item_id',
     ];
 
+    /**
+     * Vrátí items, které profil reálně vlastní (inventory_items, loss_date IS NULL),
+     * a u každého doplní, jestli je momentálně equipnutý.
+     */
     public function index(Profile $profile)
     {
         $inventory = $profile->inventory ?? Inventory::create(['profile_id' => $profile->id]);
@@ -40,6 +44,9 @@ class InventoryController extends Controller
         return response()->json($items);
     }
 
+    /**
+     * Equipne item, pokud ho profil vlastní a item patří do equipovatelné kategorie.
+     */
     public function equip(Request $request, Profile $profile)
     {
         $data = $request->validate([
@@ -69,6 +76,24 @@ class InventoryController extends Controller
 
         $slot = self::EQUIP_SLOTS[$categoryId];
         $profile->update([$slot => $item->id]);
+
+        return response()->json($profile->fresh());
+    }
+
+    /**
+     * Přidá profilu vlastnictví itemu (např. výchozí výbava při tvorbě profilu).
+     */
+    public function giveItem(Request $request, Profile $profile)
+    {
+        $data = $request->validate([
+            'item_id' => ['required', 'integer', 'exists:item,id'],
+        ]);
+
+        $inventory = $profile->inventory ?? Inventory::create(['profile_id' => $profile->id]);
+
+        $inventory->items()->syncWithoutDetaching([
+            $data['item_id'] => ['acquisition_date' => now()],
+        ]);
 
         return response()->json($profile->fresh());
     }
