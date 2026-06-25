@@ -70,3 +70,4 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/profiles/{profile}/inventory', [InventoryController::class, 'index'])->middleware('auth:sanctum');
 Route::post('/profiles/{profile}/equip', [InventoryController::class, 'equip'])->middleware('auth:sanctum');
 Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::class, 'giveItem']);
+Route::post('/challenges', [ActiveChallengeController::class, 'index']);
