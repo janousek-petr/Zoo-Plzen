@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizQuestionView;
 use App\Models\QuizSummary;
+use App\Models\AnsweredQuizzes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -114,13 +115,63 @@ class QuizController extends Controller
         return response()->noContent();
     }
 
-    public function byRegion(int $id)
+    private function getUnlockedLevels(int $profileId, int $regionId): array
+    {
+        $POINTS_TO_UNLOCK = 50;
+        $unlocked = [1];
+
+        foreach ([2, 3] as $level) {
+            $points = AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
+                ->where('answered_quizzes.profile_id', $profileId)
+                ->where('quiz.region_id', $regionId)
+                ->where('quiz.level', $level - 1)
+                ->sum('answered_quizzes.score');
+
+            if ($points >= $POINTS_TO_UNLOCK) {
+                $unlocked[] = $level;
+            } else {
+                break;
+            }
+        }
+
+        return $unlocked;
+    }
+
+    public function byRegion(int $id, Request $request)
     {
         $quizzes = Quiz::where('region_id', $id)
+            ->where('is_published', true)
             ->orderBy('level')
             ->get();
 
-        return response()->json($quizzes);
+        $profileId = $request->query('profile_id');
+        /*unlockedLevels = $profileId
+            ? $this->getUnlockedLevels((int)$profileId, $id)
+            : [1];
+
+        $pointsPerLevel = [];
+        if ($profileId) {
+            foreach ([1, 2, 3] as $level) {
+                $pointsPerLevel[$level] = AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
+                    ->where('answered_quizzes.profile_id', (int)$profileId)
+                    ->where('quiz.region_id', $id)
+                    ->where('quiz.level', $level)
+                    ->sum('answered_quizzes.score');
+            }
+        }*/
+
+        
+
+        $totalScore = AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
+                ->where('answered_quizzes.profile_id', (int)$profileId)
+                ->sum('answered_quizzes.score');
+
+        return response()->json([
+            'quizzes' => $quizzes,
+            //'unlocked_levels' => $unlockedLevels,
+            //'points_per_level' => $pointsPerLevel,
+            'total_score' => $totalScore
+        ]);
     }
 
     public function questions($id){

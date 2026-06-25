@@ -1,8 +1,8 @@
 "use client"
 
 import { RiAddFill } from "react-icons/ri";
-import { MenuCard, MenuCardProps } from "./MenuCard";
-import QuizList from '@/components/admin/QuizList'
+import { MenuCard, MenuCardProps } from "../MenuCard";
+import QuizList from '@/components/admin/quiz/QuizList'
 
 
 const menuItems: MenuCardProps[] = [

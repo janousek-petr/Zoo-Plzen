@@ -1,6 +1,6 @@
 "use client"
 
-import { MenuCard, MenuCardProps } from "./MenuCard";
+import { MenuCard, MenuCardProps } from "../MenuCard";
 import { RiAddFill } from "react-icons/ri";
 import UserList from "./UserList";
 

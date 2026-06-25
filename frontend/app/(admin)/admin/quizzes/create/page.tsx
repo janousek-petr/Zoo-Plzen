@@ -1,6 +1,6 @@
 "use client"
 
-import AddQuiz from "@/components/admin/AddQuiz"
+import AddQuiz from "@/components/admin/quiz/AddQuiz"
 import Header from "@/components/admin/Header"
 
 export default function AdminQuizzes(){

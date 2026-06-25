@@ -1,6 +1,6 @@
 // app/admin/users/[id]/edit/page.tsx
 import Header from '@/components/admin/Header'
-import UpdateUser from '@/components/admin/UpdateUser'
+import UpdateUser from '@/components/admin/user/UpdateUser'
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

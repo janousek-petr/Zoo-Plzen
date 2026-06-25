@@ -11,32 +11,37 @@ class RegionSeeder extends Seeder
     {
         DB::table('region')->updateOrInsert(
             ['id' => 1],
-            ['name' => 'Palearktická oblast']
+            ['name' => 'Afrika']
         );
         
         DB::table('region')->updateOrInsert(
             ['id' => 2],
-            ['name' => 'Nearktická oblast']
+            ['name' => 'Asie']
         );
 
         DB::table('region')->updateOrInsert(
             ['id' => 3],
-            ['name' => 'Neotropická oblast']
+            ['name' => 'Evropa']
         );
 
         DB::table('region')->updateOrInsert(
             ['id' => 4],
-            ['name' => 'Etiopská oblast']
+            ['name' => 'Severní Amerika']
         );
 
         DB::table('region')->updateOrInsert(
             ['id' => 5],
-            ['name' => 'Australská oblast']
+            ['name' => 'Jižní Amerika']
         );
 
         DB::table('region')->updateOrInsert(
             ['id' => 6],
-            ['name' => 'Orientální oblast']
+            ['name' => 'Austrálie']
+        );
+
+        DB::table('region')->updateOrInsert(
+            ['id' => 7],
+            ['name' => 'Antarktida']
         );
     }
 }

@@ -1,5 +1,5 @@
 import Header from "@/components/admin/Header"
-import UserMenu from "@/components/admin/UserMenu"
+import UserMenu from "@/components/admin/user/UserMenu"
 
 export default function AdminUsers(){
     return(

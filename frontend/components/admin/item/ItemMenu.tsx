@@ -1,7 +1,7 @@
 "use client"
 
 import { RiUserLine, RiMagicLine, RiImageLine, RiCamera2Line } from "react-icons/ri";
-import { MenuCard, MenuCardProps } from "./MenuCard";
+import { MenuCard, MenuCardProps } from "../MenuCard";
 
 
 const menuItems: MenuCardProps[] = [

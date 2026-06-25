@@ -37,6 +37,7 @@ Route::apiResource('quizzes', QuizController::class);
 // Vyřešené kvízy
 Route::get('/answeredQuizzes/', [AnsweredQuizzesController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/answeredQuizzes/{id}', [AnsweredQuizzesController::class, 'show'])->middleware('auth:sanctum');
+Route::post('/answeredQuizzes', [AnsweredQuizzesController::class, 'store'])->middleware('auth:sanctum');
 
 //Předměty
 Route::apiResource('items', ItemController::class);
