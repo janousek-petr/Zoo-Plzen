@@ -1,4 +1,4 @@
-import AddItem from "@/components/admin/AddItem"
+import AddItem from "@/components/admin/item/AddItem"
 import Header from "@/components/admin/Header"
 
 export default async function AddNewItem({ params }: { params: Promise<{ categoryId: string }> }) {

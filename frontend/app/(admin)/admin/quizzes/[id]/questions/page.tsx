@@ -1,5 +1,5 @@
 import Header from '@/components/admin/Header'
-import QuestionEditList from "@/components/admin/QuestionEditList"
+import QuestionEditList from "@/components/admin/quiz/QuestionEditList"
 
 export default async function QuestionsListPage({ params }: { params: Promise<{ id: string }> }){
     const { id } = await params

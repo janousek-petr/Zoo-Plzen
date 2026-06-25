@@ -1,5 +1,5 @@
 import Header from '@/components/admin/Header'
-import EditQuestion from "@/components/admin/EditQuestion"
+import EditQuestion from "@/components/admin/quiz/EditQuestion"
 import { getQuestion } from '@/lib/api/quizzes'
 
 export default async function EditQuestionPage({ 

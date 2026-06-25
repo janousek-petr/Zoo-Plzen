@@ -87,12 +87,16 @@ export default function ProfileSelection() {
                             }}
                         >
                             <div className="profile-border relative w-32 h-32 md:w-48 md:h-48 border-8 border-transparent rounded-full p-1 transition-all duration-300">
-                                <Image
-                                    src={profile.avatar_url ?? '/img/startpage-1.png'}
-                                    alt={profile.first_name}
-                                    fill
-                                    className="object-cover rounded-full"
-                                />
+                                {profile.avatar_url ? (
+                                    <Image
+                                        src={profile.avatar_url}
+                                        alt={profile.first_name}
+                                        fill
+                                        className="object-cover rounded-full"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full rounded-full bg-gray-300" />
+                                )}
                             </div>
                             <span className="profile-name mt-4 text-2xl font-bold text-gray-700 transition-colors duration-300">
                                 {profile.first_name}

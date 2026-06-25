@@ -1,5 +1,5 @@
 import Header from "@/components/admin/Header"
-import EditItem from "@/components/admin/EditItem"
+import EditItem from "@/components/admin/item/EditItem"
 
 export default async function EditItemPage({ params }: { params: Promise<{ categoryId: string; itemId: string }> }) {
     const { categoryId, itemId } = await params

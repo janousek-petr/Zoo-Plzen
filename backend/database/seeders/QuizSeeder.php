@@ -11,23 +11,23 @@ class QuizSeeder extends Seeder
     {
         DB::table('quiz')->insert([
             [
-                'name' => 'Etiopský kvíz - Level 1',
-                'description' => 'Základní otázky o etiopské oblasti.',
-                'region_id' => 4,
+                'name' => 'Africký kvíz - Level 1',
+                'description' => 'Základní otázky o Africe.',
+                'region_id' => 1,
                 'level' => 1,
                 'created_at' => now()
             ],
             [
-                'name' => 'Etiopský kvíz - Level 2',
-                'description' => 'Středně těžké otázky o etiopské oblasti.',
-                'region_id' => 4,
+                'name' => 'Africký kvíz - Level 2',
+                'description' => 'Středně těžké otázky o Africe.',
+                'region_id' => 1,
                 'level' => 2,
                 'created_at' => now()
             ],
             [
-                'name' => 'Etiopský kvíz - Level 3',
-                'description' => 'Těžké otázky o etiopské oblasti.',
-                'region_id' => 4,
+                'name' => 'Africký kvíz - Level 3',
+                'description' => 'Těžké otázky o Africe.',
+                'region_id' => 1,
                 'level' => 3,
                 'created_at' => now()
             ],

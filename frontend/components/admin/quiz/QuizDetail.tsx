@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getQuiz, getQuestions, togglePublishQuiz, deleteQuiz } from '@/lib/api/quizzes'
 import { RiAddFill, RiMapPinLine, RiEditLine, RiArrowLeftLine, RiStarLine, RiQuestionLine, RiCheckLine, RiEyeLine, RiEyeOffLine, RiDeleteBinLine } from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
-import { MenuCard, MenuCardProps } from "./MenuCard";
+import { MenuCard, MenuCardProps } from "../MenuCard";
 import Header from '@/components/admin/Header'
 
 const LEVEL_BADGE: Record<number, string> = {

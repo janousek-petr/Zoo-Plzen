@@ -5,12 +5,15 @@ import Image from "next/image";
 import { RiLock2Fill } from "react-icons/ri";
 import Link from "next/link";
 import { getQuizzesByRegion } from "@/lib/api/quizzes";
+import QuizSection from "@/components/quiz/QuizSection";
 
-const REGION_ID = 4;
+// smaž: const quizzes = await getQuizzesByRegion(REGION_ID);
 
-export default async function EtiopskaArea() {
+const REGION_ID = 1;
 
-    const quizzes = await getQuizzesByRegion(REGION_ID);
+export default async function AfricaPage() {
+
+    //const quizzes = await getQuizzesByRegion(REGION_ID);
     
     //const sound1 = useAudio("/sounds/testovaci.mp3");
     //const sound2 = useAudio("/sounds/testovaci2.mp3");
@@ -27,9 +30,8 @@ export default async function EtiopskaArea() {
                     fill
                 />
 
-                <div className="translate-y-10 sm:translate-y-20 mb-20">
-                    <h1 className="cus-font-impacted-2 uppercase text-white xl:text-[220px] lg:text-[180px] md:text-[120px] text-[20vw] leading-none">Etiopská</h1>
-                    <h1 className="cus-font-impacted-2 uppercase text-white md:text-6xl text-4xl mb-10 mt-4">Oblast</h1>
+                <div className="translate-y-10 sm:translate-y-0 mb-20">
+                    <h1 className="cus-font-impacted-2 uppercase text-white xl:text-[220px] lg:text-[180px] md:text-[120px] text-[20vw] leading-none">Afrika</h1>
                 </div>
             </header>
 
@@ -130,7 +132,7 @@ export default async function EtiopskaArea() {
             </div>
 
             {/* Kvíz sekce */}
-            <div className="flex flex-col lg:flex-row cus-bg-beige-light overflow-visible">
+            <div className="flex flex-col lg:flex-row cus-bg-beige-light overflow-visible" id="kviz-sekce">
 
                 <div className="flex w-full flex-col items-center py-20 px-4 lg:w-3/5">
                     <h2 className="w-full wrap-break-word text-center text-5xl uppercase md:text-8xl cus-text-beige cus-font-impacted-2">
@@ -140,31 +142,10 @@ export default async function EtiopskaArea() {
                         Vyber si obtížnost
                     </p>
 
-                    <div className="z-10 mt-10 flex h-20 w-full max-w-150 overflow-hidden rounded-3xl border-4">
-                        {[1, 2, 3].map((level, index) => {
-                            const quiz = quizzes?.find((q: any) => q.level === level);
-                            const isFirst = level === 1;
-
-                            if (!isFirst || !quiz) {
-                                return (
-                                    <div
-                                        key={level}
-                                        className={`flex flex-1 cursor-not-allowed items-center justify-center bg-gray-500 transition duration-200 ${index === 1 ? "border-x-2" : ""}`}
-                                    >
-                                        <RiLock2Fill size="36" />
-                                    </div>
-                                );
-                            }
-
-                            return (
-                                <Link key={level} href={`/hry/oblasti/etiopska-oblast/kviz/${quiz.id}`}
-                                    className="flex flex-1 cursor-pointer items-center justify-center cus-bg-beige text-black hover:text-gray-100 transition duration-200 cus-hover-bg-beige-dark"
-                                >
-                                    <p className="text-4xl font-bold">{level}</p>
-                                </Link>
-                            );
-                        })}
-                    </div>
+                    <QuizSection
+                        regionId={REGION_ID}
+                        quizHref="/hry/kontinenty/afrika/kviz"
+                    />
                 </div>
 
                 <div className="relative flex w-full items-end justify-end min-h-87 lg:w-2/5 lg:min-h-full">
@@ -192,7 +173,7 @@ export default async function EtiopskaArea() {
             </div>
 
             {/* Kamarádi sekce */}
-            <div className="min-h-screen py-20 flex flex-col items-center justify-center px-6 overflow-hidden">
+            {/*<div className="min-h-screen py-20 flex flex-col items-center justify-center px-6 overflow-hidden">
                 <h3 className="text-center uppercase cus-text-beige md:text-8xl sm:text-6xl text-5xl cus-font-impacted-2">KAMARÁDI Z ETIOPSKÉ OBLASTI</h3>
                 <p className="text-center text-xl md:text-2xl mt-8 max-w-4xl">Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém...</p>
 
@@ -201,7 +182,7 @@ export default async function EtiopskaArea() {
                         Dozvědět se více...
                     </p>
                 </button>
-            </div>
+            </div>*/}
             
         </div>
     )

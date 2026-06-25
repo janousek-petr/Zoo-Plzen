@@ -19,9 +19,9 @@ export default function QuizResult({
   score,
   totalPoints,
   questions,
-  regionName = "Oblast",
-  regionColor = "#BD9554",
-  level = 1,
+  regionName,
+  regionColor,
+  level,
   quizId,
   timeLabel = "—",
 }: Props) {
@@ -120,14 +120,7 @@ export default function QuizResult({
       {/* Tlačítka */}
       <div className="flex flex-row gap-4 w-full max-w-sm">
         <button
-          onClick={() => quizId && router.push(`/hry/oblasti/etiopska-oblast/kviz/${quizId}`)}
-          className="flex-1 flex items-center justify-center gap-2 bg-[#6ABD83] hover:bg-green-600 active:scale-95 text-white cus-font-impacted-2 uppercase text-xl py-4 rounded-xl transition-all shadow-md"
-        >
-          <SmallIcon src="/img/icons/loop-icon.png" />
-          Znovu
-        </button>
-        <button
-          onClick={() => router.push("/hry/oblasti")}
+          onClick={() => router.push("/hry/kontinenty/afrika")}
           className="flex-1 flex items-center justify-center gap-2 bg-[#6ABD83] hover:bg-green-600 active:scale-95 text-white cus-font-impacted-2 uppercase text-xl py-4 rounded-xl transition-all shadow-md"
         >
           <SmallIcon src="/img/icons/play-button.png" />
@@ -139,7 +132,7 @@ export default function QuizResult({
   );
 }
 
-function StatPill({ icon, value, color }: { icon: string; value: string; color: string }) {
+function StatPill({ icon, value, color }: { icon?: string | null; value?: string | null; color?: string | null }) {
   return (
     <div
       className="flex items-center gap-1.5 text-white font-bold text-sm px-2 py-1.5 rounded-lg flex-1 justify-center"

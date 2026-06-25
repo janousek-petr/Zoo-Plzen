@@ -45,9 +45,11 @@ export async function getQuizzes() {
     }
 }
 
-export async function getQuizzesByRegion(regionId: number) {
+export async function getQuizzesByRegion(regionId: number, profileId?: number) {
     try {
-        const res = await axiosClient.get(`/api/regions/${regionId}/quizzes`);
+        const res = await axiosClient.get(`/api/regions/${regionId}/quizzes`, {
+            params: profileId ? { profile_id: profileId } : {}
+        });
         return res.data;
     } catch (err) {
         console.error(err);
@@ -158,6 +160,20 @@ export async function deleteQuestion(quizId: number, questionId: number) {
 export async function togglePublishQuiz(id: number) {
     try {
         const res = await axiosClient.patch(`/api/quizzes/${id}/toggle-publish`);
+        return res.data;
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+export async function submitQuizResult(data: {
+    quiz_id: number,
+    profile_id: number,
+    score: number,
+}) {
+    try {
+        const res = await axiosClient.post(`/api/answeredQuizzes`, data);
         return res.data;
     } catch (err) {
         console.error(err);

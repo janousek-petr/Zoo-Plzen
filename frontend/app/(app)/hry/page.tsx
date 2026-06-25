@@ -6,7 +6,7 @@ export default function Games(){
         <>
             <main className="my-40 w-full">
                 <section>
-                    <Link href="/hry/oblasti/">
+                    <Link href="/hry/kontinenty/">
                     <div className="flex sm:flex-row flex-col justify-center items-center gap-6 min-h-60 bg-emerald-500 my-15">
                         <Image
                             src="/img/icons/quiz-icon.png"

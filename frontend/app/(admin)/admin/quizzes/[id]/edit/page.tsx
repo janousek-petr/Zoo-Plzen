@@ -1,4 +1,4 @@
-import UpdateQuiz from "@/components/admin/UpdateQuiz"
+import UpdateQuiz from "@/components/admin/quiz/UpdateQuiz"
 import Header from "@/components/admin/Header"
 
 export default async function UpdateQuizPage({ params }: { params: Promise<{ id: string }> }){

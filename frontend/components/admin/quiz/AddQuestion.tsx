@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createQuestion, getQuestionCategories } from '@/lib/api/quizzes'
-import MediaPickerButton from './MediaPickerButton'
+import MediaPickerButton from '@/components/admin/media/MediaPickerButton'
 import { MediaItem } from "@/lib/types"
 
 const CATEGORY_LABEL: Record<string, string> = {

@@ -96,8 +96,7 @@ export default function QuizList() {
                 {items.map(quiz => (
                   <div
                     key={quiz.id}
-                    onClick={() => router.push(`/admin/quizzes/${quiz.id}`)}
-                    className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 hover:bg-gray-50 hover:border-gray-400 duration-100 cursor-pointer"
+                    className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-3 hover:bg-gray-50 hover:border-gray-400 duration-100"
                   >
                     <div className="border-b py-2 border-gray-200">
                       <p className="text-lg font-medium text-gray-900 mb-0.5">{quiz.name}</p>
@@ -130,13 +129,13 @@ export default function QuizList() {
 
                     <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
                       <button
-                        onClick={e => { e.stopPropagation(); router.push(`/admin/quizzes/${quiz.id}/edit`) }}
+                        onClick={() => router.push(`/admin/quizzes/${quiz.id}`)}
                         className="flex items-center gap-1 text-lg text-white border-2 border-transparent px-2 py-1 rounded bg-sky-600 hover:bg-sky-800 hover:border-sky-800 transition-colors cursor-pointer"
                       >
                         <RiEditLine /> Upravit
                       </button>
                       <button
-                        onClick={e => { e.stopPropagation(); router.push(`/admin/quizzes/${quiz.id}/questions`) }}
+                        onClick={() => router.push(`/admin/quizzes/${quiz.id}/questions`)}
                         className="flex items-center gap-1 text-lg text-white border-2 border-transparent px-2 py-1 rounded bg-yellow-600 hover:bg-yellow-700 hover:border-yellow-700 transition-colors cursor-pointer"
                       >
                         <RiListCheck /> Otázky

@@ -1,6 +1,6 @@
 // app/admin/users/create/page.tsx
 import Header from '@/components/admin/Header'
-import CreateUser from '@/components/admin/AddUser'
+import CreateUser from '@/components/admin/user/AddUser'
 
 export default function CreateUserPage() {
   return (
