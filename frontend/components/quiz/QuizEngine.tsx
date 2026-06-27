@@ -79,7 +79,7 @@ export default function QuizEngine({
         regionColor={regionColor}
         level={level}
         questionCount={questions.length}
-        exitHref={exitHref + regionName}
+        exitHref={exitHref}
         onStart={() => setStarted(true)}
       />
     );
@@ -103,7 +103,7 @@ export default function QuizEngine({
   const questionType = currentQuestion.category?.name ?? "select";
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-10">
+    <main className="lg:max-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
 
       {/* Header */}
       <header className="w-full max-w-sm pt-6 pb-2 text-center shrink-0">
@@ -256,7 +256,7 @@ export default function QuizEngine({
         <button
           type="button"
           onClick={handleNext}
-          className="mt-4 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
+          className="my-6 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
           style={{ backgroundColor: regionColor }}
         >
           {isLast ? "Zobrazit výsledek" : "Pokračovat"}

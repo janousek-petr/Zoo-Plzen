@@ -145,32 +145,17 @@ class QuizController extends Controller
             ->get();
 
         $profileId = $request->query('profile_id');
-        /*unlockedLevels = $profileId
-            ? $this->getUnlockedLevels((int)$profileId, $id)
-            : [1];
 
-        $pointsPerLevel = [];
-        if ($profileId) {
-            foreach ([1, 2, 3] as $level) {
-                $pointsPerLevel[$level] = AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
-                    ->where('answered_quizzes.profile_id', (int)$profileId)
-                    ->where('quiz.region_id', $id)
-                    ->where('quiz.level', $level)
-                    ->sum('answered_quizzes.score');
-            }
-        }*/
-
-        
-
-        $totalScore = AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
+        $regionScore = $profileId
+            ? AnsweredQuizzes::join('quiz', 'answered_quizzes.quiz_id', '=', 'quiz.id')
                 ->where('answered_quizzes.profile_id', (int)$profileId)
-                ->sum('answered_quizzes.score');
+                ->where('quiz.region_id', $id)  // <-- filtruj podle regionu!
+                ->sum('answered_quizzes.score')
+            : 0;
 
         return response()->json([
             'quizzes' => $quizzes,
-            //'unlocked_levels' => $unlockedLevels,
-            //'points_per_level' => $pointsPerLevel,
-            'total_score' => $totalScore
+            'region_score' => $regionScore,
         ]);
     }
 
@@ -202,6 +187,29 @@ class QuizController extends Controller
         $quiz->update(['is_published' => !$quiz->is_published]);
 
         return response()->json(['is_published' => $quiz->is_published]);
+    }
+
+    public function startRandom(Request $request)
+    {
+        $validated = $request->validate([
+            'region_id' => 'required|integer|exists:region,id',
+            'level'     => 'required|integer|min:1|max:3',
+        ]);
+
+        $quiz = Quiz::where('region_id', $validated['region_id'])
+                    ->where('level', $validated['level'])
+                    ->where('is_published', true)
+                    ->inRandomOrder()
+                    ->firstOrFail();
+
+        $questions = Question::with(['answers', 'category'])
+            ->whereHas('quizzes', fn($q) => $q->where('quiz_id', $quiz->id))
+            ->get();
+
+        return response()->json([
+            'quiz_meta' => $quiz->load('region'),
+            'questions' => $questions,
+        ]);
     }
 
 }

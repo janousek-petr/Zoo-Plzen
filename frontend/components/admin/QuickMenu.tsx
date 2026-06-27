@@ -1,6 +1,6 @@
 "use client"
 
-import { RiLayoutGridLine, RiUserLine, RiImageLine, RiGiftLine } from "react-icons/ri";
+import { RiLayoutGridLine, RiUserLine, RiImageLine, RiGiftLine, RiFileTextLine } from "react-icons/ri";
 import { MenuCard, MenuCardProps } from "./MenuCard";
 
 
@@ -8,7 +8,8 @@ const menuItems: MenuCardProps[] = [
   { label: "Kvízy", icon: RiLayoutGridLine, href: "/admin/quizzes"},
   { label: "Uživatelé", icon: RiUserLine, href: "/admin/users"},
   { label: "Média", icon: RiImageLine, href: "/admin/media"},
-  { label: "Předměty", icon: RiGiftLine, href: "/admin/items"}
+  { label: "Předměty", icon: RiGiftLine, href: "/admin/items"},
+  { label: "Texty", href: "/admin/texts", icon: RiFileTextLine }
 ];
 
 export default function QuickMenu() {

@@ -180,3 +180,11 @@ export async function submitQuizResult(data: {
         throw err;
     }
 }
+
+export async function startRandomQuiz(regionId: number, level: number) {
+    const res = await axiosClient.post(`/api/quizzes/start-random`, {
+        region_id: regionId,
+        level,
+    });
+    return res.data;
+}
