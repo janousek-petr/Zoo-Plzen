@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('answered_quiz_id')->constrained('answered_quizzes');
             $table->foreignId('question_id')->constrained('question');
-            $table->integer('chosen_answer')->nullable();
+            $table->foreignId('chosen_answer')->nullable()->constrained('answer');
             $table->string('written_answer')->nullable();
         });
     }

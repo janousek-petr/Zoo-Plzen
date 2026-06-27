@@ -6,6 +6,7 @@ use App\Models\ActiveChallenge;
 use App\Models\Region;
 use Carbon\CarbonInterface;
 use DB;
+use Mockery\Exception;
 
 class ChallengeGenerator
 {
@@ -26,7 +27,7 @@ class ChallengeGenerator
         foreach ($this->generated as $existing) {
             if (
                 $existing['challenge_type'] === $challenge['challenge_type'] &&
-                $existing['region_id'] === $challenge['region_id'] &&
+                ($existing['region_id'] ?? null) === ($challenge['region_id'] ?? null) &&
                 ($existing['target'] ?? null) === ($challenge['target'] ?? null)
             ) {
                 return true;
@@ -55,7 +56,7 @@ class ChallengeGenerator
      */
     public function generateWeekly(?int $count = null): void
     {
-        $count = $count ?? config('challenges.daily_count', 3);
+        $count = $count ?? config('challenges.weekly_count', 3);
         $this->generateChallenges($count, now()->addWeek(), "weekly");
     }
 
@@ -79,7 +80,8 @@ class ChallengeGenerator
                     $region = $regions->random();
 
                     $challenge = $this->buildChallenge($template, $region);
-                    $challenge["animalSide"] = ($i % 2 === 0) ? "left" : "right";
+
+                    $challenge["animalSide"] = ($i % 2 === 0 && $period === "weekly") ? "left" : "right";
                 } while ($this->isDuplicate($challenge));
 
                 $this->remember($challenge);
@@ -94,6 +96,7 @@ class ChallengeGenerator
             }
         });
 
+
     }
 
     /**
@@ -105,6 +108,7 @@ class ChallengeGenerator
 
         return match ($type) {
             "region_correct_answers", "region_quiz_completed" => $this->buildRegionCorrectAnswersOrRegionQuizChallenge($template, $region),
+            "correct_answers", "quiz_completed" => $this->buildCorrectAnswersOrQuizCompletedChallenge($template),
             default => throw new \Exception("Unknown challenge type: $type")
         };
     }
@@ -122,8 +126,8 @@ class ChallengeGenerator
             $template["code_pattern"]) ?? '';
 
         $description = str_replace(
-            ['{region_id}', '{count}'],
-            [$region->id, $template['target']],
+            ['{region}', '{count}'],
+            [$region->name, $template['target']],
             $template['description'] ?? ''
         );
 
@@ -135,6 +139,31 @@ class ChallengeGenerator
             "target" => $count,
             "reward" => $count * 3,
             "region_id" => $region->id,
+        ];
+    }
+
+    private function buildCorrectAnswersOrQuizCompletedChallenge(array $template): array
+    {
+        $count = rand($template["min"], $template["max"]);
+
+        $code = str_replace(
+            ["{count}"],
+            [$count],
+            $template["code_pattern"]) ?? '';
+
+        $description = str_replace(
+            ['{count}'],
+            [$template['target']],
+            $template['description'] ?? ''
+        );
+
+        return [
+            "challenge_type" => $template["type"],
+            "code" => $code,
+            "title" => $template["title"] ?? "",
+            "description" => $description,
+            "target" => $count,
+            "reward" => $count * 3,
         ];
     }
 }

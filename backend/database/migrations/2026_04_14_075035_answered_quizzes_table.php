@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('quiz_id')->constrained('quiz');
             $table->foreignId('profile_id')->constrained('profiles');
-            $table->date('answered_at')->default(now());
+            $table->timestamp('answered_at')->useCurrent();
             $table->integer('score')->default(0);
         });
     }

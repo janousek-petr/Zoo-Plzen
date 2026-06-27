@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Challenges\ChallengeEvaluatorFactory;
 use App\Models\ActiveChallenge;
-use App\Models\UserChallengeProgress;
+use App\Models\ProfileChallengeProgress;
 use DB;
 use Illuminate\Http\Request;
+use Mockery\Exception;
 
 class ActiveChallengeController extends Controller
 {
@@ -15,7 +16,7 @@ class ActiveChallengeController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = $request->input('userId');
+        $profileId = $request->input('profile_id');
         $weekly = ActiveChallenge::where('period', 'weekly')
             ->where('valid_until', '>', now())
             ->get();
@@ -25,7 +26,7 @@ class ActiveChallengeController extends Controller
             ->get();
 
         $activeIds = $weekly->pluck('id')->merge($daily->pluck('id'));
-        $progressMap = UserChallengeProgress::where('user_id', $userId)
+        $progressMap = ProfileChallengeProgress::where('profile_id', $profileId)
             ->whereIn('active_challenge_id', $activeIds)
             ->pluck('progress', 'active_challenge_id');
 
@@ -43,32 +44,35 @@ class ActiveChallengeController extends Controller
      */
     public function submitEvent(Request $request)
     {
-        DB::transaction(function () use ($request) {
-            $request->validate([
-                "challenge_type" => "required|string",
-            ]);
+        try {
+            return DB::transaction(function () use ($request) {
+                $request->validate([
+                    "challenge_type" => "required|string",
+                ]);
 
-            // Najdeme všechny aktivní výzvy tohoto typu
-            $active = ActiveChallenge::where('challenge_type', $request->challenge_type)
-                ->where('valid_until', '>', now())
-                ->get();
+                // Najdeme všechny aktivní výzvy tohoto typu
+                $active = ActiveChallenge::where('challenge_type', $request->challenge_type)
+                    ->where('valid_until', '>', now())
+                    ->get();
 
-            foreach ($active as $challenge) {
-                $data = $challenge->data;
-                if (($data["challenge_type"] ?? null) !== $request->challenge_type) {
-                    continue;
+                foreach ($active as $challenge) {
+                    $data = $challenge->data;
+                    if (($data["challenge_type"] ?? null) !== $request->challenge_type) {
+                        continue;
+                    }
+                    // Vybereme správný evaluátor
+                    $evaluator = ChallengeEvaluatorFactory::make($data["challenge_type"]);
+
+                    // Vyhodnotíme výzvu
+                    $evaluator->evaluate($challenge, $data, $request);
                 }
-                // Vybereme správný evaluátor
-                $evaluator = ChallengeEvaluatorFactory::make($data["challenge_type"]);
 
-                // Vyhodnotíme výzvu
-                $evaluator->evaluate($challenge, $data, $request);
-            }
+                return response()->json(["status" => "ok"]);
+            });
+        } catch (\Throwable $th) {
+            return response("Event failed: " . $th->getMessage(), 500);
+        }
 
-            return response()->json(["status" => "ok"]);
-        });
-
-        return response("Event failed");
     }
     /**
      * @deprecated
@@ -145,7 +149,7 @@ class ActiveChallengeController extends Controller
      */
     private function getUserProgress($activeChallengeId, int $userId)
     {
-        return UserChallengeProgress::where('user_id', $userId)
+        return ProfileChallengeProgress::where('user_id', $userId)
             ->where('active_challenge_id', $activeChallengeId)
             ->value('progress') ?? 0;
     }

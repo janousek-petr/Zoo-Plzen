@@ -7,7 +7,7 @@ export function useChallenges(userId: number | undefined) {
 
     useEffect(() => {
         axiosClient
-            .post("/api/challenges", {"userId": userId})
+            .post("/api/challenges", {"profile_id": userId})
             .then((res) => {
                 setData(res.data);
                 setLoading(false);

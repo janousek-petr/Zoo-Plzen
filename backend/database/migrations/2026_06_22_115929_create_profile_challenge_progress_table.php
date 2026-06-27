@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_challenge_progress', function (Blueprint $table) {
+        Schema::create('profile_challenge_progress', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('profile_id')->constrained('profiles')->cascadeOnDelete();
             $table->foreignId('active_challenge_id')->constrained('active_challenge')->cascadeOnDelete();
             $table->integer('progress')->default(0);
             $table->boolean('completed')->default(false);

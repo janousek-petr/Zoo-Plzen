@@ -23,6 +23,6 @@ class ActiveChallenge extends Model
 
     public function progress()
     {
-        return $this->hasMany(UserChallengeProgress::class, 'active_challenge_id');
+        return $this->hasMany(ProfileChallengeProgress::class, 'active_challenge_id');
     }
 }

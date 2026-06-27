@@ -9,24 +9,24 @@ class AnsweredQuizzes extends Model
     //
     protected $table = 'answered_quizzes';
 
-    protected $fillable = ['quiz_id', 'user_id', 'score'];
+    protected $fillable = ['quiz_id', 'score', 'profile_id'];
 
     protected $dates = ['answered_at'];
 
-    protected $timestamp = false;
+    public $timestamps = false;
 
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'quiz_id');
     }
 
-    public function user()
+    public function profile()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Profile::class, 'profile_id');
     }
 
     public function answeredQuestions()
     {
-        return $this->hasMany(AnsweredQuestion::class);
+        return $this->hasMany(AnsweredQuestions::class);
     }
 }
