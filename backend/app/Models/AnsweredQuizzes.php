@@ -17,7 +17,7 @@ class AnsweredQuizzes extends Model
 
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quiz::class, 'quiz_id');
     }
 
     public function profile()
@@ -27,6 +27,6 @@ class AnsweredQuizzes extends Model
 
     public function answeredQuestions()
     {
-        return $this->hasMany(AnsweredQuestion::class);
+        return $this->hasMany(AnsweredQuestions::class);
     }
 }

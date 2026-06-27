@@ -78,3 +78,4 @@ Route::get('/profiles/{profile}/inventory', [InventoryController::class, 'index'
 Route::post('/profiles/{profile}/equip', [InventoryController::class, 'equip'])->middleware('auth:sanctum');
 Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::class, 'giveItem']);
 Route::post('/challenges', [ActiveChallengeController::class, 'index']);
+Route::post('/challenges/event', [ActiveChallengeController::class, 'submitEvent']);
