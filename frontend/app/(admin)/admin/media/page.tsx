@@ -1,4 +1,4 @@
-import MediaPage from "@/components/admin/MediaPage"
+import MediaPage from "@/components/admin/media/MediaPage"
 import Header from "@/components/admin/Header"
 
 export default function AdminMedia(){

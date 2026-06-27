@@ -1,5 +1,5 @@
 // app/admin/users/[id]/profiles/[profileId]/page.tsx
-import ProfileDetail from '@/components/admin/ProfileDetail'
+import ProfileDetail from '@/components/admin/user/ProfileDetail'
 
 export default async function Page({
   params,

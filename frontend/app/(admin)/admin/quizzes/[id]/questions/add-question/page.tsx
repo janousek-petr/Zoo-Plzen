@@ -1,5 +1,5 @@
 import Header from '@/components/admin/Header'
-import AddQuestion from "@/components/admin/AddQuestion"
+import AddQuestion from "@/components/admin/quiz/AddQuestion"
 
 export default async function AddQuestionPage({ params }: { params: Promise<{ id: string }> }){
     const { id } = await params

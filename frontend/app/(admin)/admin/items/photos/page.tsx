@@ -1,4 +1,4 @@
-import ItemList from "@/components/admin/ItemList"
+import ItemList from "@/components/admin/item/ItemList"
 import Header from "@/components/admin/Header"
 
 export default function HatList(){

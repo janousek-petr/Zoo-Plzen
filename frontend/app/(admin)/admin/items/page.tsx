@@ -1,4 +1,4 @@
-import ItemMenu from "@/components/admin/ItemMenu"
+import ItemMenu from "@/components/admin/item/ItemMenu"
 import Header from "@/components/admin/Header"
 
 export default function AdminItems(){

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { updateQuestion, getQuestionCategories, deleteQuestion } from '@/lib/api/quizzes'
-import MediaPickerButton from './MediaPickerButton'
+import MediaPickerButton from '@/components/admin/media/MediaPickerButton'
 import { MediaItem, Question } from "@/lib/types"
 import { RiDeleteBinLine } from 'react-icons/ri'
 

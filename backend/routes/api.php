@@ -14,6 +14,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\RegionInfoController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,13 +31,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('profiles', ProfileController::class);
 });
 
+//Texty (Info) k regionům
+Route::get('/regions/{id}/infos', [RegionInfoController::class, 'byRegion']);
+Route::apiResource('region-infos', RegionInfoController::class);
+
 // Kvíz
 Route::patch('/quizzes/{id}/toggle-publish', [QuizController::class, 'togglePublish']);
+Route::post('/quizzes/start-random', [QuizController::class, 'startRandom']);
 Route::apiResource('quizzes', QuizController::class);
 
 // Vyřešené kvízy
 Route::get('/answeredQuizzes/', [AnsweredQuizzesController::class, 'index'])->middleware('auth:sanctum');
 Route::get('/answeredQuizzes/{id}', [AnsweredQuizzesController::class, 'show'])->middleware('auth:sanctum');
+Route::post('/answeredQuizzes', [AnsweredQuizzesController::class, 'store'])->middleware('auth:sanctum');
 
 //Předměty
 Route::apiResource('items', ItemController::class);

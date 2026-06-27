@@ -17,7 +17,7 @@ export default function QuizIntro({ regionName, regionColor, level, questionCoun
     const router = useRouter();
 
   return (
-    <main className="h-screen w-full flex flex-col items-center justify-center px-6 gap-6">
+    <main className="w-full flex flex-col items-center justify-center px-6 gap-6 py-20">
       <p className="text-lg uppercase tracking-widest text-gray-400 font-semibold">Připrav se!</p>
 
       <h1
@@ -50,7 +50,7 @@ export default function QuizIntro({ regionName, regionColor, level, questionCoun
         Spustit kvíz
       </button>
 
-        <div className="flex pb-4 shrink-0">
+        <div className="flex shrink-0">
             <button
             onClick={() => router.push(exitHref)}
             className="w-10 h-10 rounded-lg border-2 bg-red-500 flex items-center justify-center text-white hover:text-red-500 hover:border-red-400 hover:bg-transparent transition-all cursor-pointer"

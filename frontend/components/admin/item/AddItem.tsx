@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createItem } from '@/lib/api/items'
-import MediaPickerButton from '@/components/admin/MediaPickerButton'
+import MediaPickerButton from '@/components/admin/media/MediaPickerButton'
 import type { MediaItem } from '@/lib/types'
 
 // category_id přijde z URL parametru

@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Question } from "@/lib/types";
 import { useQuiz } from "@/hooks/useQuiz";
+import { useAuthContext } from "@/contexts/AuthContext";
+import { submitQuizResult } from "@/lib/api/quizzes";
 import QuizResult from "./QuizResult";
 import QuizIntro from "./QuizIntro";
 import { FiLogOut } from "react-icons/fi";
@@ -22,14 +24,16 @@ interface Props {
 export default function QuizEngine({
   questions,
   totalPoints,
-  regionName = "Oblast",
-  regionColor = "#BD9554",
+  regionName = "",
+  regionColor = "",
   level = 1,
   quizId,
-  exitHref = "/hry/oblasti/etiopska-oblast",
+  exitHref = "/hry/kontinenty/",
 }: Props) {
   const [started, setStarted] = useState(false);
   const router = useRouter();
+  const { activeProfile } = useAuthContext();
+  const submittedRef = useRef(false);
 
   const {
     currentQuestion,
@@ -46,9 +50,27 @@ export default function QuizEngine({
     timeLabel,
   } = useQuiz(questions);
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
-    const imgUrl = (path: string | null | undefined) =>
-        path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
+  const imgUrl = (path: string | null | undefined) =>
+      path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+
+  // Uložení výsledku kvízu po dokončení
+  useEffect(() => {
+    if (!finished || submittedRef.current) return;
+    if (!quizId || !activeProfile?.id) {
+      console.warn("Nelze uložit výsledek kvízu - chybí quizId nebo activeProfile.");
+      return;
+    }
+
+    submittedRef.current = true;
+    submitQuizResult({
+      quiz_id: quizId,
+      profile_id: activeProfile.id,
+      score,
+    }).catch(() => {
+      submittedRef.current = false;
+    });
+  }, [finished, quizId, activeProfile, score]);
 
   if (!started) {
     return (
@@ -81,7 +103,7 @@ export default function QuizEngine({
   const questionType = currentQuestion.category?.name ?? "select";
 
   return (
-    <main className="min-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-10">
+    <main className="lg:max-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
 
       {/* Header */}
       <header className="w-full max-w-sm pt-6 pb-2 text-center shrink-0">
@@ -234,7 +256,7 @@ export default function QuizEngine({
         <button
           type="button"
           onClick={handleNext}
-          className="mt-4 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
+          className="my-6 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
           style={{ backgroundColor: regionColor }}
         >
           {isLast ? "Zobrazit výsledek" : "Pokračovat"}

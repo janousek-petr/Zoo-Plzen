@@ -9,7 +9,7 @@ class AnsweredQuizzes extends Model
     //
     protected $table = 'answered_quizzes';
 
-    protected $fillable = ['quiz_id', 'score', 'profile_id'];
+    protected $fillable = ['quiz_id', 'profile_id', 'score', 'answered_at'];
 
     protected $dates = ['answered_at'];
 
@@ -22,7 +22,7 @@ class AnsweredQuizzes extends Model
 
     public function profile()
     {
-        return $this->belongsTo(Profile::class, 'profile_id');
+        return $this->belongsTo(Profile::class);
     }
 
     public function answeredQuestions()

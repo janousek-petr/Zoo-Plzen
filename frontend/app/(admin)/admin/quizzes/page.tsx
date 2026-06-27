@@ -1,4 +1,4 @@
-import QuizMenu from "@/components/admin/QuizMenu"
+import QuizMenu from "@/components/admin/quiz/QuizMenu"
 import Header from "@/components/admin/Header"
 
 export default function AdminQuizzes(){
