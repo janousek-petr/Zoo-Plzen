@@ -96,3 +96,16 @@ export type Item = {
     category?: ItemCategory;
     equipped?: boolean;
 };
+
+export type RegionInfo = {
+    id: number
+    region_id: number
+    level: number
+    text: string
+    created_at?: string
+    updated_at?: string
+    region?: {
+        id: number
+        name: string
+    } | null
+}
