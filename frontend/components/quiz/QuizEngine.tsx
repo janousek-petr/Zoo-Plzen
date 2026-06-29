@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import {useState, useEffect, useRef} from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Question } from "@/lib/types";
 import { useQuiz } from "@/hooks/useQuiz";
 import { useAuthContext } from "@/contexts/AuthContext";
-import { submitQuizResult } from "@/lib/api/quizzes";
+import {submitQuizResult} from "@/lib/api/quizzes";
 import QuizResult from "./QuizResult";
 import QuizIntro from "./QuizIntro";
 import { FiLogOut } from "react-icons/fi";
@@ -48,6 +48,7 @@ export default function QuizEngine({
     handleOptionClick,
     handleNext,
     timeLabel,
+    selectedAnswers
   } = useQuiz(questions);
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
@@ -67,10 +68,11 @@ export default function QuizEngine({
       quiz_id: quizId,
       profile_id: activeProfile.id,
       score,
+      selectedAnswers: selectedAnswers
     }).catch(() => {
       submittedRef.current = false;
     });
-  }, [finished, quizId, activeProfile, score]);
+  }, [finished, quizId, activeProfile, score, selectedAnswers]);
 
   if (!started) {
     return (

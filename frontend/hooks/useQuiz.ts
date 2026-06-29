@@ -21,6 +21,7 @@ export function useQuiz(questions: Question[]) {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedAnswers, setSelectedAnswers] = useState<Set<number>>(new Set());
   const [hasAnswered, setHasAnswered] = useState(false);
   const [score, setScore] = useState(0);
   const [finished, setFinished] = useState(false);
@@ -62,6 +63,13 @@ export function useQuiz(questions: Question[]) {
     if (selected?.is_correct === 1) {
       setScore(s => s + (currentQuestion.points ?? 0));
     }
+
+    setSelectedAnswers(prev => {
+      const newSet = new Set(prev);
+      newSet.add(answerId);
+      return newSet;
+    });
+
     setSelectedId(answerId);
     setHasAnswered(true);
   };
@@ -93,5 +101,6 @@ export function useQuiz(questions: Question[]) {
     handleOptionClick,
     handleNext,
     timeLabel,
+    selectedAnswers
   };
 }
