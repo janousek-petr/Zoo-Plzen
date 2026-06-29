@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Answer;
+use App\Models\AnsweredQuestions;
 use App\Models\AnsweredQuizzes;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AnsweredQuizzesController extends Controller
 {
@@ -38,26 +41,43 @@ class AnsweredQuizzesController extends Controller
             'quiz_id' => 'required|integer|exists:quiz,id',
             'profile_id' => 'required|integer|exists:profiles,id',
             'score' => 'required|integer|min:0',
+            'selectedAnswers' => 'required|array'
         ]);
 
-        // Bezpečnostní kontrola: profil musí patřit přihlášenému userovi.
-        // Bez tohle by si kdokoliv mohl přes API zapsat výsledek k cizímu profilu.
-        $profile = Profile::where('id', $validated['profile_id'])
-            ->where('user_id', auth()->id())
-            ->first();
+        $profileExists = Profile::where('id', $validated['profile_id'])->exists();
 
-        if (!$profile) {
-            return response()->json(['message' => 'Profil nenalezen nebo nepatří k tomuto účtu.'], 403);
+        if ($profileExists) {
+            $answeredQuiz = DB::transaction(function () use ($validated,) {
+                $answeredQuiz = AnsweredQuizzes::create([
+                    'quiz_id' => $validated['quiz_id'],
+                    'score' => $validated['score'],
+                    'profile_id' => $validated['profile_id'],
+                ]);
+                $chosenAnswerIds = $validated['selectedAnswers'];
+
+                $answers = Answer::whereIn('id', $chosenAnswerIds)->get();
+
+                $answeredQuestionsData = [];
+
+                foreach ($answers as $answer) {
+                    $answeredQuestionsData[] = [
+                        'answered_quiz_id' => $answeredQuiz->id,
+                        'question_id' => $answer->question_id,
+                        'chosen_answer' => $answer->id,
+                        'written_answer' => null,
+                    ];
+                }
+
+                if (!empty($answeredQuestionsData)) {
+                    AnsweredQuestions::insert($answeredQuestionsData);
+                }
+
+                return $answeredQuiz;
+            });
+            return response()->json($answeredQuiz, 201);
         }
 
-        $answeredQuiz = AnsweredQuizzes::create([
-            'quiz_id' => $validated['quiz_id'],
-            'profile_id' => $validated['profile_id'],
-            'score' => $validated['score'],
-            'answered_at' => now(),
-        ]);
-
-        return response()->json($answeredQuiz, 201);
+        return response()->noContent();
     }
 
     /**

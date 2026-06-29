@@ -167,13 +167,25 @@ export async function togglePublishQuiz(id: number) {
     }
 }
 
+/**
+ * Proč se používá Set<T> pro vybrané odpovědi?
+ * Protože ze své podstaty garantuje unikátnost prvků a automaticky zabraňuje duplicitám při opakovaném kliknutí na stejnou možnost.
+ * Tato data se před odesláním na API jednoduše převedou na běžné pole přes Array.from().
+ * @param data
+ */
 export async function submitQuizResult(data: {
     quiz_id: number,
     profile_id: number,
     score: number,
+    selectedAnswers: Set<number>
 }) {
     try {
-        const res = await axiosClient.post(`/api/answeredQuizzes`, data);
+        const res = await axiosClient.post(`/api/answeredQuizzes`, {
+            quiz_id: data.quiz_id,
+            profile_id: data.profile_id,
+            score: data.score,
+            selectedAnswers: Array.from(data.selectedAnswers)
+        });
         return res.data;
     } catch (err) {
         console.error(err);
