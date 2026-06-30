@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Challenges\ChallengeEvaluatorFactory;
 use App\Models\ActiveChallenge;
 use App\Models\ProfileChallengeProgress;
-use DB;
+use Database\Factories\ChallengeEvaluatorFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
-use Mockery\Exception;
 
 class ActiveChallengeController extends Controller
 {
@@ -17,6 +16,7 @@ class ActiveChallengeController extends Controller
     public function index(Request $request)
     {
         $profileId = $request->input('profile_id');
+
         $weekly = ActiveChallenge::where('period', 'weekly')
             ->where('valid_until', '>', now())
             ->get();
@@ -25,17 +25,25 @@ class ActiveChallengeController extends Controller
             ->where('valid_until', '>', now())
             ->get();
 
-        $activeIds = $weekly->pluck('id')->merge($daily->pluck('id'));
-        $progressMap = ProfileChallengeProgress::where('profile_id', $profileId)
-            ->whereIn('active_challenge_id', $activeIds)
-            ->pluck('progress', 'active_challenge_id');
+        // ÚPRAVA: Výchozí stav je prázdná kolekce (pokrok bude u všeho 0)
+        $progressMap = collect();
+
+        // Pokud profile_id dorazil, načteme reálný pokrok z DB
+        if ($profileId) {
+            $activeIds = $weekly->pluck('id')->merge($daily->pluck('id'));
+
+            $progressMap = ProfileChallengeProgress::where('profile_id', $profileId)
+                ->whereIn('active_challenge_id', $activeIds)
+                ->get()
+                ->keyBy('active_challenge_id');
+        }
 
         return response()->json([
             "weeklyChallenges" => $weekly->map(fn($c) => $this->formatWeeklyChallenge($c, $progressMap))->values(),
             "renewsInHours" => $this->calculateRenewHours($daily),
             "renewIconSrc" => "/img/icons/hourglass-icon.png",
             "renewIconAlt" => "Refresh",
-            "dailyTasks" => $daily->values()->map(fn($c, $index) => $this->formatDailyTask($c, $index))->values()
+            "dailyTasks" => $daily->values()->map(fn($c, $index) => $this->formatDailyTask($c, $index, $progressMap))->values()
         ]);
     }
 
@@ -50,7 +58,6 @@ class ActiveChallengeController extends Controller
                     "challenge_type" => "required|string",
                 ]);
 
-                // Najdeme všechny aktivní výzvy tohoto typu
                 $active = ActiveChallenge::where('challenge_type', $request->challenge_type)
                     ->where('valid_until', '>', now())
                     ->get();
@@ -60,10 +67,7 @@ class ActiveChallengeController extends Controller
                     if (($data["challenge_type"] ?? null) !== $request->challenge_type) {
                         continue;
                     }
-                    // Vybereme správný evaluátor
                     $evaluator = ChallengeEvaluatorFactory::make($data["challenge_type"]);
-
-                    // Vyhodnotíme výzvu
                     $evaluator->evaluate($challenge, $data, $request);
                 }
 
@@ -72,31 +76,6 @@ class ActiveChallengeController extends Controller
         } catch (\Throwable $th) {
             return response("Event failed: " . $th->getMessage(), 500);
         }
-
-    }
-    /**
-     * @deprecated
-     * Formátování výzvy pro frontend
-     *
-     */
-    private function formatChallenge(ActiveChallenge $challenge)
-    {
-        $data = $challenge->data;
-
-        return [
-            "id" => $challenge->id,
-            "title" => $data["title"] ?? "",
-            "description" => $data["description"] ?? "",
-            "progress" => $this->getUserProgress($challenge->id),
-            "reward" => $data["reward"] ?? 0,
-            "rewardIconSrc" => $data["rewardIconSrc"] ?? "img/icons/currency-icon.png",
-            "rewardIconAlt" => $data["rewardIconAlt"] ?? "Tlapky",
-            "animalSrc" => $data["animalSrc"] ?? "",
-            "animalAlt" => $data["animalAlt"] ?? "No image found",
-            "animalSide" => $data["animalSide"] ?? "left",
-            "bgColor" => $data["bgColor"] ?? "#fff",
-            "textColor" => $data["textColor"] ?? "#000",
-        ];
     }
 
     /**
@@ -106,63 +85,67 @@ class ActiveChallengeController extends Controller
     {
         $data = $challenge->data;
 
+        // Vytáhneme progress objekt z mapy
+        $userProgress = $progressMap[$challenge->id] ?? null;
+        $progress = $userProgress ? $userProgress->progress : 0;
+
+        // Výzva je splněná buď z DB vlaječky, nebo pokud progress dosáhl targetu
+        $completed = $userProgress?->completed ?? ($progress >= ($data['target'] ?? 0));
+
         return [
             "id" => $challenge->id,
             "title" => $data["title"] ?? "",
             "description" => $data["description"] ?? "",
-            "progress" => $progressMap[$challenge->id] ?? 0,
+            "progress" => (int) $progress, // OPRAVA: vracíme reálné číslo progressu
             "reward" => $data["reward"] ?? 0,
-            "rewardIconSrc" => $data["rewardIconSrc"] ?? "img/icons/currency-icon.png",
+            "rewardIconSrc" => $data["rewardIconSrc"] ?? "/img/icons/currency-icon.png",
             "rewardIconAlt" => $data["rewardIconAlt"] ?? "Tlapky",
             "animalSrc" => $data["animalSrc"] ?? "",
             "animalAlt" => $data["animalAlt"] ?? "No image found",
             "animalSide" => $data["animalSide"] ?? "left",
+            "target" => $data["target"] ?? 0,
             "bgColor" => $data["bgColor"] ?? "#fff",
-            "textColor" => $data["textColor"] ?? "#000",
+            "completed" => (bool) $completed,
         ];
     }
 
     /**
      * Formátování pro rozhraní DailyTask
      */
-    private function formatDailyTask(ActiveChallenge $challenge, int $index): array
+    private function formatDailyTask(ActiveChallenge $challenge, int $index, $progressMap): array
     {
         $data = $challenge->data;
 
+        // Vytáhneme progress objekt z mapy
+        $userProgress = $progressMap[$challenge->id] ?? null;
+        $progress = $userProgress ? $userProgress->progress : 0;
+
+        $completed = $userProgress?->completed ?? ($progress >= ($data['target'] ?? 0));
+
         return [
             "id" => $challenge->id,
-            "order" => $index + 1, // Automatické pořadí od 1 podle indexu v kolekci
+            "order" => $index + 1,
             "orderIconSrc" => $data["orderIconSrc"] ?? "/icons/numbers/" . ($index + 1) . ".png",
             "orderIconAlt" => $data["orderIconAlt"] ?? "Krok " . ($index + 1),
-            "category" => $data["category"] ?? "Obecné",
+            "title" => $data["title"] ?? "Obecné",
             "description" => $data["description"] ?? "",
-            "progress" => $progressMap[$challenge->id] ?? 0,
+            "progress" => (int) $progress,
             "reward" => $data["reward"] ?? 0,
-            "rewardIconSrc" => $data["rewardIconSrc"] ?? "img/icons/currency-icon.png",
+            "rewardIconSrc" => $data["rewardIconSrc"] ?? "/img/icons/currency-icon.png",
             "rewardIconAlt" => $data["rewardIconAlt"] ?? "Tlapky",
-            "bgColor" => $data["bgColor"] ?? "#fff",
-            "rewardBgColor" => $data["rewardBgColor"] ?? "#eee",
+            "target" => $data["target"] ?? 0,
+            "bgColor" => "bg-[#5aab6e]",
+            "rewardBgColor" => $completed ? "bg-[#5aab6e]" : "bg-[#f15a24]",
+            "completed" => (bool) $completed,
         ];
     }
-    /**
-     * Získá progres hráče pro danou výzvu
-     */
-    private function getUserProgress($activeChallengeId, int $userId)
-    {
-        return ProfileChallengeProgress::where('user_id', $userId)
-            ->where('active_challenge_id', $activeChallengeId)
-            ->value('progress') ?? 0;
-    }
 
-    /**
-     * Spočítá, za kolik hodin se výzvy obnoví
-     */
     private function calculateRenewHours($daily)
     {
         if ($daily->isEmpty()) {
             return 0;
         }
 
-        return now()->diffInHours($daily->first()->valid_until);
+        return (int) now()->diffInHours($daily->first()->valid_until);
     }
 }
