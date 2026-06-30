@@ -1,6 +1,10 @@
 <?php
 
-namespace App\Challenges;
+namespace Database\Factories;
+
+use App\Challenges\AbstractChallengeEvaluator;
+use App\Challenges\CorrectAnswersEvaluator;
+use App\Challenges\QuizCompletedEvaluator;
 
 class ChallengeEvaluatorFactory
 {
