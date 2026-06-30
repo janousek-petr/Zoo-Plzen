@@ -88,14 +88,14 @@ return [
         ],
         [
             'templates' => 'region_correct_answers',
-            'min' => 5,
-            'max' => 10,
+            'min' => 3,
+            'max' => 5,
             'reward' => 3,
         ],
         [
             'templates' => 'correct_answers',
-            'min' => 5,
-            'max' => 10,
+            'min' => 3,
+            'max' => 5,
             'reward' => 3,
         ],
     ],

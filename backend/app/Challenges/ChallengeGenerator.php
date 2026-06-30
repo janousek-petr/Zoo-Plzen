@@ -16,22 +16,34 @@ class ChallengeGenerator
     private array $generated = [];
 
     /**
-     * Vygeneruje denní výzvy
-     */
-
-    /**
      * Zkontroluje, zda je výzva duplicitní v rámci dne/týdne
      */
-    private function isDuplicate(array $challenge): bool
+    private function isDuplicate(array $challenge, string $period): bool
     {
+        // 1. PRAVIDLO: V rámci stejné dávky (např. jen v denních) se NESMÍ opakovat stejný TYP
         foreach ($this->generated as $existing) {
-            if (
-                $existing['challenge_type'] === $challenge['challenge_type'] &&
-                ($existing['region_id'] ?? null) === ($challenge['region_id'] ?? null) &&
-                ($existing['target'] ?? null) === ($challenge['target'] ?? null)
-            ) {
-                return true;
+            if ($existing['challenge_type'] === $challenge['challenge_type']) {
+                return true; // Typ už v této dávce existuje, zamítnout!
             }
+        }
+
+        // 2. PRAVIDLO: Mezi denními a týdenními typ stejný BÝT MŮŽE, ale nesmí být IDENTICKÝ
+        // Ověříme v databázi vůči aktivním výzvám z JINÉHO období (period)
+        $regionId = $challenge['region_id'] ?? null;
+        $target = $challenge['target'] ?? null;
+
+        $identicalExistsInDb = ActiveChallenge::where('challenge_type', $challenge['challenge_type'])
+            ->where('period', '!=', $period)   // Kontrola vůči opačnému období (daily vs weekly)
+            ->where('valid_until', '>', now()) // Pouze aktuálně platné/aktivní výzvy
+            ->get()
+            ->contains(function ($activeChallenge) use ($regionId, $target) {
+                $dbData = $activeChallenge->data; // Předpokládáme array/json cast na modelu
+                return ($dbData['region_id'] ?? null) === $regionId
+                    && ($dbData['target'] ?? null) === $target;
+            });
+
+        if ($identicalExistsInDb) {
+            return true; // Výzva se stejným typem, regionem i cílem už běží v druhém období
         }
 
         return false;
@@ -45,6 +57,9 @@ class ChallengeGenerator
         $this->generated[] = $challenge;
     }
 
+    /**
+     * Vygeneruje denní výzvy
+     */
     public function generateDaily(?int $count = null): void
     {
         $count = $count ?? config('challenges.daily_count', 3);
@@ -81,8 +96,28 @@ class ChallengeGenerator
 
                     $challenge = $this->buildChallenge($template, $region);
 
-                    $challenge["animalSide"] = ($i % 2 === 0 && $period === "weekly") ? "left" : "right";
-                } while ($this->isDuplicate($challenge));
+                    if ($period === 'weekly') {
+                        // Střídáme stranu podle indexu (0 = left, 1 = right, 2 = left...)
+                        $side = ($i % 2 === 0) ? 'left' : 'right';
+
+                        // Vytáhneme z databáze obrázek zvířete pro tento region a stranu
+                        $animalImage = DB::table('challenge_region_image')
+                            ->where('region_id', $region->id)
+                            ->where('side', $side)
+                            ->inRandomOrder() // Pokud bys měl pro jednu stranu víc zvířat, vybere náhodné
+                            ->first();
+
+                        $challenge['animalSrc'] = $animalImage ? $animalImage->url : '';
+                        $challenge['animalAlt'] = $animalImage ? $animalImage->alt : 'Zvíře';
+                        $challenge['animalSide'] = $side;
+                        $challenge['bgColor'] = $region->color;
+                        $challenge['rewardIconSrc'] = '/img/icons/currency-icon.png';
+                        $challenge['rewardIconAlt'] = 'Tlapky';
+
+                        if ($animalImage?->title)
+                            $challenge['title'] = $animalImage->title;
+                    }
+                } while ($this->isDuplicate($challenge, $period));
 
                 $this->remember($challenge);
 
@@ -118,7 +153,7 @@ class ChallengeGenerator
      */
     private function buildRegionCorrectAnswersOrRegionQuizChallenge(array $template, $region): array
     {
-        $count = rand($template["min"], $template["max"]);
+        $count = $template['target'];
 
         $code = str_replace(
             ["{count}", "{region_id}"],
@@ -144,7 +179,7 @@ class ChallengeGenerator
 
     private function buildCorrectAnswersOrQuizCompletedChallenge(array $template): array
     {
-        $count = rand($template["min"], $template["max"]);
+        $count = $template['target'];
 
         $code = str_replace(
             ["{count}"],
