@@ -4,6 +4,7 @@ namespace App\Challenges;
 
 use App\Models\ActiveChallenge;
 use App\Models\ProfileChallengeProgress;
+use App\Models\Quiz;
 use Illuminate\Http\Request;
 class QuizCompletedEvaluator extends AbstractChallengeEvaluator
 {
@@ -24,6 +25,19 @@ class QuizCompletedEvaluator extends AbstractChallengeEvaluator
         if (!empty($data['region_id'])) {
             if (!$this->isTheSameRegion($answeredQuizId, $data['region_id'])) return;
         }
+
+        // Pro splnění podmínky musí počet správných odpovědí být 80% nebo víc
+        $correctClosed = CorrectAnswersEvaluator::getTotalCorrectClosed($answeredQuizId);
+        $correctOpen = CorrectAnswersEvaluator::getTotalCorrectOpen($answeredQuizId);
+        $totalCorrect = $correctClosed + $correctOpen;
+
+        $quiz = Quiz::find($request->quiz_id);
+
+        $totalQuestions = $quiz->questions()->count();
+        if (!$quiz || $totalQuestions === 0) return;
+
+        $percentage = ($totalCorrect / $totalQuestions) * 100;
+        if ($percentage < 80) return;
 
         // 3. Načteme nebo vytvoříme celkový pokrok uživatele v této výzvě
         $progress = ProfileChallengeProgress::firstOrCreate([

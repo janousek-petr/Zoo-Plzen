@@ -28,6 +28,7 @@ return new class extends Migration
             $table->integer('xp')->default(0);
             $table->integer('points')->default(0);
             $table->timestamps();
+            $table->timestamp('last_daily_reward_at')->nullable();
         });
     }
 

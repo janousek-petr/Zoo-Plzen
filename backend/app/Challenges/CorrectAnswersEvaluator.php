@@ -64,14 +64,14 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
         $progress->save();
     }
 
-    protected function getTotalCorrectClosed($answeredQuizId): int {
+    public static function getTotalCorrectClosed($answeredQuizId): int {
         return AnsweredQuestions::where('answered_quiz_id', $answeredQuizId)
             ->whereHas('chosenAnswer', function ($query) {
                 $query->where('is_correct', true);
             })
             ->count();
     }
-    protected function getTotalCorrectOpen(int $answeredQuizId): int
+    public static function getTotalCorrectOpen(int $answeredQuizId): int
     {
         return AnsweredQuestions::where('answered_quiz_id', $answeredQuizId)
             ->whereNotNull('written_answer')

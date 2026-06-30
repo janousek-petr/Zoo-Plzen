@@ -23,11 +23,13 @@ class Profile extends Model
         'displayed_medals',
         'level',
         'xp',
-        'points'
+        'points',
+        'last_daily_reward_at',
     ];
 
     protected $casts = [
         'displayed_medals' => 'array',
+        'last_daily_reward_at' => 'datetime',
     ];
 
     public function user()

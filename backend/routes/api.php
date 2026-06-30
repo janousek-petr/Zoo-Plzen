@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActiveChallengeController;
 use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -81,3 +82,4 @@ Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::clas
 //Výzvy
 Route::post('/challenges', [ActiveChallengeController::class, 'index']);
 Route::post('/challenges/event', [ActiveChallengeController::class, 'submitEvent']);
+Route::post('/profiles/claim-daily-reward', [ProfileController::class, 'claimDailyReward']); # Daily login
