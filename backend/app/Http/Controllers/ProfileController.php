@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Profile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -70,5 +71,35 @@ class ProfileController extends Controller
         $profile->delete();
 
         return response()->json(null, 204);
+    }
+
+    public function claimDailyReward(Request $request)
+    {
+        $profileId = $request->input('profile_id');
+        $profile = Profile::find($profileId);
+
+        if (!$profile) {
+            return response()->json(['status' => 'error', 'message' => 'Profil nenalezen'], 404);
+        }
+
+        // Zkontrolujeme, zda dnes už odměnu dostal
+        if ($profile->last_daily_reward_at && $profile->last_daily_reward_at->isToday()) {
+            return response()->json([
+                'status' => 'already_claimed',
+                'message' => 'Dnes už byla odměna pro tento profil vybrána.'
+            ]);
+        }
+
+        // Přičtení odměny
+        $profile->update([
+            'last_daily_reward_at' => Carbon::now(),
+            'points' => $profile->points + 10
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Odměna připsána!',
+            'new_points' => $profile->points
+        ]);
     }
 }
