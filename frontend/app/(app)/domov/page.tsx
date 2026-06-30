@@ -10,7 +10,7 @@ export default function Home(){
                 <section className="grid sm:grid-cols-4 grid-cols-2 flex-col gap-5 justify-self-center my-20">
 
                     {/* Každé tlačítko je nyní Link místo divu */}
-                    <Link href="/hry" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
+                    <Link href="/hry/kontinenty" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/play-button.png"
                             alt="Tlačítko - Hrát"

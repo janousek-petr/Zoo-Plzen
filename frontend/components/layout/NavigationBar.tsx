@@ -8,7 +8,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 
 const MENU_ITEMS = [
   { label: "Domov", href: "/domov/" },
-  { label: "Hry", href: "/hry/" },
+  { label: "Hry", href: "/hry/kontinenty" },
   { label: "Týdenní žebříček", href: "/zebricek/" },
   { label: "Tvoje výzvy", href: "vyzvy" },
   { label: "Obchod", href: "/obchod/" },
@@ -99,7 +99,7 @@ export default function Navbar() {
                 <li className="border-t border-gray-100 mt-2 pt-2">
                   <button
                     onClick={handleProfileLogout}
-                    className="w-full text-left px-6 py-3 text-red-500 font-semibold hover:bg-red-50 transition-colors"
+                    className="w-full text-left px-6 py-3 text-red-500 font-semibold hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     Odhlásit profil
                   </button>

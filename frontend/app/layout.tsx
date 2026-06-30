@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zoo Plzeň",
+  title: "Zoo v kapse",
   description: "",
 };
 
