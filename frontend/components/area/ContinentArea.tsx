@@ -131,7 +131,7 @@ export default async function ContinentArea({regionId, regionName, regionColor, 
             </div>
 
 
-            <div className="relative w-full h-10 lg:h-14 overflow-hidden my-10">
+            <div className="relative w-full h-10 lg:h-20 overflow-hidden my-10">
                 <Image
                     src={regionOrnament}
                     alt={"Ornament" + regionName}
@@ -186,15 +186,15 @@ export default async function ContinentArea({regionId, regionName, regionColor, 
                     bgColorClass={primaryColor}
                 />
                 <Image
-                    src="/img/photo-no-bg/giraffe-2.png"
-                    alt="Žirafa"
+                    src={regionSecondAnimal}
+                    alt={"Zvíře - " + {regionName}}
                     width={600}
                     height={600}
                     className="md:absolute left-0 xl:left-35 bottom-0 object-contain self-start"
                 />
             </div>
 
-            <div className="relative w-full h-10 lg:h-14 overflow-hidden my-10">
+            <div className="relative w-full h-10 lg:h-20 overflow-hidden my-10">
                 <Image
                     src={regionOrnament}
                     alt={"Ornament" + regionName}

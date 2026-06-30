@@ -2,17 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { RiRefreshLine } from "react-icons/ri";
 import StatCard from "@/components/ui/StatCard";
 import BackpackHero from "@/components/ui/BackpackHero";
 import { useProfile } from "@/hooks/useProfile";
 import { getInventory, equipItem } from "@/lib/api/inventory";
 import { getItems } from "@/lib/api/items";
+import profileService from "@/lib/api/profiles";
 import type { Item } from "@/lib/types";
 
-const CATEGORY_AVATAR = 1;     // Profilovky
-const CATEGORY_ACCESSORY = 2;  // Čepice
-const CATEGORY_WALLPAPER = 3;  // Tapety
-const CATEGORY_PHOTO = 4;      // Fotky
+const CATEGORY_AVATAR = 1;
+const CATEGORY_ACCESSORY = 2;
+const CATEGORY_WALLPAPER = 3;
+const CATEGORY_PHOTO = 4;
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 
@@ -20,6 +22,16 @@ const resolveUrl = (path: string | null | undefined): string | null =>
     path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : null;
 
 const WALLPAPER_FIRST_ROW = 6;
+
+const ADJECTIVES = ["Rychlý", "Chytrý", "Veselý", "Modrý", "Silný", "Tichý", "Barevný"];
+const ANIMALS    = ["Papoušek", "Lev", "Vlk", "Tygr", "Medvěd", "Sokol", "Delfín"];
+
+function generateNickname() {
+    const adj  = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
+    const anim = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
+    const num  = Math.floor(100 + Math.random() * 900);
+    return `${adj}${anim}${num}`;
+}
 
 export default function BackpackTab() {
   const { profile, isSaving, refresh } = useProfile();
@@ -35,15 +47,21 @@ export default function BackpackTab() {
   const [wallpapersExpanded,  setWallpapersExpanded]  = useState(false);
   const [selectedPhoto,       setSelectedPhoto]       = useState<string | null>(null);
 
+  // Přezdívka
+  const [nickname, setNickname]           = useState("");
+  const [nicknameSaving, setNicknameSaving] = useState(false);
+  const [nicknameSaved, setNicknameSaved]   = useState(false);
+
   useEffect(() => {
     if (!profile?.id) return;
+    setNickname(profile.nickname ?? "");
     setItemsLoading(true);
     getInventory(profile.id)
       .then(setItems)
       .catch(() => setItemsError('Nepodařilo se načíst inventář.'))
       .finally(() => setItemsLoading(false));
     getItems().then(setAllItems).catch(() => {});
-  }, [profile?.id]);
+  }, [profile?.id, profile?.nickname]);
 
   const avatarItems     = items.filter(i => i.category?.id === CATEGORY_AVATAR);
   const accessoryItems  = items.filter(i => i.category?.id === CATEGORY_ACCESSORY);
@@ -55,7 +73,6 @@ export default function BackpackTab() {
   const visibleAccessories = accessoriesExpanded ? accessoryItems  : accessoryItems.slice(0, 10);
   const visibleWallpapers  = wallpapersExpanded  ? wallpaperItems  : wallpaperItems.slice(0, WALLPAPER_FIRST_ROW);
 
-  // Equipnutý item v každé kategorii (podle *_item_id na profilu)
   const selectedAvatar    = avatarItems.find(i => i.id === profile?.avatar_item_id);
   const selectedAccessory = accessoryItems.find(i => i.id === profile?.accessory_item_id);
   const selectedWallpaper = wallpaperItems.find(i => i.id === profile?.wallpaper_item_id);
@@ -69,7 +86,7 @@ export default function BackpackTab() {
     setEquippingId(item.id);
     try {
       await equipItem(profile.id, item.id);
-      await refresh(); // dotáhne aktuální *_item_id z backendu
+      await refresh();
     } catch {
       setItemsError('Nepodařilo se equipnout předmět.');
     } finally {
@@ -77,11 +94,30 @@ export default function BackpackTab() {
     }
   };
 
+  const handleNicknameReroll = () => {
+    setNickname(generateNickname());
+    setNicknameSaved(false);
+  };
+
+  const handleNicknameSave = async () => {
+    if (!profile?.id || !nickname.trim()) return;
+    setNicknameSaving(true);
+    try {
+      await profileService.update(profile.id, { nickname });
+      await refresh();
+      setNicknameSaved(true);
+      setTimeout(() => setNicknameSaved(false), 2000);
+    } catch {
+      setItemsError('Nepodařilo se uložit přezdívku.');
+    } finally {
+      setNicknameSaving(false);
+    }
+  };
+
   if (!profile) return null;
 
   return (
     <div className="w-full">
-      {/* Saving indicator */}
       {(isSaving || equippingId !== null) && (
         <div className="fixed top-4 right-4 z-50 bg-amber-400 text-white px-4 py-2 rounded-xl font-bold shadow-lg animate-pulse">
           Ukládám...
@@ -103,6 +139,32 @@ export default function BackpackTab() {
         xp={profile.xp}
         xpMax={profile.level * 100 + 100}
       />
+
+      {/* PŘEZDÍVKA */}
+      <SectionBlock title="Přezdívka">
+        <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
+          <div className="w-full bg-white rounded-2xl px-6 py-4 text-center">
+            <p className="cus-font-impacted text-3xl text-gray-800">{nickname || "—"}</p>
+          </div>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={handleNicknameReroll}
+              className="flex-1 flex items-center justify-center gap-2 border-4 border-amber-400 text-amber-500 font-black uppercase tracking-widest py-3 rounded-2xl hover:bg-amber-50 transition-all"
+            >
+              <RiRefreshLine size={20} />
+              Zkusit jinou
+            </button>
+            <button
+              onClick={handleNicknameSave}
+              disabled={nicknameSaving || nickname === (profile.nickname ?? "")}
+              className="flex-1 font-black uppercase tracking-widest py-3 rounded-2xl transition-all disabled:opacity-50
+                bg-amber-400 hover:bg-amber-500 text-white"
+            >
+              {nicknameSaving ? "Ukládám…" : nicknameSaved ? "Uloženo!" : "Uložit"}
+            </button>
+          </div>
+        </div>
+      </SectionBlock>
 
       {/* PROFILOVKY */}
       <SectionBlock title="Profilovky">
@@ -242,8 +304,6 @@ export default function BackpackTab() {
     </div>
   );
 }
-
-// ── Sdílené komponenty ────────────────────────────────────────────────────────
 
 function ExpandButton({ expanded, onClick }: { expanded: boolean; onClick: () => void }) {
   return (
