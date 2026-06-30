@@ -19,6 +19,11 @@ export function useProfile(): UseProfileReturn {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Synchronizuj lokální state když se změní activeProfile v contextu (např. z jiného tabu)
+  useEffect(() => {
+    setProfile(activeProfile);
+  }, [activeProfile]);
+
   const refresh = useCallback(async () => {
     if (!activeProfile?.id) return;
     setIsLoading(true);

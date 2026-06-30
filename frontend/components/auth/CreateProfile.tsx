@@ -27,7 +27,7 @@ function generateNickname() {
     const adj  = ADJECTIVES[Math.floor(Math.random() * ADJECTIVES.length)];
     const anim = ANIMALS[Math.floor(Math.random() * ANIMALS.length)];
     const num  = Math.floor(100 + Math.random() * 900);
-    return `${adj} ${anim} ${num}`;
+    return `${adj}${anim}${num}`;
 }
 
 export default function CreateProfile() {

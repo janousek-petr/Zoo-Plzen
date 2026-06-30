@@ -9,7 +9,7 @@ const areas = [
     mapAlt: "Mapa Afriky",
     animal: "/img/photo-no-bg/giraffe.png",
     animalAlt: "Žirafa",
-    bg: "cus-bg-beige",
+    bg: "bg-[#BD9554]",
     side: "right",
   },
   {
@@ -18,8 +18,8 @@ const areas = [
     map: "/img/maps/palearctic-area.png",
     mapAlt: "Mapa Asie",
     animal: "/img/photo-no-bg/monkey.png",
-    animalAlt: "Medvěd hnědý",
-    bg: "bg-sky-700",
+    animalAlt: "Opice",
+    bg: "bg-[#FDB913]",
     side: "left",
   },
   {
@@ -28,8 +28,8 @@ const areas = [
     map: "/img/maps/palearctic-area.png",
     mapAlt: "Mapa Evropy",
     animal: "/img/photo-no-bg/bear.png",
-    animalAlt: "Opice",
-    bg: "bg-yellow-500",
+    animalAlt: "Medvěd",
+    bg: "bg-[#0072BC]",
     side: "right",
   },
   {
@@ -39,7 +39,7 @@ const areas = [
     mapAlt: "Mapa Severní Ameriky",
     animal: "/img/photo-no-bg/bison.png",
     animalAlt: "Bizon",
-    bg: "bg-amber-900",
+    bg: "bg-[#8E5233]",
     side: "left",
   },
   {
@@ -49,7 +49,7 @@ const areas = [
     mapAlt: "Mapa Jižní Ameriky",
     animal: "/img/photo-no-bg/wolf.png",
     animalAlt: "Vlk",
-    bg: "bg-green-700",
+    bg: "bg-[#076D3C]",
     side: "right",
   },
   {
@@ -59,7 +59,7 @@ const areas = [
     mapAlt: "Mapa Austrálie",
     animal: "/img/photo-no-bg/kangaroo.png",
     animalAlt: "Klokan",
-    bg: "bg-red-500",
+    bg: "bg-[#ED1C24]",
     side: "left",
   },
 ];

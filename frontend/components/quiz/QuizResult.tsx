@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { RiTimeLine, RiMedalLine, RiCopperCoinLine, RiPlayLine, RiCheckLine, RiCloseLine } from "react-icons/ri";
 import { Question } from "@/lib/types";
 import { useRouter } from "next/navigation";
 
@@ -29,6 +30,7 @@ export default function QuizResult({
   const correctAnswers = questions.filter(q =>
     q.answers.some(a => a.is_correct === 1)
   ).length;
+  const wrongAnswers = questions.length - correctAnswers;
   const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
   const xpBonus = Math.round(score / 10);
 
@@ -96,22 +98,23 @@ export default function QuizResult({
 
           {/* Stat pilly */}
           <div className="flex flex-row gap-1">
-            <StatPill icon="/img/icons/clock-icon-dark.png" value={timeLabel} color={regionColor} />
-            <StatPill icon="/img/icons/medal-icon-dark.png" value={`${score} XP`} color={regionColor} />
-            <StatPill icon="/img/icons/currency-icon.png" value={String(Math.round(score / 5))} color={regionColor} />
+            <StatPill icon={RiTimeLine} value={timeLabel} color={regionColor} />
+            <StatPill icon={RiMedalLine} value={`${score} XP`} color={regionColor} />
+            <StatPill icon={RiCopperCoinLine} value={String(Math.round(score / 5))} color={regionColor} />
           </div>
 
-          {/* Počet otázek */}
-          <p className="font-extrabold text-gray-800 text-sm uppercase tracking-wide">
-            {correctAnswers}/{questions.length} otázek
-          </p>
-
-          {/* Progress bar */}
-          <div className="w-full h-3 bg-gray-300 rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700"
-              style={{ width: `${percentage}%`, backgroundColor: regionColor }}
-            />
+          {/* Správné / špatné */}
+          <div className="flex gap-2 mt-1">
+            <div className="flex-1 flex flex-col items-center bg-green-500 text-white rounded-xl py-2 px-1">
+              <RiCheckLine size={18} />
+              <span className="text-2xl font-black leading-tight">{correctAnswers}</span>
+              <span className="text-xs font-bold uppercase tracking-wide opacity-90">správně</span>
+            </div>
+            <div className="flex-1 flex flex-col items-center bg-red-500 text-white rounded-xl py-2 px-1">
+              <RiCloseLine size={18} />
+              <span className="text-2xl font-black leading-tight">{wrongAnswers}</span>
+              <span className="text-xs font-bold uppercase tracking-wide opacity-90">špatně</span>
+            </div>
           </div>
 
         </div>
@@ -121,9 +124,9 @@ export default function QuizResult({
       <div className="flex flex-row gap-4 w-full max-w-sm">
         <button
           onClick={() => router.push("/hry/kontinenty/afrika")}
-          className="flex-1 flex items-center justify-center gap-2 bg-[#6ABD83] hover:bg-green-600 active:scale-95 text-white cus-font-impacted-2 uppercase text-xl py-4 rounded-xl transition-all shadow-md"
+          className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white cus-font-impacted-2 uppercase text-xl py-4 rounded-xl transition-all shadow-md cursor-pointer"
         >
-          <SmallIcon src="/img/icons/play-button.png" />
+          <RiPlayLine size={24} />
           Pokračovat
         </button>
       </div>
@@ -132,23 +135,22 @@ export default function QuizResult({
   );
 }
 
-function StatPill({ icon, value, color }: { icon?: string | null; value?: string | null; color?: string | null }) {
+function StatPill({
+  icon: Icon,
+  value,
+  color,
+}: {
+  icon?: React.ComponentType<{ size?: number; className?: string }>;
+  value?: string;
+  color?: string;
+}) {
   return (
     <div
       className="flex items-center gap-1.5 text-white font-bold text-sm px-2 py-1.5 rounded-lg flex-1 justify-center"
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: color ?? undefined }}
     >
-      <div className="relative w-4 h-4 shrink-0">
-        </div>
+      {Icon && <Icon size={16} className="shrink-0" />}
       <span>{value}</span>
-    </div>
-  );
-}
-
-function SmallIcon({ src }: { src: string }) {
-  return (
-    <div className="relative w-6 h-6 shrink-0">
-      <Image src={src} alt="" fill className="object-contain" />
     </div>
   );
 }
