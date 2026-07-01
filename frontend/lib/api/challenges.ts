@@ -3,9 +3,9 @@ import axiosClient from "@/lib/axios";
 /**
  * Pro debug
  */
-export async function generateDailyChallenges() {
+export async function generateDailyChallenges(count?: number) {
     try {
-        const res = await axiosClient.post(`api/generate/dailyChallenges`, 3);
+        const res = await axiosClient.post(`api/generate/dailyChallenges`, count);
         return res.data;
     } catch (err) {
         console.error(err)
@@ -15,9 +15,9 @@ export async function generateDailyChallenges() {
 /**
  * Pro debug
  */
-export async function generateWeeklyChallenges() {
+export async function generateWeeklyChallenges(count?: number) {
     try {
-        const res = await axiosClient.post(`api/generate/weeklyChallenges`, 3);
+        const res = await axiosClient.post(`api/generate/weeklyChallenges`, count);
         return res.data;
     } catch (err) {
         console.error(err)
@@ -26,10 +26,10 @@ export async function generateWeeklyChallenges() {
 /**
  * Pro debug
  */
-export async function generateChallenges() {
+export async function generateChallenges(count? :number) {
     try {
-        await generateWeeklyChallenges()
-        await generateDailyChallenges()
+        await generateWeeklyChallenges(count)
+        await generateDailyChallenges(count)
         console.log("Výzvy se vygenerovaly úspěšně")
     } catch (err) {
         console.error(err)
