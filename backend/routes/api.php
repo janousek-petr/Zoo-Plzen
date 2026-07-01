@@ -4,6 +4,7 @@ use App\Http\Controllers\ActiveChallengeController;
 use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuestionController;
@@ -83,3 +84,6 @@ Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::clas
 Route::post('/challenges', [ActiveChallengeController::class, 'index']);
 Route::post('/challenges/event', [ActiveChallengeController::class, 'submitEvent']);
 Route::post('/profiles/claim-daily-reward', [ProfileController::class, 'claimDailyReward']); # Daily login
+
+Route::post('/generate/weeklyChallenges', [ChallengeController::class, 'triggerWeekly']);
+Route::post('/generate/dailyChallenges', [ChallengeController::class, 'triggerDaily']);
