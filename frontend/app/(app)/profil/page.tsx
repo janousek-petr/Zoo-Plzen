@@ -10,7 +10,7 @@ import MedalTab from "./_tabs/MedalTab";
 const tabs = [
   { id: "profil",    name: "Profil" },
   { id: "batoh",     name: "Batoh" },
-  { id: "medaile",   name: "Medaile" },
+  //{ id: "medaile",   name: "Medaile" },
 ];
 
 export default function Profile() {

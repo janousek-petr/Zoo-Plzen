@@ -7,11 +7,11 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
 
 const MENU_ITEMS = [
-  { label: "Domov", href: "/domov/" },
-  { label: "Hry", href: "/hry/" },
-  { label: "Týdenní žebříček", href: "/zebricek/" },
-  { label: "Tvoje výzvy", href: "vyzvy" },
-  { label: "Obchod", href: "/obchod/" },
+  { label: "Domov", href: "/domov" },
+  { label: "Hry", href: "/hry/kontinenty" },
+  { label: "Týdenní žebříček", href: "/zebricek" },
+  { label: "Tvoje výzvy", href: "/vyzvy" },
+  { label: "Obchod", href: "/obchod" },
   { label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
 ];
 
@@ -41,9 +41,9 @@ export default function Navbar() {
             aria-label="Otevřít menu"
             className="w-10 h-10 flex flex-col items-center justify-center gap-1.25 shrink-0"
           >
-            <span className={["block w-6 h-[2px] bg-gray-800 rounded-full transition-all duration-300 origin-center", menuOpen ? "rotate-45 translate-y-[7px]" : ""].join(" ")} />
-            <span className={["block w-6 h-[2px] bg-gray-800 rounded-full transition-all duration-300", menuOpen ? "opacity-0 scale-x-0" : ""].join(" ")} />
-            <span className={["block w-6 h-[2px] bg-gray-800 rounded-full transition-all duration-300 origin-center", menuOpen ? "-rotate-45 -translate-y-[7px]" : ""].join(" ")} />
+            <span className={["block w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300 origin-center", menuOpen ? "rotate-45 translate-y-1.75" : ""].join(" ")} />
+            <span className={["block w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300", menuOpen ? "opacity-0 scale-x-0" : ""].join(" ")} />
+            <span className={["block w-6 h-0.5 bg-gray-800 rounded-full transition-all duration-300 origin-center", menuOpen ? "-rotate-45 -translate-y-1.75" : ""].join(" ")} />
           </button>
 
           <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center justify-center">

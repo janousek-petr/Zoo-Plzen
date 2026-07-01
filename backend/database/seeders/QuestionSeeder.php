@@ -24,7 +24,7 @@ class QuestionSeeder extends Seeder
 
         // === select s obrázkem otázky ===
         $q2 = DB::table('question')->insertGetId([
-            'text' => 'Jaké zvíře je na obrázku?',
+            'text' => 'Jaké zvíře má dlouhý krk?',
             'points' => 10,
             'question_category' => 2, // select
             'image' => null,

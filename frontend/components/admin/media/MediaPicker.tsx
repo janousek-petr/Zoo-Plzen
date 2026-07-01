@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from 'react';
 import {
     RiCloseLine, RiSearchLine, RiCheckLine,
-    RiImageLine, RiUpload2Line, RiLoader4Line,
+    RiImageLine, RiUpload2Line, RiLoader4Line, RiMusic2Line,
 } from 'react-icons/ri';
-import { getMedia, uploadMedia} from '@/lib/api/media';
+import { getMedia, uploadMedia } from '@/lib/api/media';
 import { MediaItem } from '@/lib/types'
 
 interface MediaPickerProps {
@@ -13,9 +13,12 @@ interface MediaPickerProps {
     onClose: () => void;
     onSelect: (item: MediaItem) => void;
     selected?: number | null;
+    onlyImage?: boolean;
 }
 
-export default function MediaPicker({ open, onClose, onSelect, selected }: MediaPickerProps) {
+const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');
+
+export default function MediaPicker({ open, onClose, onSelect, selected, onlyImage = false}: MediaPickerProps) {
     const [items, setItems] = useState<MediaItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
@@ -40,13 +43,20 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
         return () => document.removeEventListener('keydown', handler);
     }, [open, onClose]);
 
-    const filtered = items.filter(i => i.filename.toLowerCase().includes(search.toLowerCase()));
+    const filtered = items
+        .filter(i => !onlyImage || !isAudio(i.mime_type))
+        .filter(i => i.filename.toLowerCase().includes(search.toLowerCase()));
 
     const handleUpload = async (files: FileList | null) => {
         if (!files?.length) return;
+        const file = files[0];
+        if (onlyImage && isAudio(file.type)) {
+            console.warn('Audio soubory nejsou v tomto režimu povoleny');
+            return;
+        }
         setUploading(true);
         try {
-            const uploaded = await uploadMedia(files[0]);
+            const uploaded = await uploadMedia(file);
             setItems(prev => [uploaded, ...prev]);
             setHighlighted(uploaded.id);
         } catch (err) { console.error('Upload selhal:', err); }
@@ -64,6 +74,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
     if (!open) return null;
 
     const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+    const highlightedItem = items.find(x => x.id === highlighted);
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -77,7 +88,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                             <RiImageLine size={20} />
                         </span>
                         <div>
-                            <h2 className="text-base font-semibold text-gray-900">Výběr obrázku</h2>
+                            <h2 className="text-base font-semibold text-gray-900">Výběr souboru</h2>
                             <p className="text-xs text-gray-400">{items.length} souborů v knihovně</p>
                         </div>
                     </div>
@@ -98,7 +109,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                         ${uploading ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95'}`}>
                         {uploading ? <RiLoader4Line size={16} className="animate-spin" /> : <RiUpload2Line size={16} />}
                         {uploading ? 'Nahrávám...' : 'Nahrát soubor'}
-                        <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" disabled={uploading}
+                        <input type="file" accept={onlyImage ? "image/*" : "image/*,audio/*"} className="absolute inset-0 opacity-0 cursor-pointer" disabled={uploading}
                             onChange={e => handleUpload(e.target.files)} />
                     </label>
                 </div>
@@ -123,6 +134,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                         <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
                             {filtered.map(item => {
                                 const isSel = highlighted === item.id;
+                                const audio = isAudio(item.mime_type);
                                 return (
                                     <button key={item.id}
                                         type="button"
@@ -130,9 +142,19 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                                         onDoubleClick={() => { setHighlighted(item.id); onSelect(item); onClose(); }}
                                         title={`${item.filename}\n${fmt(item.size)}`}
                                         className={`relative group aspect-square rounded-xl overflow-hidden border-2 transition-all focus:outline-none
-                                            ${isSel ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md scale-[1.03]' : 'border-transparent hover:border-gray-300 hover:shadow-sm'}`}>
-                                        <img src={`${apiBase}${item.path}`} alt={item.filename}
-                                            className="w-full h-full object-cover" loading="lazy" />
+                                            ${isSel ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md scale-[1.03]' : 'border-transparent hover:border-gray-300 hover:shadow-sm'}
+                                            ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-1.5' : ''}`}>
+                                        {audio ? (
+                                            <>
+                                                <RiMusic2Line size={26} className="text-gray-400" />
+                                                <span className="text-[9px] text-gray-500 px-1.5 truncate w-full text-center">
+                                                    {item.filename}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <img src={`${apiBase}${item.path}`} alt={item.filename}
+                                                className="w-full h-full object-cover" loading="lazy" />
+                                        )}
                                         <div className={`absolute inset-0 bg-black/40 flex items-end p-1.5 transition-opacity
                                             ${isSel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                             <span className="text-white text-[10px] leading-tight truncate w-full">{item.filename}</span>
@@ -158,12 +180,24 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                     )}
                 </div>
 
+                {/* Audio preview pásek nad footerem, jen pokud je vybrané audio */}
+                {highlightedItem && isAudio(highlightedItem.mime_type) && (
+                    <div className="px-6 py-3 border-t border-gray-100 bg-white">
+                        <audio
+                            key={highlightedItem.id}
+                            controls
+                            src={`${apiBase}${highlightedItem.path}`}
+                            className="w-full h-9"
+                        />
+                    </div>
+                )}
+
                 {/* Footer */}
                 <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50/50">
                     <span className="text-sm text-gray-400">
-                        {highlighted
-                            ? (() => { const i = items.find(x => x.id === highlighted); return i ? `${i.filename} (${fmt(i.size)})` : ''; })()
-                            : 'Žádný obrázek není vybrán — dvojklikem vyber a potvrď'}
+                        {highlightedItem
+                            ? `${highlightedItem.filename} (${fmt(highlightedItem.size)})`
+                            : 'Žádný soubor není vybrán — dvojklikem vyber a potvrď'}
                     </span>
                     <div className="flex items-center gap-2">
                         <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
@@ -172,7 +206,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected }: Media
                         <button type="button" onClick={handleConfirm} disabled={!highlighted}
                             className={`px-5 py-2 text-sm font-medium rounded-lg transition-all
                                 ${highlighted ? 'bg-emerald-700 text-white hover:bg-emerald-700 active:scale-95' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
-                            Vybrat obrázek
+                            Vybrat soubor
                         </button>
                     </div>
                 </div>

@@ -9,17 +9,21 @@ export default function QuizPage() {
 
     useEffect(() => {
         const raw = sessionStorage.getItem("active_quiz");
-        if (raw) setQuizData(JSON.parse(raw));
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            setQuizData(parsed);
+        }
     }, []);
 
     if (!quizData) return <p>Načítání kvízu...</p>;
-
+    
     return (
         <QuizEngine
             questions={quizData.questions}
             totalPoints={quizData.quiz_meta.total_points}
             regionName={quizData.quiz_meta.region.name}
             regionColor={quizData.regionColor}
+            regionAnimal={quizData.regionAnimal}
             level={quizData.quiz_meta.level}
             quizId={quizData.quiz_meta.id}
             exitHref={"/hry/kontinenty/" + getHrefName(quizData.quiz_meta.region.name) + "#kviz-sekce"}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import profileService from "@/lib/api/profiles";
 import { getItems } from "@/lib/api/items";
-import { giveItem } from "@/lib/api/inventory";
+import { giveItem, equipItem } from "@/lib/api/inventory";
 import type { Item } from "@/lib/types";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -101,12 +101,16 @@ export default function CreateProfile() {
                 selectedItems.map((item) => giveItem(profile.id, item.id))
             );
 
+            await Promise.all(
+                selectedItems.map((item) => equipItem(profile.id, item.id))
+            );
+
             // Hned equipnout to, co si dítě vybralo, ať se to projeví na profilu
-            await Promise.all([
+            /*await Promise.all([
                 avatar    ? profileService.update(profile.id, { avatar_item_id: avatar.id })       : null,
                 accessory ? profileService.update(profile.id, { accessory_item_id: accessory.id }) : null,
                 wallpaper ? profileService.update(profile.id, { wallpaper_item_id: wallpaper.id }) : null,
-            ]);
+            ]);*/
 
             setActiveProfile(profile)
             router.push('/domov');

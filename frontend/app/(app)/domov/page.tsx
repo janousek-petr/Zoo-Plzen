@@ -7,10 +7,10 @@ export default function Home(){
             <main className="py-20">
                 <h1 className="uppercase cus-font-impacted-2 text-7xl text-green-700 text-center">Pojďme hrát</h1>
 
-                <section className="grid sm:grid-cols-4 grid-cols-2 flex-col gap-5 justify-self-center my-20">
+                <section className="grid sm:grid-cols-5 grid-cols-2 flex-col gap-5 justify-self-center my-20">
 
                     {/* Každé tlačítko je nyní Link místo divu */}
-                    <Link href="/hry" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
+                    <Link href="/hry/kontinenty" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/play-button.png"
                             alt="Tlačítko - Hrát"
@@ -28,14 +28,14 @@ export default function Home(){
                         />
                     </Link>
 
-                    <Link href="/profil?tab=medaile" className="flex w-30 h-30 bg-indigo-400 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
+                    {/*<Link href="/profil?tab=medaile" className="flex w-30 h-30 bg-indigo-400 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/gallery-button.png"
                             alt="Tlačítko - Galerie"
                             width={64}
                             height={64}
                         />
-                    </Link>
+                    </Link>*/}
 
                     <Link href="vyzvy" className="flex w-30 h-30 bg-green-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
@@ -46,14 +46,14 @@ export default function Home(){
                         />
                     </Link>
 
-                    <Link href="zebricek" className="flex w-30 h-30 bg-fuchsia-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
+                    {/*<Link href="zebricek" className="flex w-30 h-30 bg-fuchsia-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/leaderboards-button.png"
                             alt="Tlačítko - Žebříčky"
                             width={64}
                             height={64}
                         />
-                    </Link>
+                    </Link>*/}
 
                     <Link href="obchod" className="flex w-30 h-30 bg-slate-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
@@ -73,14 +73,14 @@ export default function Home(){
                         />
                     </Link>
 
-                    <Link href="nastaveni" className="flex w-30 h-30 bg-gray-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
+                  {/*  <Link href="nastaveni" className="flex w-30 h-30 bg-gray-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
                         <Image
                             src="/img/icons/settings-button.png"
                             alt="Tlačítko - Nastavení"
                             width={64}
                             height={64}
                         />
-                    </Link>
+                    </Link>*/}
 
                 </section>
 

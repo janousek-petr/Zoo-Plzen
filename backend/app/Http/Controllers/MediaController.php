@@ -16,15 +16,15 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,webp|max:5120',
+            'file' => 'required|file|mimes:jpg,jpeg,png,webp,mp3,wav,ogg,m4a,aac|max:20480',
         ]);
 
         $file = $request->file('file');
-        $path = $file->store('media', 'public');
+        $path = $file->store('media', 'public'); // vrátí např. "media/xxx.png"
 
         $media = Media::create([
             'filename' => $file->getClientOriginalName(),
-            'path' => '/storage/' . $path,
+            'path' => '/storage/' . $path, // veřejná URL cesta
             'mime_type' => $file->getMimeType(),
             'size' => $file->getSize(),
         ]);

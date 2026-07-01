@@ -4,7 +4,7 @@ export default function AfricaPage(){
     return(
         <>
             <ContinentArea
-                regionId={6}
+                regionId={4}
                 regionName="Severní Amerika"
                 regionColor="#8E5233"
                 regionHeader="/img/background/jizni-amerika-hero.png"

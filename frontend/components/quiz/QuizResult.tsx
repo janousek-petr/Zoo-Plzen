@@ -4,16 +4,19 @@ import Image from "next/image";
 import { RiTimeLine, RiMedalLine, RiCopperCoinLine, RiPlayLine, RiCheckLine, RiCloseLine } from "react-icons/ri";
 import { Question } from "@/lib/types";
 import { useRouter } from "next/navigation";
+import { getHrefName } from "@/components/area/ContinentArea";
 
 interface Props {
   score: number;
   totalPoints: number;
   questions: Question[];
-  regionName?: string;
+  regionName: string;
   regionColor?: string;
+  regionAnimal: string
   level?: number;
   quizId?: number;
   timeLabel?: string;
+  selectedAnswers: Set<number>;
 }
 
 export default function QuizResult({
@@ -22,22 +25,25 @@ export default function QuizResult({
   questions,
   regionName,
   regionColor,
+  regionAnimal,
   level,
   quizId,
   timeLabel = "—",
+  selectedAnswers,
 }: Props) {
   const router = useRouter();
-  const correctAnswers = questions.filter(q =>
-    q.answers.some(a => a.is_correct === 1)
-  ).length;
-  const wrongAnswers = questions.length - correctAnswers;
-  const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
-  const xpBonus = Math.round(score / 10);
 
-  const subtitle =
-    percentage >= 80 ? "Zvládl jsi to levou zadní..." :
-    percentage >= 50 ? "Dobrý výkon!" :
-    "Příště to půjde lépe!";
+    const correctAnswers = questions.filter(q =>
+    q.answers.some(a => a.id !== undefined && selectedAnswers.has(a.id) && a.is_correct === 1)
+    ).length;
+    const wrongAnswers = questions.length - correctAnswers;
+    const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
+    const xpBonus = Math.round(score / 10);
+
+const subtitle =
+  percentage >= 80 ? "Zvládl jsi to levou zadní..." :
+  percentage >= 50 ? "Dobrý výkon!" :
+  "Příště to půjde lépe!";
 
   return (
     <div className="w-full min-h-screen bg-white flex flex-col items-center px-4 py-10 gap-6">
@@ -54,16 +60,19 @@ export default function QuizResult({
       </div>
 
       {/* Obrázek zvířete */}
-      <div className="w-full max-w-sm rounded-xl overflow-hidden">
-        <div className="relative w-full" style={{ aspectRatio: "4/3" }}>
+     <div className="w-full max-w-sm rounded-xl overflow-hidden">
+        <div className="relative h-20" style={{ aspectRatio: "4/3" }}>
+            { /*
           <Image
-            src="/img/photo-no-bg/giraffe.png"
+            src={regionAnimal}
             alt="Zvíře"
             fill
             className="object-contain"
             priority
           />
+          */}
         </div>
+            
       </div>
 
       {/* Název kvízu */}
@@ -76,8 +85,8 @@ export default function QuizResult({
 
       {/* Výsledková karta */}
       <div className="w-full max-w-sm bg-[#f0ebe3] rounded-2xl p-4 flex flex-row gap-4 items-start">
-
-        {/* Medaile */}
+        {/*
+        {/* Medaile *//*}
         <div className="flex flex-col items-center gap-1 shrink-0">
           <div className="w-24 h-24 rounded-full border-[6px] border-orange-400 overflow-hidden relative">
             <Image
@@ -92,6 +101,7 @@ export default function QuizResult({
             <span className="text-green-600 font-extrabold ml-1">+{xpBonus}</span>
           </p>
         </div>
+        */}
 
         {/* Pravý sloupec */}
         <div className="flex flex-col gap-2 flex-1">
@@ -123,7 +133,7 @@ export default function QuizResult({
       {/* Tlačítka */}
       <div className="flex flex-row gap-4 w-full max-w-sm">
         <button
-          onClick={() => router.push("/hry/kontinenty/afrika")}
+          onClick={() => router.push("/hry/kontinenty/" + getHrefName(regionName) + "#kviz-sekce")}
           className="flex-1 flex items-center justify-center gap-2 bg-green-700 hover:bg-green-800 text-white cus-font-impacted-2 uppercase text-xl py-4 rounded-xl transition-all shadow-md cursor-pointer"
         >
           <RiPlayLine size={24} />

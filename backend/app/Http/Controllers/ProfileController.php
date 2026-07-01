@@ -31,7 +31,7 @@ class ProfileController extends Controller
 
     public function show(Request $request, Profile $profile)
     {
-        if ($profile->user_id !== $request->user()->id) {
+        if ($profile->user_id !== $request->user()->id && $request->user()->role !== 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -40,7 +40,7 @@ class ProfileController extends Controller
 
     public function update(Request $request, Profile $profile)
     {
-        if ($profile->user_id !== $request->user()->id) {
+        if ($profile->user_id !== $request->user()->id && $request->user()->role !== 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -64,7 +64,7 @@ class ProfileController extends Controller
 
     public function destroy(Request $request, Profile $profile)
     {
-        if ($profile->user_id !== $request->user()->id) {
+        if ($profile->user_id !== $request->user()->id && $request->user()->role !== 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

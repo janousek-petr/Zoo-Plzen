@@ -16,9 +16,11 @@ interface Props {
     primaryColor: string;
     secondaryColor: string;
     accentColor: string;
+    regionAnimal: string;
 }
 
-export default function QuizSection({ regionId, quizHref, primaryColor, secondaryColor, accentColor }: Props) {
+export default function QuizSection({ regionId, quizHref, primaryColor, secondaryColor, accentColor, regionAnimal }: Props) {
+    console.log("QuizSection regionAnimal:", regionAnimal);
     const { activeProfile } = useAuthContext();
     const [unlockedLevels, setUnlockedLevels] = useState<number[]>([1]);
     const [totalScore, setTotalScore] = useState<number>(0);
@@ -44,7 +46,7 @@ export default function QuizSection({ regionId, quizHref, primaryColor, secondar
         setLoading(level);
         try {
             const data = await startRandomQuiz(regionId, level);
-            sessionStorage.setItem("active_quiz", JSON.stringify({...data, regionColor: primaryColor}));
+            sessionStorage.setItem("active_quiz", JSON.stringify({...data, regionColor: primaryColor, regionAnimal: regionAnimal}));
             router.push(quizHref);
         } catch (err) {
             console.error("Nepodařilo se spustit kvíz:", err);

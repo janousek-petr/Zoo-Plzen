@@ -52,7 +52,7 @@ export default function AddItem({ categoryId }: { categoryId: number }) {
                 {/* Obrázek */}
                 <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
                     <label className="text-sm text-gray-400">Obrázek</label>
-                    <MediaPickerButton value={image} onChange={setImage} label="Vybrat obrázek předmětu" />
+                    <MediaPickerButton value={image} onChange={setImage} label="Vybrat obrázek předmětu" onlyImage={true}/>
                 </div>
 
                 {/* Název */}

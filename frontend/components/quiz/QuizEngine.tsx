@@ -9,16 +9,56 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import {submitQuizResult} from "@/lib/api/quizzes";
 import QuizResult from "./QuizResult";
 import QuizIntro from "./QuizIntro";
-import { FiLogOut } from "react-icons/fi";
+import QuizAudioPlayer from "./QuizAudioPlayer";
+import { isAudioPath } from "@/lib/api/media";
+import { FiLogOut, FiPlay, FiPause } from "react-icons/fi";
 
 interface Props {
   questions: Question[];
   totalPoints: number;
   regionName?: string;
   regionColor?: string;
+  regionAnimal?: string;
   level?: number;
   quizId?: number;
   exitHref?: string;
+}
+
+// Malé tlačítko přehrávače pro audio odpověď v gridu (image_select)
+function AnswerAudioButton({ src, color }: { src: string; color: string }) {
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [playing, setPlaying] = useState(false);
+
+  const toggle = (e: React.MouseEvent | React.KeyboardEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const audio = audioRef.current;
+    if (!audio) return;
+    playing ? audio.pause() : audio.play();
+  };
+  return (
+    <div className="flex flex-col items-center justify-center gap-2 w-full h-full">
+      <audio
+        ref={audioRef}
+        src={src}
+        onPlay={() => setPlaying(true)}
+        onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
+      />
+      {/* div místo button, aby nevznikl <button> uvnitř <button> (rodičovská karta je button) */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={toggle}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(e); }}
+        aria-label={playing ? "Pozastavit" : "Přehrát"}
+        className="flex items-center justify-center w-14 h-14 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer"
+        style={{ backgroundColor: color }}
+      >
+        {playing ? <FiPause size={22} className="text-white" /> : <FiPlay size={22} className="text-white ml-0.5" />}
+      </div>
+    </div>
+  );
 }
 
 export default function QuizEngine({
@@ -26,6 +66,7 @@ export default function QuizEngine({
   totalPoints,
   regionName = "",
   regionColor = "",
+  regionAnimal = "",
   level = 1,
   quizId,
   exitHref = "/hry/kontinenty/",
@@ -88,8 +129,9 @@ export default function QuizEngine({
   }
 
   if (finished) {
+    console.log("regionAnimal v QuizEngine:", regionAnimal);
     return (
-      <QuizResult
+    <QuizResult
         score={score}
         totalPoints={totalPoints}
         questions={questions}
@@ -98,11 +140,14 @@ export default function QuizEngine({
         level={level}
         quizId={quizId}
         timeLabel={timeLabel}
+        selectedAnswers={selectedAnswers}
+        regionAnimal={regionAnimal}
       />
     );
   }
 
   const questionType = currentQuestion.category?.name ?? "select";
+  const questionIsAudio = !!currentQuestion.image && isAudioPath(currentQuestion.image);
 
   return (
     <main className="lg:max-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
@@ -129,8 +174,18 @@ export default function QuizEngine({
         </div>
       </header>
 
-      {/* Obrázek — jen když existuje */}
-      {questionType !== "image_select" && currentQuestion.image && (
+      {/* Audio otázky */}
+      {questionType !== "image_select" && currentQuestion.image && questionIsAudio && (
+        <QuizAudioPlayer
+          key={currentQuestion.id}
+          src={imgUrl(currentQuestion.image)!}
+          color={regionColor || undefined}
+          label="Poslechni si zvuk"
+        />
+      )}
+
+      {/* Obrázek otázky — jen když existuje a není to audio */}
+      {questionType !== "image_select" && currentQuestion.image && !questionIsAudio && (
         <div className="relative w-full max-w-sm h-56 my-4 shrink-0">
           <Image
             src={imgUrl(currentQuestion.image)!}
@@ -142,7 +197,7 @@ export default function QuizEngine({
         </div>
       )}
 
-      {/* Spacer — když není obrázek */}
+      {/* Spacer — když není žádné médium */}
       {questionType !== "image_select" && !currentQuestion.image && (
         <div />
       )}
@@ -220,9 +275,11 @@ export default function QuizEngine({
           {currentQuestion.answers.map((answer) => {
             const isCorrect = answer.id === correctAnswerId;
             const isSelected = answer.id === selectedId;
+            const answerIsAudio = !!answer.image && isAudioPath(answer.image);
 
             let border = "border-transparent";
             let opacity = "";
+            let bg = "bg-white";
 
             if (hasAnswered) {
               if (isCorrect) border = "border-green-700";
@@ -230,22 +287,31 @@ export default function QuizEngine({
               else opacity = "opacity-40";
             }
 
+            if (answerIsAudio) bg = "bg-[#f0ece4]";
+
             return (
               <button
                 key={answer.id}
                 type="button"
                 onClick={() => answer.id && handleOptionClick(answer.id)}
                 disabled={hasAnswered}
-                className={`relative rounded-2xl overflow-hidden border-4 bg-white shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                className={`relative rounded-2xl overflow-hidden border-4 ${bg} shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
                 style={{ aspectRatio: "3/4" }}
               >
                 {answer.image && (
-                  <Image
-                    src={imgUrl(answer.image)!}
-                    alt={answer.text ?? ""}
-                    fill
-                    className="object-contain p-2"
-                  />
+                  answerIsAudio ? (
+                    <AnswerAudioButton
+                      src={imgUrl(answer.image)!}
+                      color={regionColor || "#374151"}
+                    />
+                  ) : (
+                    <Image
+                      src={imgUrl(answer.image)!}
+                      alt={answer.text ?? ""}
+                      fill
+                      className="object-contain p-2"
+                    />
+                  )
                 )}
               </button>
             );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { RiImageAddLine, RiCloseLine } from 'react-icons/ri';
+import { RiImageAddLine, RiCloseLine, RiMusic2Line } from 'react-icons/ri';
 import MediaPicker from './MediaPicker';
 import { MediaItem } from "@/lib/types"
 
@@ -9,18 +9,32 @@ interface MediaPickerButtonProps {
     value?: MediaItem | null;
     onChange: (item: MediaItem | null) => void;
     label?: string;
+    onlyImage?: boolean;
 }
 
-export default function MediaPickerButton({ value, onChange, label = 'Vybrat obrázek' }: MediaPickerButtonProps) {
+const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');
+
+export default function MediaPickerButton({ value, onChange, label = 'Vybrat soubor', onlyImage }: MediaPickerButtonProps) {
     const [open, setOpen] = useState(false);
     const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
+    const audio = value ? isAudio(value.mime_type) : false;
 
     return (
         <>
             <div className="flex flex-col gap-2">
                 {value ? (
-                    <div className="relative group w-40 h-40 rounded-xl overflow-hidden border-3 border-green-700 shadow-sm">
-                        <img src={`${apiBase}${value.path}`} alt={value.filename} className="w-full h-full object-cover" />
+                    <div className={`relative group w-40 h-40 rounded-xl overflow-hidden border-3 border-green-700 shadow-sm
+                        ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-2 p-3' : ''}`}>
+                        {audio ? (
+                            <>
+                                <RiMusic2Line className="text-4xl text-gray-400" />
+                                <span className="text-[11px] text-gray-500 text-center break-all line-clamp-3">
+                                    {value.filename}
+                                </span>
+                            </>
+                        ) : (
+                            <img src={`${apiBase}${value.path}`} alt={value.filename} className="w-full h-full object-cover" />
+                        )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                             <button type="button" onClick={() => setOpen(true)}
                                 className="px-3 py-1.5 bg-white text-gray-800 text-xs font-medium rounded-lg shadow hover:bg-gray-50 transition">
@@ -39,9 +53,12 @@ export default function MediaPickerButton({ value, onChange, label = 'Vybrat obr
                         {label}
                     </button>
                 )}
+                {value && audio && (
+                    <audio controls src={`${apiBase}${value.path}`} className="w-40 h-8" />
+                )}
                 {value && <p className="text-xs text-gray-400 truncate max-w-40">{value.filename}</p>}
             </div>
-            <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={onChange} selected={value?.id ?? null} />
+            <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={onChange} selected={value?.id ?? null} onlyImage={onlyImage}/>
         </>
     );
 }
