@@ -6,6 +6,7 @@ import { getQuiz, getQuestions, deleteQuestion } from '@/lib/api/quizzes'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiCheckLine } from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
 import { MenuCard, MenuCardProps} from '@/components/admin/MenuCard'
+import MediaPreview from '@/components/admin/media/MediaPreview'
 
 const CATEGORY_LABEL: Record<string, string> = {
     select: 'Výběr',
@@ -19,11 +20,6 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
     const [quiz, setQuiz] = useState<Quiz | null>(null)
     const [questions, setQuestions] = useState<Question[]>([])
     const [loading, setLoading] = useState(true)
-
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
-
-    const imgUrl = (path: string | null | undefined) =>
-        path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
 
     useEffect(() => {
         Promise.all([getQuiz(quizId), getQuestions(quizId)]).then(([quizData, questionsData]) => {
@@ -91,13 +87,11 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
                             </div>
                         </div>
 
-                        {question.image && (
-                            <img
-                                src={imgUrl(question.image)!}
-                                alt="Obrázek otázky"
-                                className="h-24 object-contain mb-3"
-                            />
-                        )}
+                        <MediaPreview
+                            path={question.image}
+                            alt="Otázka"
+                            className="h-24 mb-3"
+                        />
 
                         <div className="flex flex-col gap-1.5">
                             {question.answers.map(answer => (
@@ -114,9 +108,11 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
                                     ) : (
                                         <span className="w-4 shrink-0" />
                                     )}
-                                    {answer.image && (
-                                        <img src={imgUrl(answer.image)!} alt="Obrázek odpovědi" className="h-10 object-contain" />
-                                    )}
+                                    <MediaPreview
+                                        path={answer.image}
+                                        alt="Odpověď"
+                                        className="h-10 max-w-45"
+                                    />
                                     {answer.text}
                                 </div>
                             ))}

@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('answered_quizzes', function (Blueprint $table) {
             $table->id();
             $table->foreignId('quiz_id')->constrained('quiz');
-            $table->foreignId('profile_id')->constrained('profiles');
+            $table->foreignId('profile_id')->constrained('profiles')->onDelete('cascade');
             $table->timestamp('answered_at')->useCurrent();
             $table->integer('score')->default(0);
         });

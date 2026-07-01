@@ -21,7 +21,7 @@ class QuestionCategorySeeder extends Seeder
 
         DB::table('question_category')->updateOrInsert(
             ['id' => 3],
-            ['name' => 'image_select']
+            ['name' => 'media_select']
         );
     }
 }

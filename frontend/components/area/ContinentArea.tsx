@@ -90,6 +90,7 @@ export default async function ContinentArea({regionId, regionName, regionColor, 
                         primaryColor={primaryColor}
                         secondaryColor={secondaryColor}
                         accentColor={accentColor}
+                        regionAnimal={regionFirstAnimal}
                     />
                 </div>
 

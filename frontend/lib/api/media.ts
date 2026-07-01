@@ -23,3 +23,11 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
 export async function deleteMedia(id: number): Promise<void> {
     await axios.delete(`/api/media/${id}`);
 }
+
+const AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm'];
+
+export function isAudioPath(path?: string | null): boolean {
+    if (!path) return false;
+    const ext = path.split('.').pop()?.toLowerCase();
+    return !!ext && AUDIO_EXTENSIONS.includes(ext);
+}

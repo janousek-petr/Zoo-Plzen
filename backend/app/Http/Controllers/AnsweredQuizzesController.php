@@ -44,21 +44,20 @@ class AnsweredQuizzesController extends Controller
             'selectedAnswers' => 'required|array'
         ]);
 
-        $profileExists = Profile::where('id', $validated['profile_id'])->exists();
+        $profile = Profile::find($validated['profile_id']);
 
-        if ($profileExists) {
-            $answeredQuiz = DB::transaction(function () use ($validated,) {
+        if ($profile) {
+            $answeredQuiz = DB::transaction(function () use ($validated, $profile) {
                 $answeredQuiz = AnsweredQuizzes::create([
                     'quiz_id' => $validated['quiz_id'],
                     'score' => $validated['score'],
                     'profile_id' => $validated['profile_id'],
                 ]);
-                $chosenAnswerIds = $validated['selectedAnswers'];
 
+                $chosenAnswerIds = $validated['selectedAnswers'];
                 $answers = Answer::whereIn('id', $chosenAnswerIds)->get();
 
                 $answeredQuestionsData = [];
-
                 foreach ($answers as $answer) {
                     $answeredQuestionsData[] = [
                         'answered_quiz_id' => $answeredQuiz->id,
@@ -67,13 +66,29 @@ class AnsweredQuizzesController extends Controller
                         'written_answer' => null,
                     ];
                 }
-
                 if (!empty($answeredQuestionsData)) {
                     AnsweredQuestions::insert($answeredQuestionsData);
                 }
 
+                // --- Přičtení packů a XP ---
+                $earnedPoints = (int) round($validated['score'] / 5);
+                $earnedXp = (int) round($validated['score'] / 10);
+
+                $profile->points += $earnedPoints;
+                $profile->xp += $earnedXp;
+
+                // Level-up logika
+                $xpPerLevel = 100;
+                while ($profile->xp >= $xpPerLevel) {
+                    $profile->xp -= $xpPerLevel;
+                    $profile->level += 1;
+                }
+
+                $profile->save();
+
                 return $answeredQuiz;
             });
+
             return response()->json($answeredQuiz, 201);
         }
 
