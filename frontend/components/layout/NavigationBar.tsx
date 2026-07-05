@@ -9,7 +9,7 @@ import { useAuthContext } from "@/contexts/AuthContext";
 const MENU_ITEMS = [
   { label: "Domov", href: "/domov" },
   { label: "Hry", href: "/hry/kontinenty" },
-  { label: "Týdenní žebříček", href: "/zebricek" },
+  //{ label: "Týdenní žebříček", href: "/zebricek" },
   { label: "Tvoje výzvy", href: "/vyzvy" },
   { label: "Obchod", href: "/obchod" },
   { label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
