@@ -150,7 +150,7 @@ export default function QuizEngine({
   const questionIsAudio = !!currentQuestion.image && isAudioPath(currentQuestion.image);
 
   return (
-    <main className="lg:max-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
+    <main className="lg:min-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
 
       {/* Header */}
       <header className="w-full max-w-sm pt-6 pb-2 text-center shrink-0">
