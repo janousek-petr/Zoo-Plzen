@@ -16,7 +16,7 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
     public function evaluate(ActiveChallenge $challenge, array $data, Request $request): void
     {
         $profileId = $request->input('profile_id');
-        // 2. Získání ID konkrétního pokusu (answered_quizzes.id)
+        // Získání ID konkrétního pokusu (answered_quizzes.id)
         $answeredQuizId = $request->answered_quiz_id;
 
         // Pokud frontend neposlal přímo ID pokusu, najdeme nejnovější podle quiz_id
@@ -30,7 +30,7 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
             if (!$this->isTheSameRegion($answeredQuizId, $data['region_id'])) return;
         }
 
-        // 3. Načteme nebo vytvoříme celkový pokrok uživatele v této výzvě
+        // Načteme nebo vytvoříme celkový pokrok uživatele v této výzvě
         $progress = ProfileChallengeProgress::firstOrCreate([
             "profile_id" => $profileId,
             "active_challenge_id" => $challenge->id
@@ -39,7 +39,6 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
         if ($progress->completed) return;
 
         // Spočítáme správné uzavřené otázky (Multiple Choice & True/False)
-
         $correctClosed = $this->getTotalCorrectClosed($answeredQuizId);
 
         // Spočítáme správné otevřené otázky (Volný text)
@@ -50,32 +49,45 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
 
         if ($totalCorrect === 0) return;
 
-        // 4. Přičtení k progresu a uložení zpracovaného pokusu
+        // Přičtení k progresu a uložení zpracovaného pokusu
         $progress->progress += $totalCorrect;
 
-
-        // 5. Kontrola, zda je výzva splněna
+        // Kontrola, zda je výzva splněna
         if ($progress->progress >= $data["target"]) {
             $progress->progress = $data["target"]; // Zastropujeme progres na cíli (např. 7/7)
             $progress->completed = true;
+            // Oznámíme celému systému, že tato konkrétní výzva byla splněna.
+            // Předáme s sebou i objekt $progress, aby systém věděl, KDO a JAKOU výzvu splnil.
             event(new ChallengeCompleted($progress));
         }
 
         $progress->save();
     }
 
-    public static function getTotalCorrectClosed($answeredQuizId): int {
+    /**
+     * Vrací počet správných uzavřených otázek daného vypracovaného kvízu
+     * @param $answeredQuizId int ID vypracovaného kvízu
+     * @return int
+     */
+    public static function getTotalCorrectClosed($answeredQuizId): int
+    {
         return AnsweredQuestions::where('answered_quiz_id', $answeredQuizId)
-            ->whereHas('chosenAnswer', function ($query) {
+            ->whereHas('chosen_answer', function ($query) {
                 $query->where('is_correct', true);
             })
             ->count();
     }
+
+    /**
+     * Vrací počet správných otevřených otázek daného vypracovaného kvízu
+     * @param $answeredQuizId int ID vypracovaného kvízu
+     * @return int
+     */
     public static function getTotalCorrectOpen(int $answeredQuizId): int
     {
         return AnsweredQuestions::where('answered_quiz_id', $answeredQuizId)
             ->whereNotNull('written_answer')
-            ->whereHas('answers', function ($query) {
+            ->whereHas('answer', function ($query) {
                 $query->whereRaw('LOWER(TRIM(answered_questions.written_answer)) = LOWER(TRIM(answer.correct_input))');
             })
             ->count();

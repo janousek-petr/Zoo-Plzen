@@ -23,7 +23,7 @@ class ChallengeGenerator
         // 1. PRAVIDLO: V rámci stejné dávky (např. jen v denních) se NESMÍ opakovat stejný TYP
         foreach ($this->generated as $existing) {
             if ($existing['challenge_type'] === $challenge['challenge_type']) {
-                return true; // Typ už v této dávce existuje, zamítnout!
+                return true;
             }
         }
 
@@ -75,7 +75,14 @@ class ChallengeGenerator
         $this->generateChallenges($count, now()->addWeek(), "weekly");
     }
 
-
+    /**
+     * Vygeneruje výzvy daného období
+     * @param int $count Počet výzev, které se mají vytvořit
+     * @param CarbonInterface $date Datum platnosti
+     * @param string $period Období
+     * @return void
+     * @throws \Throwable
+     */
     private function generateChallenges(int $count, CarbonInterface $date, string $period): void
     {
         DB::transaction(function () use ($count, $date, $period) {
@@ -85,22 +92,29 @@ class ChallengeGenerator
 
             for ($i = 0; $i < $count; $i++) {
                 do {
+                    // Vybere náhodný modifikátor
                     $modifier = collect($modifiers)->random();
+                    // Podle modifikátoru si sáhne pro základní šablonu
                     $baseTemplate = config("challenges.templates.{$modifier['templates']}");
 
+                    // Spojí základní šablonu s modifikátorem do jednoho pole
                     $template = array_merge($baseTemplate, $modifier);
+
+                    // Vygeneruje náhodný cíl (target) v rozmezí min a max z šablony
                     $randomTarget = rand($template['min'], $template['max']);
                     $template['target'] = $randomTarget;
 
                     $region = $regions->random();
 
+                    // Sestaví finální strukturu dat výzvy (dosadí se texty, nahradí se zástupné znaky jako :target)
                     $challenge = $this->buildChallenge($template, $region);
 
+                    // Pro týdenní výzvy přidá obrázek zvířete
                     if ($period === 'weekly') {
-                        // Střídáme stranu podle indexu (0 = left, 1 = right, 2 = left...)
+                        // Střídá stranu podle indexu
                         $side = ($i % 2 === 0) ? 'left' : 'right';
 
-                        // Vytáhneme z databáze obrázek zvířete pro tento region a stranu
+                        // Vytáhne z databáze obrázek zvířete pro tento region a stranu
                         $animalImage = DB::table('challenge_region_image')
                             ->where('region_id', $region->id)
                             ->where('side', $side)
@@ -130,8 +144,6 @@ class ChallengeGenerator
                 ]);
             }
         });
-
-
     }
 
     /**
@@ -142,16 +154,13 @@ class ChallengeGenerator
         $type = $template["type"];
 
         return match ($type) {
-            "region_correct_answers", "region_quiz_completed" => $this->buildRegionCorrectAnswersOrRegionQuizChallenge($template, $region),
-            "correct_answers", "quiz_completed" => $this->buildCorrectAnswersOrQuizCompletedChallenge($template),
+            "region_correct_answers", "region_quiz_completed" => $this->buildRegionalChallenge($template, $region),
+            "correct_answers", "quiz_completed" => $this->buildGlobalChallenge($template),
             default => throw new \Exception("Unknown challenge type: $type")
         };
     }
 
-    /**
-     * Šablona: správné odpovědi
-     */
-    private function buildRegionCorrectAnswersOrRegionQuizChallenge(array $template, $region): array
+    private function buildRegionalChallenge(array $template, $region): array
     {
         $count = $template['target'];
 
@@ -172,12 +181,12 @@ class ChallengeGenerator
             "title" => $template["title"] ?? "",
             "description" => $description,
             "target" => $count,
-            "reward" => $count * 3,
+            "reward" => $template["reward"] * $template["target"],
             "region_id" => $region->id,
         ];
     }
 
-    private function buildCorrectAnswersOrQuizCompletedChallenge(array $template): array
+    private function buildGlobalChallenge(array $template): array
     {
         $count = $template['target'];
 
@@ -198,7 +207,7 @@ class ChallengeGenerator
             "title" => $template["title"] ?? "",
             "description" => $description,
             "target" => $count,
-            "reward" => $count * 3,
+            "reward" => $template["reward"] * $template["target"],
         ];
     }
 }

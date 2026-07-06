@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Answer;
+use App\Models\AnsweredQuestions;
+use App\Models\AnsweredQuizzes;
+use App\Models\Profile;
 use App\Models\Question;
 use App\Models\Quiz;
 use App\Models\QuizQuestionView;
 use App\Models\QuizSummary;
-use App\Models\AnsweredQuizzes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -212,6 +214,61 @@ class QuizController extends Controller
         ]);
     }
 
+    public function saveTheResult(int $id, Request $request){
+        $profileId = $request->input('profileId');
+
+        $profileExists = Profile::where('id', $profileId)->exists();
+
+        if ($profileExists) {
+            $answeredQuiz = DB::transaction(function () use ($id, $request, $profileId) {
+                $answeredQuiz = AnsweredQuizzes::create([
+                    'quiz_id' => $id,
+                    'score' => $request->score,
+                    'profile_id' => $profileId,
+                ]);
+                $chosenAnswerIds = $request->input('answers');
+
+                $answers = Answer::whereIn('id', $chosenAnswerIds)->get();
+
+                $answeredQuestionsData = [];
+
+                foreach ($answers as $answer) {
+                    $answeredQuestionsData[] = [
+                        'answered_quiz_id' => $answeredQuiz->id,
+                        'question_id' => $answer->question_id,
+                        'chosen_answer' => $answer->id,
+                        'written_answer' => null,
+                    ];
+                }
+
+                // 🌟 Zápis všech odpovědí najednou (1 SQL dotaz místo X dotazů)
+                if (!empty($answeredQuestionsData)) {
+                    AnsweredQuestions::insert($answeredQuestionsData);
+                }
+
+                /*
+                foreach ($answers as $answer) {
+                    $questionId = $answer->question_id;
+                    $answerId = $answer->id;
+
+                    AnsweredQuestions::create([
+                        'answered_quiz_id' => $answeredQuiz->id,
+                        'question_id' => $questionId,
+                        'chosen_answer' => $answerId,
+                    ]);
+                }
+                */
+                return $answeredQuiz;
+            });
+            return response()->json([
+                'status' => 'ok',
+                'answered_quiz_id' => $answeredQuiz->id, // 🔑 Důležité pro tvůj React useEffect!
+                'quiz' => $answeredQuiz
+            ]);
+        }
+
+        return response()->noContent();
+    }
 }
 
 

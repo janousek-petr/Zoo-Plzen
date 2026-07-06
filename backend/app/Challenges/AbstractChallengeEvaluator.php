@@ -14,6 +14,12 @@ class AbstractChallengeEvaluator implements ChallengeEvaluatorInterface
         throw new \Exception("Method not implemented");
     }
 
+    /**
+     * Najde ID nejnovějšího vypracovaného kvízu profilu
+     * @param int $quizId ID kvízu
+     * @param int $profileId ID profilu
+     * @return int
+     */
     protected function getLatestAnsweredQuizId($quizId, $profileId): int
     {
 
@@ -23,6 +29,12 @@ class AbstractChallengeEvaluator implements ChallengeEvaluatorInterface
             ->value('id');
     }
 
+    /**
+     * Porovná, pokud vypracovaný kvíz patří do zadané oblasti
+     * @param int $answeredQuizId ID vypracovaného kvízu
+     * @param int $regionId ID oblasti
+     * @return bool
+     */
     protected function isTheSameRegion($answeredQuizId, $regionId): bool
     {
         return AnsweredQuizzes::where('id', $answeredQuizId)
