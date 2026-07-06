@@ -6,13 +6,14 @@ use App\Models\ActiveChallenge;
 use App\Models\ProfileChallengeProgress;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
+
 class QuizCompletedEvaluator extends AbstractChallengeEvaluator
 {
 
     public function evaluate(ActiveChallenge $challenge, array $data, Request $request): void
     {
         $profileId = $request->input('profile_id');
-        // 2. Získání ID konkrétního pokusu (answered_quizzes.id)
+        // Získání ID konkrétního pokusu (answered_quizzes.id)
         $answeredQuizId = $request->answered_quiz_id;
 
         // Pokud frontend neposlal přímo ID pokusu, najdeme nejnovější podle quiz_id
@@ -39,7 +40,7 @@ class QuizCompletedEvaluator extends AbstractChallengeEvaluator
         $percentage = ($totalCorrect / $totalQuestions) * 100;
         if ($percentage < 80) return;
 
-        // 3. Načteme nebo vytvoříme celkový pokrok uživatele v této výzvě
+        // Načteme nebo vytvoříme celkový pokrok uživatele v této výzvě
         $progress = ProfileChallengeProgress::firstOrCreate([
             "profile_id" => $profileId,
             "active_challenge_id" => $challenge->id
@@ -49,15 +50,15 @@ class QuizCompletedEvaluator extends AbstractChallengeEvaluator
 
         $progress->progress += 1;
 
-        // 5. Kontrola, zda je výzva splněna
+        // Kontrola, zda je výzva splněna
         if ($progress->progress >= $data["target"]) {
             $progress->progress = $data["target"]; // Zastropujeme progres na cíli (např. 7/7)
             $progress->completed = true;
+            // Oznámíme celému systému, že tato konkrétní výzva byla splněna.
+            // Předáme s sebou i objekt $progress, aby systém věděl, KDO a JAKOU výzvu splnil.
             event(new ChallengeCompleted($progress));
         }
 
         $progress->save();
-
-        if ($progress->completed) return;
     }
 }
