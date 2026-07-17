@@ -13,10 +13,8 @@ const CATEGORY_AVATAR = 1;
 const MENU_ITEMS = [
   { label: "Domov", href: "/domov" },
   { label: "Hry", href: "/hry/kontinenty" },
-  { label: "Profil", href: "/profil?tab=profil" },
-  { label: "Batoh", href: "/profil?tab=batoh" },
   //{ label: "Týdenní žebříček", href: "/zebricek" },
-  //{ label: "Tvoje výzvy", href: "/vyzvy" },
+  { label: "Tvoje výzvy", href: "/vyzvy" },
   { label: "Obchod", href: "/obchod" },
   //{ label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
 ];

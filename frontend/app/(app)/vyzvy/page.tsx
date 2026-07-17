@@ -108,17 +108,17 @@ export default function ChallengesPage() {
 
   if (loading && !serverData) {
     return (
-        <div className="w-full min-h-screen flex items-center justify-center bg-white">
+        <div className="w-full min-h-screen flex items-center justify-center">
           <p className="text-xl font-bold text-green-700 animate-pulse">Načítám výzvy z přírody...</p>
         </div>
     );
   }
 
   return (
-      <main className="w-full bg-white">
+      <main className="w-full">
 
         {/* ── TÝDENNÍ VÝZVY nadpis ────────────────────────────────────── */}
-        <div className="flex justify-center pt-12 pb-28 bg-white relative z-0">
+        <div className="flex justify-center pt-12 pb-28 relative z-0">
           <h1 className="cus-font-impacted-2 uppercase text-green-700 text-4xl sm:text-5xl md:text-6xl tracking-widest text-center">
             Týdenní výzvy
           </h1>
@@ -129,7 +129,7 @@ export default function ChallengesPage() {
           {data.weeklyChallenges.map((challenge, index) => (
               <div
                   key={challenge.id}
-                  className="bg-white relative"
+                  className="bg-sky-500 relative"
                   style={{
                     paddingTop: index === 0 ? 0 : 120,
                     zIndex: data.weeklyChallenges.length - index
@@ -154,14 +154,14 @@ export default function ChallengesPage() {
         </div>
 
         {/* ── DENNÍ ÚKOLY nadpis ──────────────────────────────────────── */}
-        <div className="flex justify-center py-8 bg-white">
+        <div className="flex justify-center py-8">
           <h2 className="cus-font-impacted-2 uppercase text-green-700 text-4xl sm:text-5xl tracking-widest text-center">
             Denní úkoly
           </h2>
         </div>
 
         {/* ── DENNÍ ÚKOLY ─────────────────────────────────────────────── */}
-        <section className="flex flex-col gap-4 px-4 pb-12 bg-white">
+        <section className="flex flex-col gap-4 px-4 pb-12">
           {data.dailyTasks.map((task) => (
               <DailyTaskRow key={task.id} task={task} />
           ))}
@@ -265,7 +265,9 @@ function DailyTaskRow({ task }: { task: DailyTask }) {
       <div className="flex flex-row gap-3 w-full max-w-xl mx-auto">
 
         {/* Levý blok */}
-        <div className={`flex flex-row items-center gap-6 flex-1 px-6 py-4 rounded-2xl ${task.bgColor}`}>
+        <div className={`flex flex-row items-center gap-6 flex-1 px-6 py-4 rounded-2xl bg-sky-400`}
+          style={{background: task.bgColor}}
+        >
         <span className="cus-font-impacted-2 text-white text-7xl sm:text-8xl leading-none select-none">
           {task.order}
         </span>
@@ -280,7 +282,7 @@ function DailyTaskRow({ task }: { task: DailyTask }) {
         </div>
 
         {/* Pravý blok */}
-        <div className={`flex flex-row items-center justify-center gap-3 px-6 py-4 rounded-2xl ${task.rewardBgColor} flex-shrink-0 min-w-[130px]`}>
+        <div className={`flex flex-row items-center justify-center gap-3 px-6 py-4 rounded-2xl ${task.rewardBgColor} bg-green-400 flex-shrink-0 min-w-[130px]`}>
         <span className="relative w-12 h-12 block">
           <Image src={task.rewardIconSrc} alt={task.rewardIconAlt} fill className="object-contain" />
         </span>

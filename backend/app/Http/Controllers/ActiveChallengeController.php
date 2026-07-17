@@ -96,7 +96,7 @@ class ActiveChallengeController extends Controller
             "id" => $challenge->id,
             "title" => $data["title"] ?? "",
             "description" => $data["description"] ?? "",
-            "progress" => (int) $progress, // OPRAVA: vracíme reálné číslo progressu
+            "progress" => (int)$progress,
             "reward" => $data["reward"] ?? 0,
             "rewardIconSrc" => $data["rewardIconSrc"] ?? "/img/icons/currency-icon.png",
             "rewardIconAlt" => $data["rewardIconAlt"] ?? "Tlapky",
@@ -105,7 +105,7 @@ class ActiveChallengeController extends Controller
             "animalSide" => $data["animalSide"] ?? "left",
             "target" => $data["target"] ?? 0,
             "bgColor" => $data["bgColor"] ?? "#fff",
-            "completed" => (bool) $completed,
+            "completed" => (bool)$completed,
         ];
     }
 
@@ -129,14 +129,14 @@ class ActiveChallengeController extends Controller
             "orderIconAlt" => $data["orderIconAlt"] ?? "Krok " . ($index + 1),
             "title" => $data["title"] ?? "Obecné",
             "description" => $data["description"] ?? "",
-            "progress" => (int) $progress,
+            "progress" => (int)$progress,
             "reward" => $data["reward"] ?? 0,
             "rewardIconSrc" => $data["rewardIconSrc"] ?? "/img/icons/currency-icon.png",
             "rewardIconAlt" => $data["rewardIconAlt"] ?? "Tlapky",
             "target" => $data["target"] ?? 0,
             "bgColor" => "bg-[#5aab6e]",
             "rewardBgColor" => $completed ? "bg-[#5aab6e]" : "bg-[#f15a24]",
-            "completed" => (bool) $completed,
+            "completed" => (bool)$completed,
         ];
     }
 
@@ -146,6 +146,6 @@ class ActiveChallengeController extends Controller
             return 0;
         }
 
-        return (int) now()->diffInHours($daily->first()->valid_until);
+        return (int)now()->diffInHours($daily->first()->valid_until);
     }
 }
