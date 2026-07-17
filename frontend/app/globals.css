@@ -31,8 +31,8 @@
 }
 
 .cus-auth-submit{
-    @apply text-white font-bold bg-green-700 md:p-3 p-4 cursor-pointer rounded-2xl border-2 border-green-700 my-8 md:mx-30 duration-100 
-            hover:bg-white hover:border-green-700 hover:text-black
+    @apply text-white font-bold bg-green-700 md:p-4 p-5 cursor-pointer rounded-2xl my-8 md:mx-30 duration-100 
+            hover:bg-green-800
 }
 
 .cus-text-beige{

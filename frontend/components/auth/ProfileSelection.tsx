@@ -7,22 +7,35 @@ import { RiPencilLine, RiCloseLine, RiCheckLine } from "react-icons/ri";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
 import profileService from "@/lib/api/profiles";
-import type { Profile } from "@/lib/types";
+import { getItems } from "@/lib/api/items";
+import type { Profile, Item } from "@/lib/types";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 const resolveUrl = (path: string | null | undefined) =>
     path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : null;
 
+// Najde obrázky avataru a doplňku podle *_item_id profilu v seznamu všech itemů.
+function resolveProfileVisuals(profile: Profile, allItems: Item[]) {
+    const avatarItem = allItems.find(i => i.id === profile.avatar_item_id);
+    const accessoryItem = allItems.find(i => i.id === profile.accessory_item_id);
+    return {
+        avatarSrc: resolveUrl(avatarItem?.image),
+        accessorySrc: resolveUrl(accessoryItem?.image),
+    };
+}
+
 // ── Edit Modal ────────────────────────────────────────────────────────────────
 
 interface EditModalProps {
     profile: Profile;
+    avatarSrc: string | null;
+    accessorySrc: string | null;
     onClose: () => void;
     onSave: (id: number, data: { first_name: string; last_name: string;}) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
 }
 
-function EditModal({ profile, onClose, onSave, onDelete }: EditModalProps) {
+function EditModal({ profile, avatarSrc, accessorySrc, onClose, onSave, onDelete }: EditModalProps) {
     const [firstName, setFirstName] = useState(profile.first_name);
     const [lastName, setLastName]   = useState(profile.last_name ?? "");
     const [saving, setSaving]       = useState(false);
@@ -31,6 +44,7 @@ function EditModal({ profile, onClose, onSave, onDelete }: EditModalProps) {
     const handleSave = async () => {
         setSaving(true);
         try {
+            await profileService.update(profile.id, {first_name : firstName, last_name : lastName})
             await onSave(profile.id, { first_name: firstName, last_name: lastName});
             onClose();
         } finally {
@@ -42,7 +56,8 @@ function EditModal({ profile, onClose, onSave, onDelete }: EditModalProps) {
         if (!confirmDelete) { setConfirmDelete(true); return; }
         setSaving(true);
         try {
-            await onDelete(profile.id);
+            await profileService.destroy(profile.id);
+            onDelete(profile.id)
             onClose();
         } finally {
             setSaving(false);
@@ -81,9 +96,9 @@ function EditModal({ profile, onClose, onSave, onDelete }: EditModalProps) {
                     {/* Avatar preview (jen zobrazení, bez uploadu) */}
                     <div className="flex justify-center mb-1">
                         <div className="relative w-24 h-24">
-                            {resolveUrl(profile.avatar_url) ? (
+                            {avatarSrc ? (
                                 <Image
-                                    src={resolveUrl(profile.avatar_url)!}
+                                    src={avatarSrc}
                                     alt={profile.first_name}
                                     fill
                                     className="object-cover rounded-full border-4 border-sky-200"
@@ -91,9 +106,9 @@ function EditModal({ profile, onClose, onSave, onDelete }: EditModalProps) {
                             ) : (
                                 <div className="w-full h-full rounded-full bg-gray-200 border-4 border-sky-200" />
                             )}
-                            {resolveUrl(profile.accessory_url) && (
+                            {accessorySrc && (
                                 <Image
-                                    src={resolveUrl(profile.accessory_url)!}
+                                    src={accessorySrc}
                                     alt="čepička"
                                     fill
                                     className="object-contain"
@@ -158,6 +173,7 @@ export default function ProfileSelection() {
     const { logout } = useAuth();
 
     const [profiles, setProfiles]           = useState<Profile[]>([]);
+    const [allItems, setAllItems]           = useState<Item[]>([]);
     const [loadingProfiles, setLoadingProfiles] = useState(true);
     const [isManaging, setIsManaging]       = useState(false);
     const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
@@ -174,6 +190,7 @@ export default function ProfileSelection() {
     useEffect(() => {
         if (!isAuthenticated) return;
         fetchProfiles();
+        getItems().then(setAllItems).catch(() => {});
     }, [isAuthenticated]);
 
     const fetchProfiles = async () => {
@@ -224,6 +241,7 @@ export default function ProfileSelection() {
                 <div className="flex flex-wrap justify-center gap-8">
                     {profiles.map((profile, index) => {
                         const hexColor = customHexColors[index % customHexColors.length];
+                        const { avatarSrc, accessorySrc } = resolveProfileVisuals(profile, allItems);
                         return (
                             <div
                                 key={profile.id}
@@ -244,9 +262,9 @@ export default function ProfileSelection() {
                             >
                                 {/* Avatar + čepička */}
                                 <div className="profile-border relative w-32 h-32 md:w-48 md:h-48 border-8 border-transparent rounded-full p-1 transition-all duration-300">
-                                    {resolveUrl(profile.avatar_url) ? (
+                                    {avatarSrc ? (
                                         <Image
-                                            src={resolveUrl(profile.avatar_url)!}
+                                            src={avatarSrc}
                                             alt={profile.first_name}
                                             fill
                                             className={`object-cover rounded-full transition-all duration-300 ${isManaging ? "brightness-75" : ""}`}
@@ -256,9 +274,9 @@ export default function ProfileSelection() {
                                     )}
 
                                     {/* Čepička */}
-                                    {resolveUrl(profile.accessory_url) && !isManaging && (
+                                    {accessorySrc && !isManaging && (
                                         <Image
-                                            src={resolveUrl(profile.accessory_url)!}
+                                            src={accessorySrc}
                                             alt="čepička"
                                             fill
                                             className="object-contain"
@@ -320,14 +338,19 @@ export default function ProfileSelection() {
                 </div>
             </main>
 
-            {editingProfile && (
-                <EditModal
-                    profile={editingProfile}
-                    onClose={() => setEditingProfile(null)}
-                    onSave={handleSaveProfile}
-                    onDelete={handleDeleteProfile}
-                />
-            )}
+            {editingProfile && (() => {
+                const { avatarSrc, accessorySrc } = resolveProfileVisuals(editingProfile, allItems);
+                return (
+                    <EditModal
+                        profile={editingProfile}
+                        avatarSrc={avatarSrc}
+                        accessorySrc={accessorySrc}
+                        onClose={() => setEditingProfile(null)}
+                        onSave={handleSaveProfile}
+                        onDelete={handleDeleteProfile}
+                    />
+                );
+            })()}
         </>
     );
 }

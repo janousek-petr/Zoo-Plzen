@@ -47,7 +47,7 @@ class AnsweredQuizzesController extends Controller
         $profile = Profile::find($validated['profile_id']);
 
         if ($profile) {
-            $answeredQuiz = DB::transaction(function () use ($validated, $profile) {
+            $result = DB::transaction(function () use ($validated, $profile) {
                 $answeredQuiz = AnsweredQuizzes::create([
                     'quiz_id' => $validated['quiz_id'],
                     'score' => $validated['score'],
@@ -72,7 +72,9 @@ class AnsweredQuizzesController extends Controller
 
                 // --- Přičtení packů a XP ---
                 $earnedPoints = (int) round($validated['score'] / 5);
-                $earnedXp = (int) round($validated['score'] / 10);
+                $earnedXp = $validated['score']; // XP = score přímo, žádné dělení
+
+                $levelBefore = $profile->level;
 
                 $profile->points += $earnedPoints;
                 $profile->xp += $earnedXp;
@@ -86,10 +88,20 @@ class AnsweredQuizzesController extends Controller
 
                 $profile->save();
 
-                return $answeredQuiz;
+                return [
+                    'answeredQuiz' => $answeredQuiz,
+                    'earned_points' => $earnedPoints,
+                    'earned_xp' => $earnedXp,
+                    'level_before' => $levelBefore,
+                    'level_after' => $profile->level,
+                    'leveled_up' => $profile->level > $levelBefore,
+                    'profile_xp' => $profile->xp,
+                    'profile_points' => $profile->points,
+                    'profile_level' => $profile->level,
+                ];
             });
 
-            return response()->json($answeredQuiz, 201);
+            return response()->json($result, 201);
         }
 
         return response()->noContent();

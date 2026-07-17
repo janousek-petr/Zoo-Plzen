@@ -1,3 +1,5 @@
+{
+/*
 "use client";
 
 import { useState } from "react";
@@ -58,7 +60,7 @@ export default function MedalTab() {
         </div>
       )}
 
-      {/* VYSTAVENÉ MEDAILE */}
+      {/* VYSTAVENÉ MEDAILE *//*}
       <SectionBlock title="Vystavené medaile na profilu">
         <div className="flex justify-center items-center gap-6 flex-wrap py-2">
           {Array.from({ length: MAX_DISPLAYED }).map((_, i) => {
@@ -85,7 +87,7 @@ export default function MedalTab() {
         </div>
       </SectionBlock>
 
-      {/* VLASTNĚNÉ MEDAILE */}
+      {/* VLASTNĚNÉ MEDAILE *//*}
       <SectionBlock title="Vlastněné medaile">
         <ExpandableGallery
           title="Medaile"
@@ -99,7 +101,7 @@ export default function MedalTab() {
         />
       </SectionBlock>
 
-      {/* CTA */}
+      {/* CTA *//*}
       <div className="relative flex flex-col lg:flex-row items-center md:items-end justify-center h-auto md:h-150 md:p-20">
         <SpeechBalloon
           title="Věděl jsi, že..."
@@ -129,4 +131,4 @@ function SectionBlock({ title, children }: { title: string; children: React.Reac
       <div className="bg-[#c8bfb0] px-6 py-6">{children}</div>
     </div>
   );
-}
+}*/}

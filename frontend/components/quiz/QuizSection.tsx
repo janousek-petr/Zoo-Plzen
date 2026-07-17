@@ -20,10 +20,10 @@ interface Props {
 }
 
 export default function QuizSection({ regionId, quizHref, primaryColor, secondaryColor, accentColor, regionAnimal }: Props) {
-    console.log("QuizSection regionAnimal:", regionAnimal);
     const { activeProfile } = useAuthContext();
-    const [unlockedLevels, setUnlockedLevels] = useState<number[]>([1]);
+    const [unlockedLevels, setUnlockedLevels] = useState<number[]>([]);
     const [totalScore, setTotalScore] = useState<number>(0);
+    const [publishedLevels, setPublishedLevels] = useState<number[]>([]);
     const [hovered, setHovered] = useState<string | null>(null);
     const [loading, setLoading] = useState<number | null>(null);
     const router = useRouter();
@@ -33,10 +33,20 @@ export default function QuizSection({ regionId, quizHref, primaryColor, secondar
             if (data) {
                 setTotalScore(data.region_score);
 
+                // Zjistíme, pro které levely vůbec existuje publikovaný kvíz
+                const availableLevels: number[] = Array.from(
+                    new Set((data.quizzes ?? []).map((q: any) => q.level))
+                );
+                setPublishedLevels(availableLevels);
+
                 const score = data.region_score ?? 0;
-                const unlocked = [1];
-                if (score >= POINTS_TO_UNLOCK_SECOND) unlocked.push(2);
-                if (score >= POINTS_TO_UNLOCK_THIRD) unlocked.push(3);
+                const unlocked: number[] = [];
+
+                // Level je odemčený jen pokud (a) splňuje bodovou podmínku a (b) pro něj existuje publikovaný kvíz
+                if (availableLevels.includes(1)) unlocked.push(1);
+                if (score >= POINTS_TO_UNLOCK_SECOND && availableLevels.includes(2)) unlocked.push(2);
+                if (score >= POINTS_TO_UNLOCK_THIRD && availableLevels.includes(3)) unlocked.push(3);
+
                 setUnlockedLevels(unlocked);
             }
         });
@@ -69,6 +79,8 @@ export default function QuizSection({ regionId, quizHref, primaryColor, secondar
 
     const progressPct = Math.min((totalScore / nextMilestone) * 100, 100);
     const remaining = Math.max(nextMilestone - totalScore, 0);
+
+    const noQuizzesAtAll = publishedLevels.length === 0;
 
     return (
         <div className="w-full max-w-150">
@@ -103,6 +115,12 @@ export default function QuizSection({ regionId, quizHref, primaryColor, secondar
                     );
                 })}
             </div>
+
+            {noQuizzesAtAll && (
+                <p className="mt-3 text-center text-sm text-gray-500">
+                    V tomto regionu zatím nejsou k dispozici žádné kvízy.
+                </p>
+            )}
 
             {/* Progress */}
             <div className="mt-6 flex flex-col gap-3 uppercase">

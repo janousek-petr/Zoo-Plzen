@@ -1,140 +1,80 @@
-import Image from "next/image";
 import Link from "next/link";
+import { RiPlayFill } from "react-icons/ri";
+import { BsFillBackpack4Fill } from "react-icons/bs";
+import { FaShoppingCart, FaUser } from "react-icons/fa";
 
-export default function Home(){
-    return(
-        <>
-            <main className="py-20">
-                <h1 className="uppercase cus-font-impacted-2 text-7xl text-green-700 text-center">Pojďme hrát</h1>
+const items = [
+    { href: "/hry/kontinenty", label: "Hrát", icon: RiPlayFill, color: "bg-red-600 hover:bg-red-700" },
+    { href: "/profil?tab=batoh", label: "Batoh", icon: BsFillBackpack4Fill, color: "bg-green-500 hover:bg-green-600", width: "30%", pos: { left: "-6%", bottom: "4%" } },
+    { href: "/obchod", label: "Obchod", icon: FaShoppingCart, color: "bg-orange-500 hover:bg-orange-600", width: "30%", pos: { left: "50%", bottom: "-6%", transform: "translateX(-50%)" } },
+    { href: "/profil", label: "Profil", icon: FaUser, color: "bg-sky-500 hover:bg-sky-600", width: "30%", pos: { right: "-6%", bottom: "4%" } },
+];
 
-                <section className="grid sm:grid-cols-5 grid-cols-2 flex-col gap-5 justify-self-center my-20">
+export default function Home() {
+    return (
+        <main className="py-16 sm:py-20">
+            <h1 className="uppercase cus-font-impacted-2 text-5xl sm:text-6xl md:text-7xl text-green-700 text-center px-4">
+                Pojďme hrát
+            </h1>
 
-                    {/* Každé tlačítko je nyní Link místo divu */}
-                    <Link href="/hry/kontinenty" className="flex w-30 h-30 bg-red-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/play-button.png"
-                            alt="Tlačítko - Hrát"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>
+            {/* Mobil (pod sm) - klasická mřížka s viditelnými labely */}
+            <section className="sm:hidden grid grid-cols-2 gap-6 max-w-xs mx-auto my-16 px-6">
+                {items.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                        <Link key={item.href} href={item.href} className="group flex flex-col items-center gap-2">
+                            <span
+                                className={`flex items-center justify-center w-20 h-20 rounded-full ${item.color} text-gray-50 shadow-lg
+                                            transition-all duration-200 ease-out
+                                            group-hover:-translate-y-1 group-hover:shadow-xl
+                                            outline-none group-focus-visible:ring-4 group-focus-visible:ring-sky-400`}
+                            >
+                                <Icon className="w-9 h-9" />
+                            </span>
+                            <span className="cus-font-impacted-2 uppercase text-md text-gray-700 tracking-wide">
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </section>
 
-                    <Link href="/profil?tab=batoh" className="flex w-30 h-30 bg-yellow-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/inventory-button.png"
-                            alt="Tlačítko - Inventář"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>
+            {/* Nad sm - kruhová kompozice s labelem na hover/tap */}
+            <section className="hidden sm:block relative mx-auto w-full max-w-sm aspect-8/7 my-20">
+                {items.map((item) => {
+                    const Icon = item.icon;
+                    const isMain = !item.pos;
 
-                    {/*<Link href="/profil?tab=medaile" className="flex w-30 h-30 bg-indigo-400 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/gallery-button.png"
-                            alt="Tlačítko - Galerie"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>*/}
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            style={isMain ? { width: "50%" } : { width: item.width, ...item.pos }}
+                            className={`group absolute aspect-square rounded-full ${item.color} text-gray-50 shadow-lg
+                                        flex items-center justify-center
+                                        transition-all duration-200 ease-out motion-reduce:transition-none
+                                        hover:-translate-y-1 hover:shadow-xl
+                                        outline-none focus-visible:ring-4 focus-visible:ring-sky-400
+                                        ${isMain ? "top-0 left-1/2 -translate-x-1/2" : ""}`}
+                        >
+                            <Icon className={isMain ? "w-2/3 h-2/3 -translate-x-1" : "w-2/5 h-2/5"} />
 
-                    <Link href="vyzvy" className="flex w-30 h-30 bg-green-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/tasks-button.png"
-                            alt="Tlačítko - Úkoly"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>
-
-                    {/*<Link href="zebricek" className="flex w-30 h-30 bg-fuchsia-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/leaderboards-button.png"
-                            alt="Tlačítko - Žebříčky"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>*/}
-
-                    <Link href="obchod" className="flex w-30 h-30 bg-slate-800 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/shop-button.png"
-                            alt="Tlačítko - Obchod"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>
-
-                    <Link href="profil" className="flex w-30 h-30 bg-amber-900 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/profile-button.png"
-                            alt="Tlačítko - Profil"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>
-
-                  {/*  <Link href="nastaveni" className="flex w-30 h-30 bg-gray-500 rounded-full justify-center items-center hover:opacity-80 transition-opacity">
-                        <Image
-                            src="/img/icons/settings-button.png"
-                            alt="Tlačítko - Nastavení"
-                            width={64}
-                            height={64}
-                        />
-                    </Link>*/}
-
-                </section>
-
-                <section>
-                    <h2 className="uppercase cus-font-impacted-2 text-center text-5xl">Novinky u nás</h2>
-
-                    <div className="flex md:flex-row flex-col justify-center items-center gap-10 md:p-20 p-5">
-    
-                        {/* --- PRVNÍ NOVINKA --- */}
-                        <div className="flex flex-col items-center max-w-lg">
-                            <Image
-                                src="/img/photo/image-2.JPG"
-                                alt="Novinka - Lev"
-                                width={400}
-                                height={400}
-                                className="shadow-xl select-none"
-                                draggable={false}
-                            />
-                            <h3 className="uppercase cus-font-impacted-2 text-orange-500 text-4xl mt-6 mb-3">
-                                Lev je doma!
-                            </h3>
-                            <p className="leading-relaxed">
-                                Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text při vytváření pracovních ukázek grafických návrhů. Lipsum tak pracovně znázorňuje text v ukázkových maketách předtím, než bude do hotového návrhu vložen smysluplný obsah.
-                            </p>
-                        </div>
-
-                        {/* --- DRUHÁ NOVINKA --- */}
-                        <div className="flex flex-col items-center max-w-lg">
-                            {/* Přidáno zaoblení a stín */}
-                            <Image
-                                src="/img/photo/image-1.JPG"
-                                alt="Novinka - Tygr"
-                                width={400}
-                                height={400}
-                                className="shadow-xl select-none"
-                                draggable={false}
-                            />
-                            <h3 className="uppercase cus-font-impacted-2 text-red-600 text-4xl mt-6 mb-3">
-                                Tygr je taky doma!
-                            </h3>
-                            {/* Odstraněno pe-20 */}
-                            <p className="leading-relaxed">
-                                Lorem ipsum je označení pro standardní pseudolatinský text užívaný v grafickém designu a navrhování jako demonstrativní výplňový text při vytváření pracovních ukázek grafických návrhů. Lipsum tak pracovně znázorňuje text v ukázkových maketách předtím, než bude do hotového návrhu vložen smysluplný obsah.
-                            </p>
-                        </div>
-
-                    </div>
-                </section>
-
-        
-
-                
-            </main>
-            
-        </>
-    )
+                            {!isMain && (
+                                <span
+                                    className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap
+                                               cus-font-impacted-2 uppercase text-lg text-gray-700
+                                               opacity-0 translate-y-[-4px]
+                                               transition-all duration-150 ease-out motion-reduce:transition-none
+                                               group-hover:opacity-100 group-hover:translate-y-0
+                                               group-focus:opacity-100 group-focus:translate-y-0"
+                                >
+                                    {item.label}
+                                </span>
+                            )}
+                        </Link>
+                    );
+                })}
+            </section>
+        </main>
+    );
 }

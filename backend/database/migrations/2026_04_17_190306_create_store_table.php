@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('store', function (Blueprint $table) {
             $table->id();
             $table->integer('max_items');
-            $table->foreignId('profile_id')->references('id')->on('profiles');
+            $table->foreignId('profile_id')->references('id')->on('profiles')->onDelete('cascade');
             $table->boolean('is_available')->default(true);
             $table->timestamps();
             $table->date('last_refresh_at')->nullable();

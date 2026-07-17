@@ -149,7 +149,7 @@ export default function BackpackTab() {
           <div className="flex gap-3 w-full">
             <button
               onClick={handleNicknameReroll}
-              className="flex-1 flex items-center justify-center gap-2 border-4 border-amber-400 text-amber-500 font-black uppercase tracking-widest py-3 rounded-2xl hover:bg-amber-50 transition-all"
+              className="flex-1 flex items-center justify-center gap-2 border-4 text-amber-400 hover:text-white bg-white border-amber-400 hover:border-amber-500 font-black uppercase tracking-widest py-3 rounded-2xl hover:bg-amber-500 transition-all cursor-pointer"
             >
               <RiRefreshLine size={20} />
               Zkusit jinou
@@ -158,7 +158,7 @@ export default function BackpackTab() {
               onClick={handleNicknameSave}
               disabled={nicknameSaving || nickname === (profile.nickname ?? "")}
               className="flex-1 font-black uppercase tracking-widest py-3 rounded-2xl transition-all disabled:opacity-50
-                bg-amber-400 hover:bg-amber-500 text-white"
+                bg-amber-400 hover:bg-amber-500 text-white cursor-pointer"
             >
               {nicknameSaving ? "Ukládám…" : nicknameSaved ? "Uloženo!" : "Uložit"}
             </button>
@@ -228,9 +228,6 @@ export default function BackpackTab() {
 
       {/* TAPETY */}
       <SectionBlock title="Tapety">
-        <div className="mb-5">
-          <StatCard label="Tapety" current={wallpaperItems.length} total={10} bgColor="cus-bg-beige" />
-        </div>
         {itemsLoading ? (
           <p className="text-gray-500">Načítám...</p>
         ) : wallpaperItems.length === 0 ? (
@@ -262,9 +259,6 @@ export default function BackpackTab() {
 
       {/* FOTKY */}
       <SectionBlock title="Fotky">
-        <div className="mb-5">
-          <StatCard label="Fotky" current={photoItems.length} total={totalPhotoCount} bgColor="bg-green-700" />
-        </div>
         {itemsLoading ? (
           <p className="text-gray-500">Načítám...</p>
         ) : photoItems.length === 0 ? (
