@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import authService, { RegisterData, LoginData } from '@/lib/api/auth';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { getFriendlyErrorMessage } from '@/lib/api/auth';
 
 export const useAuth = () => {
     const router = useRouter();
@@ -18,7 +19,7 @@ export const useAuth = () => {
             await refreshUser();
             router.push('/zvoleni-profilu');
         } catch (err: any) {
-            setError(err.response?.data?.message ?? 'Registrace se nezdařila');
+            setError(getFriendlyErrorMessage(err, 'Registrace se nezdařila', false));
         } finally {
             setIsLoading(false);
         }
@@ -32,7 +33,7 @@ export const useAuth = () => {
             await refreshUser();
             router.push('/zvoleni-profilu');
         } catch (err: any) {
-            setError(err.response?.data?.message ?? 'Přihlášení se nezdařilo');
+            setError(getFriendlyErrorMessage(err, 'Přihlášení se nezdařilo', true));
         } finally {
             setIsLoading(false);
         }

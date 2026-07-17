@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
+import { getInventory } from "@/lib/api/inventory";
+import type { Item } from "@/lib/types";
+
+const CATEGORY_AVATAR = 1;
 
 const MENU_ITEMS = [
   { label: "Domov", href: "/domov" },
@@ -12,16 +16,30 @@ const MENU_ITEMS = [
   //{ label: "Týdenní žebříček", href: "/zebricek" },
   { label: "Tvoje výzvy", href: "/vyzvy" },
   { label: "Obchod", href: "/obchod" },
-  { label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
+  //{ label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
 ];
 
-const RIGHT_ICON_HREF = "/profil";
+const RIGHT_ICON_HREF = "/profil?tab=profil";
+
+const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+const resolveUrl = (path: string | null | undefined): string | null =>
+  path ? (path.startsWith("http") ? path : `${apiBase}${path}`) : null;
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { activeProfile, setActiveProfile } = useAuthContext();
+
+  const [avatarItems, setAvatarItems] = useState<Item[]>([]);
+
+  useEffect(() => {
+    if (!activeProfile?.id) return;
+    getInventory(activeProfile.id)
+      .then(items => setAvatarItems(items.filter(i => i.category?.id === CATEGORY_AVATAR)))
+      .catch(() => {});
+  }, [activeProfile?.id, activeProfile?.avatar_item_id]);
 
   if (pathname.includes("/kviz/")) return null;
 
@@ -32,6 +50,9 @@ export default function Navbar() {
     setActiveProfile(null);
     router.push('/zvoleni-profilu');
   };
+
+  const selectedAvatar = avatarItems.find(i => i.id === activeProfile?.avatar_item_id);
+  const avatarSrc = resolveUrl(selectedAvatar?.image);
 
   return (
     <>
@@ -56,9 +77,9 @@ export default function Navbar() {
 
           <Link href={RIGHT_ICON_HREF} className="w-10 h-10 shrink-0 flex items-center justify-center" aria-label="Profil">
             <div className="relative w-10 h-10 rounded-full overflow-hidden">
-              {activeProfile?.avatar_url ? (
+              {avatarSrc ? (
                 <Image
-                  src={activeProfile.avatar_url}
+                  src={avatarSrc}
                   alt="Profil"
                   fill
                   className="object-cover"
@@ -100,7 +121,7 @@ export default function Navbar() {
                 <li className="border-t border-gray-100 mt-2 pt-2">
                   <button
                     onClick={handleProfileLogout}
-                    className="w-full text-left px-6 py-3 text-red-500 font-semibold hover:bg-red-50 transition-colors"
+                    className="w-full text-left px-6 py-3 text-red-500 font-semibold hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     Odhlásit profil
                   </button>

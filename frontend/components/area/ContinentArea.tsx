@@ -107,8 +107,19 @@ export default async function ContinentArea({regionId, regionName, regionColor, 
 
             </div>
 
+            <div className="relative w-full h-10 lg:h-20 overflow-hidden my-10">
+                <Image
+                    src={regionOrnament}
+                    alt={"Ornament" + regionName}
+                    fill
+                    sizes="100vw"
+                    className="object-cover object-center select-none pointer-events-none"
+                    draggable={false}
+                />
+            </div>
+
             {/* Základní informace */}
-            <div className="flex flex-col items-center min-h-screen justify-center py-10">
+            <div className="flex flex-col items-center min-h-screen justify-center pb-10">
                 {/* Nadpis */}
                 <h2 className="text-center uppercase custom-color-etiopska md:text-8xl text-5xl cus-font-impacted-2" style={{ color: primaryColor }}>
                     Základní informace
@@ -191,18 +202,7 @@ export default async function ContinentArea({regionId, regionName, regionColor, 
                     alt={"Zvíře - " + {regionName}}
                     width={600}
                     height={600}
-                    className="md:absolute left-0 xl:left-35 bottom-0 object-contain self-start"
-                />
-            </div>
-
-            <div className="relative w-full h-10 lg:h-20 overflow-hidden my-10">
-                <Image
-                    src={regionOrnament}
-                    alt={"Ornament" + regionName}
-                    fill
-                    sizes="100vw"
-                    className="object-cover object-center select-none pointer-events-none"
-                    draggable={false}
+                    className="md:absolute left-0 bottom-0 object-contain self-start"
                 />
             </div>
 

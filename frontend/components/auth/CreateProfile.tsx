@@ -105,14 +105,12 @@ export default function CreateProfile() {
                 selectedItems.map((item) => equipItem(profile.id, item.id))
             );
 
-            // Hned equipnout to, co si dítě vybralo, ať se to projeví na profilu
-            /*await Promise.all([
-                avatar    ? profileService.update(profile.id, { avatar_item_id: avatar.id })       : null,
-                accessory ? profileService.update(profile.id, { accessory_item_id: accessory.id }) : null,
-                wallpaper ? profileService.update(profile.id, { wallpaper_item_id: wallpaper.id }) : null,
-            ]);*/
+            // profile z create() ještě nemá avatar_item_id/accessory_item_id/wallpaper_item_id
+            // (ty se nastaví až equipItem voláními výše) -> musíme profil znovu natáhnout z backendu,
+            // jinak Navbar dostane starý objekt bez vybraného avataru (race condition)
+            const refreshed = await profileService.getOne(profile.id);
 
-            setActiveProfile(profile)
+            setActiveProfile(refreshed.data);
             router.push('/domov');
         } catch (err: any) {
             setError(err.response?.data?.message ?? 'Nepodařilo se vytvořit profil');

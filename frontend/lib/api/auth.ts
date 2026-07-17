@@ -46,3 +46,58 @@ const authService = {
 };
 
 export default authService;
+
+const FRIENDLY_ERRORS: Record<number, string> = {
+    401: "Nesprávný email nebo heslo.",
+    403: "K této akci nemáte oprávnění.",
+    422: "Zkontrolujte prosím vyplněné údaje.",
+    429: "Příliš mnoho pokusů. Zkuste to prosím za chvíli.",
+    500: "Něco se pokazilo na naší straně. Zkuste to prosím znovu.",
+    503: "Služba je momentálně nedostupná. Zkuste to prosím za chvíli.",
+};
+
+// Vzory, které prozrazují interní detaily (SQL, connection stringy, stack trace...)
+const UNSAFE_PATTERNS = /SQLSTATE|Exception|Connection:|Stack trace|at\s+\/|\.php:\d+/i;
+
+export function getFriendlyErrorMessage(err: any, fallback: string, isLogin : boolean): string {
+    const status = err?.response?.status;
+    const rawMessage = err?.response?.data?.message;
+    const errors = err?.response?.data?.errors; // Laravel validation errors format
+
+    // Síťová chyba / server vůbec neodpověděl (typicky vypnutý server)
+    if (!err?.response) {
+        return "Nepodařilo se spojit se serverem. Zkontrolujte prosím připojení a zkuste to znovu.";
+    }
+
+    // Konkrétní validační chyba: duplicitní email při registraci
+    if (status === 422 && errors?.email && !isLogin) {
+        return "Účet s tímto emailem už existuje. Zkuste se raději přihlásit.";
+    }
+
+    if (status && FRIENDLY_ERRORS[status]) {
+        return FRIENDLY_ERRORS[status];
+    }
+
+    if (typeof rawMessage === "string" && UNSAFE_PATTERNS.test(rawMessage)) {
+        return fallback;
+    }
+
+    return rawMessage ?? fallback;
+}
+
+
+//PODMÍNKY PRO VYTVOŘENÍ UŽIVATELE
+export interface PasswordRule {
+    label: string;
+    test: (password: string) => boolean;
+}
+
+export const passwordRules: PasswordRule[] = [
+    { label: "Alespoň 8 znaků", test: (p) => p.length >= 8 },
+    { label: "Alespoň jedno velké písmeno", test: (p) => /[A-Z]/.test(p) },
+    { label: "Alespoň jedna číslice", test: (p) => /[0-9]/.test(p) },
+];
+
+export function isPasswordValid(password: string): boolean {
+    return passwordRules.every((rule) => rule.test(password));
+}

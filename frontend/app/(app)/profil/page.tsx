@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"; // Přidán hook pro parametr
 import { SlidingTabBar } from "@/components/ui/SlidingTabBar";
 import ProfileTab from "./_tabs/ProfileTab";
 import BackpackTab from "./_tabs/BackpackTab";
-import MedalTab from "./_tabs/MedalTab";
+//import MedalTab from "./_tabs/MedalTab";
 
 const tabs = [
   { id: "profil",    name: "Profil" },
@@ -40,7 +40,7 @@ export default function Profile() {
 
       <div className={activeTab === 0 ? "block" : "hidden"}><ProfileTab /></div>
       <div className={activeTab === 1 ? "block" : "hidden"}><BackpackTab /></div>
-      <div className={activeTab === 2 ? "block" : "hidden"}><MedalTab /></div>
+      {/*<div className={activeTab === 2 ? "block" : "hidden"}><MedalTab /></div>*/}
     </main>
   );
 }

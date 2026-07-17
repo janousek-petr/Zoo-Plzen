@@ -1,4 +1,4 @@
-import Image from "next/image";
+{/*import Image from "next/image";
 
 export default function Inventory() {
     // 1. SIMULACE DATABÁZE
@@ -34,7 +34,7 @@ export default function Inventory() {
         <>
             <main className="py-20 max-w-3xl mx-auto px-4">
                 
-                {/* TVOJE HLAVIČKA A IKONA */}
+                {/* TVOJE HLAVIČKA A IKONA *//*}
                 <div className="p-8 bg-fuchsia-800 rounded-full flex justify-self-center w-max mx-auto shadow-lg">
                     <Image
                         src="/img/icons/leaderboards-button.png"
@@ -48,17 +48,17 @@ export default function Inventory() {
                     Žebříček
                 </h1>
 
-                {/* STUPNĚ VÍTĚZŮ (1. - 3. místo) */}
+                {/* STUPNĚ VÍTĚZŮ (1. - 3. místo) *//*}
                 <div className="flex flex-row justify-center items-end mb-16">
                     
-                    {/* 2. MÍSTO */}
+                    {/* 2. MÍSTO *//*}
                     {secondPlace && (
                         <div className="flex flex-col items-center">
                             <Image src={secondPlace.avatar} alt={secondPlace.name} width={64} height={64} className="rounded-full mb-1 z-20 shadow-md object-cover" />
                             <span className="text-sm font-semibold text-gray-700 mb-2 truncate max-w-20">{secondPlace.name}</span>
                             <div className="bg-gray-400 h-32 w-35 flex flex-col items-center pt-4 shadow-lg z-10 text-xl">
                                 <p className="font-bold text-xl text-white mb-2">2.</p>
-                                {/* PŘIDÁNY PAČKY PRO 2. MÍSTO */}
+                                {/* PŘIDÁNY PAČKY PRO 2. MÍSTO *//*}
                                 <div className="flex items-center gap-1 font-mono font-bold text-white">
                                     <span>{secondPlace.points}</span>
                                     <Image src="/img/startpage-1.png" alt="Ikona pačky" width={30} height={30} className="rounded-full object-cover" />
@@ -67,14 +67,14 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    {/* 1. MÍSTO */}
+                    {/* 1. MÍSTO *//*}
                     {firstPlace && (
                         <div className="flex flex-col items-center">
                             <Image src={firstPlace.avatar} alt={firstPlace.name} width={80} height={80} className="rounded-full mb-1 z-20 shadow-md object-cover" />
                             <span className="text-base font-bold text-gray-800 mb-2 truncate max-w-20">{firstPlace.name}</span>
                             <div className="bg-amber-400 h-48 w-35 flex flex-col items-center pt-4 shadow-xl z-20">
                                 <p className="font-bold text-2xl text-white mb-2">1.</p>
-                                {/* PŘIDÁNY PAČKY PRO 1. MÍSTO */}
+                                {/* PŘIDÁNY PAČKY PRO 1. MÍSTO *//*}
                                 <div className="flex items-center gap-1 font-mono font-bold text-white text-xl">
                                     <span>{firstPlace.points}</span>
                                     <Image src="/img/startpage-1.png" alt="Ikona pačky" width={30} height={30} className="rounded-full object-cover" />
@@ -83,14 +83,14 @@ export default function Inventory() {
                         </div>
                     )}
 
-                    {/* 3. MÍSTO */}
+                    {/* 3. MÍSTO *//*}
                     {thirdPlace && (
                         <div className="flex flex-col items-center">
                             <Image src={thirdPlace.avatar} alt={thirdPlace.name} width={64} height={64} className="rounded-full mb-1 z-20 shadow-md object-cover" />
                             <span className="text-sm font-semibold text-gray-700 mb-2 truncate max-w-20">{thirdPlace.name}</span>
                             <div className="bg-[#cd7f32] h-24 w-35 flex flex-col items-center pt-4 shadow-md z-10">
                                 <p className="font-bold text-lg text-white mb-2">3.</p>
-                                {/* PŘIDÁNY PAČKY PRO 3. MÍSTO */}
+                                {/* PŘIDÁNY PAČKY PRO 3. MÍSTO *//*}
                                 <div className="flex items-center gap-1 font-mono font-bold text-white text-xl">
                                     <span>{thirdPlace.points}</span>
                                     <Image src="/img/startpage-1.png" alt="Ikona pačky" width={30} height={30} className="rounded-full object-cover" />
@@ -100,7 +100,7 @@ export default function Inventory() {
                     )}
                 </div>
 
-                {/* SEZNAM OSTATNÍCH (4. až 10. místo) */}
+                {/* SEZNAM OSTATNÍCH (4. až 10. místo) *//*}
                 <div className="bg-gray-600/30 p-5 rounded-3xl">
                     <div className="flex flex-col gap-3">
                         {restOfPlayers.map((player, index) => {
@@ -127,9 +127,9 @@ export default function Inventory() {
                         })}
                     </div>
                 
-                    {/* ODDĚLOVAČ */}
+                    {/* ODDĚLOVAČ *//*}
                     <hr className="my-8 text-gray-50"/>
-                    {/* TVOJE OSOBNÍ POZICE */}
+                    {/* TVOJE OSOBNÍ POZICE *//*}
                     <div className="flex items-center justify-between bg-fuchsia-800 p-3 shadow-md sticky bottom-4 z-30">
                         <div className="flex items-center gap-4">
                             <span className="font-bold text-white w-8 text-right">
@@ -162,4 +162,4 @@ export default function Inventory() {
             </main>
         </>
     );
-}
+}*/}

@@ -4,18 +4,108 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   RiDeleteBinLine,
-  RiStarLine,
-  RiTrophyLine,
   RiUserLine,
+  RiPencilLine,
 } from 'react-icons/ri'
 import Header from '@/components/admin/Header'
 import profileService from '@/lib/api/profiles'
-import type { Profile } from '@/lib/types'
+import { getItems } from '@/lib/api/items'
+import AssetPickerButton from '@/components/admin/item/AssetPickerButton'
+import type { Profile, Item } from '@/lib/types'
+
+// stejná ID kategorií jako v BackpackTab
+const CATEGORY_AVATAR = 1
+const CATEGORY_ACCESSORY = 2
+const CATEGORY_WALLPAPER = 3
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 const resolveUrl = (path: string | null | undefined) =>
   path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+
+type FormState = {
+  first_name: string
+  last_name: string
+  nickname: string
+  avatar_item_id: number | null
+  accessory_item_id: number | null
+  wallpaper_item_id: number | null
+  level: string
+  xp: string
+  points: string
+}
+
+// Textové pole se štítkem, tužkou a jasným "editable" vzhledem (border + focus ring)
+function EditableField({
+  label,
+  name,
+  value,
+  onChange,
+  required,
+  placeholder,
+}: {
+  label: string
+  name: 'first_name' | 'last_name' | 'nickname'
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  required?: boolean
+  placeholder?: string
+}) {
+  return (
+    <div className="group bg-white border-2 border-gray-200 rounded-xl p-4 flex flex-col gap-1.5 focus-within:border-gray-500/20 focus-within:ring-2 focus-within:ring-gray-500 hover:border-gray-400 transition-colors">
+      <label htmlFor={name} className="flex items-center gap-1.5 text-sm text-gray-400">
+        {label}
+        <RiPencilLine className="text-gray-300 group-focus-within:text-gray-500 transition-colors" size={13} />
+      </label>
+      <input
+        id={name}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        placeholder={placeholder}
+        className="text-lg text-gray-900 outline-none placeholder:text-gray-300 bg-transparent"
+      />
+    </div>
+  )
+}
+
+// Číselné pole se štítkem a stejným "editable" vzhledem jako EditableField
+// Hodnota se drží jako string, ať mazání pole nezůstává na "0" a nevznikají věci jako "0500"
+function EditableNumberField({
+  label,
+  name,
+  value,
+  onChange,
+  min = 0,
+}: {
+  label: string
+  name: 'level' | 'xp' | 'points'
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  min?: number
+}) {
+  return (
+    <div className="group bg-white border-2 border-gray-200 rounded-xl p-4 flex flex-col gap-1.5 focus-within:border-gray-500/20 focus-within:ring-2 focus-within:ring-gray-500 hover:border-gray-400 transition-colors">
+      <label htmlFor={name} className="flex items-center gap-1.5 text-sm text-gray-400">
+        {label}
+        <RiPencilLine className="text-gray-300 group-focus-within:text-gray-500 transition-colors" size={13} />
+      </label>
+      <input
+        id={name}
+        name={name}
+        type="number"
+        min={min}
+        value={value}
+        onChange={onChange}
+        onBlur={() => {
+          if (value === '') onChange({ target: { name, value: String(min) } } as React.ChangeEvent<HTMLInputElement>)
+        }}
+        className="text-lg text-gray-900 outline-none placeholder:text-gray-300 bg-transparent"
+      />
+    </div>
+  )
+}
 
 export default function ProfileDetail({ userId, profileId }: { userId: number; profileId: number }) {
   const router = useRouter()
@@ -24,26 +114,35 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const [form, setForm] = useState({
+  const [allItems, setAllItems] = useState<Item[]>([])
+
+  const [form, setForm] = useState<FormState>({
     first_name: '',
     last_name: '',
     nickname: '',
-    avatar_url: '',
-    accessory_url: '',
-    wallpaper_url: '',
+    avatar_item_id: null,
+    accessory_item_id: null,
+    wallpaper_item_id: null,
+    level: '1',
+    xp: '0',
+    points: '0',
   })
 
   useEffect(() => {
-    profileService.getOne(profileId).then(res => {
+    Promise.all([profileService.getOne(profileId), getItems()]).then(([res, items]) => {
       const p = res.data
       setProfile(p)
+      setAllItems(items)
       setForm({
         first_name: p.first_name ?? '',
         last_name: p.last_name ?? '',
         nickname: p.nickname ?? '',
-        avatar_url: p.avatar_url ?? '',
-        accessory_url: p.accessory_url ?? '',
-        wallpaper_url: p.wallpaper_url ?? '',
+        avatar_item_id: p.avatar_item_id ?? null,
+        accessory_item_id: p.accessory_item_id ?? null,
+        wallpaper_item_id: p.wallpaper_item_id ?? null,
+        level: String(p.level ?? 1),
+        xp: String(p.xp ?? 0),
+        points: String(p.points ?? 0),
       })
       setFetching(false)
     })
@@ -53,12 +152,25 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
+  const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // odstraní nečíselné znaky a případné nechtěné vedoucí nuly (např. "0500" -> "500")
+    let val = e.target.value.replace(/[^\d]/g, '')
+    if (val.length > 1) val = val.replace(/^0+/, '') || '0'
+    setForm(prev => ({ ...prev, [e.target.name]: val }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
     try {
-      const res = await profileService.update(profileId, form)
+      const payload = {
+        ...form,
+        level: form.level === '' ? 1 : Number(form.level),
+        xp: form.xp === '' ? 0 : Number(form.xp),
+        points: form.points === '' ? 0 : Number(form.points),
+      }
+      const res = await profileService.update(profileId, payload)
       setProfile(res.data)
     } catch {
       setError('Nepodařilo se uložit změny.')
@@ -83,7 +195,12 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
   if (!profile) return <p className="text-lg text-red-400 p-6">Profil nenalezen.</p>
 
   const displayName = profile.nickname ?? [profile.first_name, profile.last_name].filter(Boolean).join(' ')
-  const avatar = resolveUrl(form.avatar_url)
+
+  const avatarItem = allItems.find(i => i.id === form.avatar_item_id) ?? null
+  const accessoryItem = allItems.find(i => i.id === form.accessory_item_id) ?? null
+  const wallpaperItem = allItems.find(i => i.id === form.wallpaper_item_id) ?? null
+
+  const avatarPreview = resolveUrl(avatarItem?.image)
 
   return (
     <>
@@ -104,8 +221,8 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
           {/* Avatar náhled + statistiky */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3">
-              {avatar ? (
-                <img src={avatar} alt={displayName} className="w-12 h-12 rounded-full object-cover border border-gray-200" />
+              {avatarPreview ? (
+                <img src={avatarPreview} alt={displayName} className="w-12 h-12 rounded-full object-cover border border-gray-200" />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
                   <RiUserLine className="text-xl text-gray-400" />
@@ -117,21 +234,9 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
               </div>
             </div>
 
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-400 mb-1">Level</p>
-              <div className="flex items-center gap-1.5">
-                <RiTrophyLine className="text-gray-500" />
-                <p className="text-sm font-medium text-gray-800">{profile.level}</p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-xl p-4">
-              <p className="text-xs text-gray-400 mb-1">XP</p>
-              <div className="flex items-center gap-1.5">
-                <RiStarLine className="text-gray-500" />
-                <p className="text-sm font-medium text-gray-800">{profile.xp}</p>
-              </div>
-            </div>
+            <EditableNumberField label="Level" name="level" value={form.level} onChange={handleNumberChange} min={1} />
+            <EditableNumberField label="XP" name="xp" value={form.xp} onChange={handleNumberChange} />
+            <EditableNumberField label="Body" name="points" value={form.points} onChange={handleNumberChange} />
           </div>
 
           {/* Editace */}
@@ -142,70 +247,38 @@ export default function ProfileDetail({ userId, profileId }: { userId: number; p
 
             <form onSubmit={handleSubmit} className="max-w-xl flex flex-col gap-4">
 
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">Jméno</label>
-                <input
-                  name="first_name"
-                  value={form.first_name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Jméno"
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
+              <EditableField label="Jméno" name="first_name" value={form.first_name} onChange={handleChange} required placeholder="Jméno" />
+              <EditableField label="Příjmení" name="last_name" value={form.last_name} onChange={handleChange} placeholder="Příjmení" />
+              <EditableField label="Přezdívka" name="nickname" value={form.nickname} onChange={handleChange} placeholder="Přezdívka" />
+
+              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-2">
+                <label className="text-sm text-gray-400">Avatar</label>
+                <AssetPickerButton
+                  value={avatarItem}
+                  onChange={item => setForm(prev => ({ ...prev, avatar_item_id: item.id }))}
+                  itemCategoryId={CATEGORY_AVATAR}
+                  label="Vybrat avatara"
                 />
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">Příjmení</label>
-                <input
-                  name="last_name"
-                  value={form.last_name}
-                  onChange={handleChange}
-                  placeholder="Příjmení"
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
+              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-2">
+                <label className="text-sm text-gray-400">Doplněk (accessory)</label>
+                <AssetPickerButton
+                  value={accessoryItem}
+                  onChange={item => setForm(prev => ({ ...prev, accessory_item_id: item.id }))}
+                  onClear={() => setForm(prev => ({ ...prev, accessory_item_id: null }))}
+                  itemCategoryId={CATEGORY_ACCESSORY}
+                  label="Vybrat doplněk"
                 />
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">Přezdívka</label>
-                <input
-                  name="nickname"
-                  value={form.nickname}
-                  onChange={handleChange}
-                  placeholder="Přezdívka"
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
-                />
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">URL avatara</label>
-                <input
-                  name="avatar_url"
-                  value={form.avatar_url}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
-                />
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">URL doplňku (accessory)</label>
-                <input
-                  name="accessory_url"
-                  value={form.accessory_url}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
-                />
-              </div>
-
-              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                <label className="text-sm text-gray-400">URL tapety (wallpaper)</label>
-                <input
-                  name="wallpaper_url"
-                  value={form.wallpaper_url}
-                  onChange={handleChange}
-                  placeholder="https://..."
-                  className="text-lg text-gray-900 outline-none placeholder:text-gray-300"
+              <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-2">
+                <label className="text-sm text-gray-400">Tapeta (wallpaper)</label>
+                <AssetPickerButton
+                  value={wallpaperItem}
+                  onChange={item => setForm(prev => ({ ...prev, wallpaper_item_id: item.id }))}
+                  itemCategoryId={CATEGORY_WALLPAPER}
+                  label="Vybrat tapetu"
                 />
               </div>
 

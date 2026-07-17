@@ -9,7 +9,7 @@ const areas = [
     mapAlt: "Mapa Afriky",
     animal: "/img/photo-no-bg/giraffe.png",
     animalAlt: "Žirafa",
-    bg: "bg-[#BD9554]",
+    bg: "bg-[#BD9554]/90 hover:bg-[#BD9554]",
     side: "right",
   },
   {
@@ -19,7 +19,7 @@ const areas = [
     mapAlt: "Mapa Asie",
     animal: "/img/photo-no-bg/monkey.png",
     animalAlt: "Opice",
-    bg: "bg-[#FDB913]",
+    bg: "bg-[#FDB913]/90 hover:bg-[#FDB913]",
     side: "left",
   },
   {
@@ -29,7 +29,7 @@ const areas = [
     mapAlt: "Mapa Evropy",
     animal: "/img/photo-no-bg/bear.png",
     animalAlt: "Medvěd",
-    bg: "bg-[#0072BC]",
+    bg: "bg-[#0072BC]/90 hover:bg-[#0072BC]",
     side: "right",
   },
   {
@@ -39,7 +39,7 @@ const areas = [
     mapAlt: "Mapa Severní Ameriky",
     animal: "/img/photo-no-bg/bison.png",
     animalAlt: "Bizon",
-    bg: "bg-[#8E5233]",
+    bg: "bg-[#8E5233]/90 hover:bg-[#8E5233]",
     side: "left",
   },
   {
@@ -49,7 +49,7 @@ const areas = [
     mapAlt: "Mapa Jižní Ameriky",
     animal: "/img/photo-no-bg/wolf.png",
     animalAlt: "Vlk",
-    bg: "bg-[#076D3C]",
+    bg: "bg-[#076D3C]/90 hover:bg-[#076D3C]",
     side: "right",
   },
   {
@@ -59,7 +59,7 @@ const areas = [
     mapAlt: "Mapa Austrálie",
     animal: "/img/photo-no-bg/kangaroo.png",
     animalAlt: "Klokan",
-    bg: "bg-[#ED1C24]",
+    bg: "bg-[#ED1C24]/90 hover:bg-[#ED1C24]",
     side: "left",
   },
 ];
@@ -67,7 +67,7 @@ const areas = [
 export default function Areas() {
   return (
     <>
-      <main className="my-30">
+      <main className="my-30 overflow-x-clip">
         <section>
           {areas.map((area) => {
             const animalRight = area.side === "right";
@@ -75,7 +75,7 @@ export default function Areas() {
             return (
               <Link key={area.slug} href={`/hry/kontinenty/${area.slug}`}>
                 <div
-                  className={`relative w-full ${area.bg} my-20 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex ${
+                  className={`relative w-full ${area.bg} my-20 max-sm:py-20 max-sm:p-5 sm:p-20 md:p-25 flex shadow-sm hover:shadow-lg duration-200 transition hover:scale-101 ${
                     animalRight ? "justify-start" : "justify-end"
                   } items-center overflow-visible`}
                 >

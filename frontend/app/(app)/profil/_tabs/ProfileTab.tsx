@@ -95,15 +95,10 @@ export default function ProfileTab() {
           )}
         </div>
 
-        <div>
+        <div className="text-start">
           <h1 className="text-8xl cus-font-impacted-2 uppercase leading-none text-sky-600">
-            {profile.first_name}
-            <br />
-            {profile.last_name}
+            {profile.nickname}
           </h1>
-          {profile.nickname && (
-            <p className="text-center text-gray-500 text-xl mt-2">@{profile.nickname}</p>
-          )}
         </div>
       </div>
 

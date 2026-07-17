@@ -38,7 +38,6 @@ export default function QuizResult({
     ).length;
     const wrongAnswers = questions.length - correctAnswers;
     const percentage = totalPoints > 0 ? Math.round((score / totalPoints) * 100) : 0;
-    const xpBonus = Math.round(score / 10);
 
 const subtitle =
   percentage >= 80 ? "Zvládl jsi to levou zadní..." :
@@ -110,7 +109,7 @@ const subtitle =
           <div className="flex flex-row gap-1">
             <StatPill icon={RiTimeLine} value={timeLabel} color={regionColor} />
             <StatPill icon={RiMedalLine} value={`${score} XP`} color={regionColor} />
-            <StatPill icon={RiCopperCoinLine} value={String(Math.round(score / 5))} color={regionColor} />
+            <StatPill iconSrc="/img/icons/currency-icon.png" iconAlt="Mince" value={String(Math.round(score / 5))} color={regionColor} />
           </div>
 
           {/* Správné / špatné */}
@@ -147,10 +146,14 @@ const subtitle =
 
 function StatPill({
   icon: Icon,
+  iconSrc,
+  iconAlt = "",
   value,
   color,
 }: {
   icon?: React.ComponentType<{ size?: number; className?: string }>;
+  iconSrc?: string;
+  iconAlt?: string;
   value?: string;
   color?: string;
 }) {
@@ -159,7 +162,17 @@ function StatPill({
       className="flex items-center gap-1.5 text-white font-bold text-sm px-2 py-1.5 rounded-lg flex-1 justify-center"
       style={{ backgroundColor: color ?? undefined }}
     >
-      {Icon && <Icon size={16} className="shrink-0" />}
+      {Icon ? (
+        <Icon size={16} className="shrink-0" />
+      ) : iconSrc ? (
+        <Image
+          src={iconSrc}
+          alt={iconAlt}
+          width={16}
+          height={16}
+          className="shrink-0 object-contain"
+        />
+      ) : null}
       <span>{value}</span>
     </div>
   );

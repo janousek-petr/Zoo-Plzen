@@ -332,16 +332,13 @@ export default function QuizEngine({
       )}
 
       {/* Ikonky */}
-      <div className="flex gap-4 pb-4 shrink-0 mt-auto">
+      <div className="flex gap-4 pb-4 shrink-0 flex-row">
         <button
           onClick={() => router.push(exitHref)}
           className="w-10 h-10 rounded-lg border-2 bg-red-500 flex items-center justify-center text-white hover:text-red-500 hover:border-red-400 hover:bg-transparent transition-all cursor-pointer"
           aria-label="Odejít z kvízu"
         >
           <FiLogOut size={18} />
-        </button>
-        <button className="w-10 h-10 rounded-lg border-2 border-gray-300 flex items-center justify-center text-gray-400 font-bold text-lg">
-          ?
         </button>
       </div>
 
