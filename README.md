@@ -42,9 +42,11 @@ Nastavení BACKENDU (Laravel a Breeze)
 
 `php artisan key:generate` <br>
 
-`php artisan migrate`
+`php artisan migrate:fresh --seed`
 
 `php artisan storage:link`
+
+Vytvořit .env soubor a do něho napsat <b>NEXT_PUBLIC_API_URL=http://localhost:8000</b>
 
 `php artisan serve`
 
