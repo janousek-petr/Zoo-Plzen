@@ -34,6 +34,8 @@ Nainstalujte závislosti <br>
 
 Nastavení BACKENDU (Laravel a Breeze)
 -
+Je důležité zapnout XAMPP a vytvořit DB s názvem zoo_plzen v phpmyadmin
+
 `cd backend` <br>
 
 `composer install` <br>
