@@ -44,9 +44,11 @@ Nastavení BACKENDU (Laravel a Breeze)
 
 `php artisan migrate`
 
+`php artisan storage:link`
+
 `php artisan serve`
 
-`php artisan storage:link`
+
 
 
 
