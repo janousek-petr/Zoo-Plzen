@@ -14,12 +14,13 @@ const MENU_ITEMS = [
   { label: "Domov", href: "/domov" },
   { label: "Hry", href: "/hry/kontinenty" },
   //{ label: "Týdenní žebříček", href: "/zebricek" },
-  { label: "Tvoje výzvy", href: "/vyzvy" },
+  { label: "Profil", href: "/profil?tab=profil" },
+  { label: "Batoh", href: "/profil?tab=batoh" },
   { label: "Obchod", href: "/obchod" },
   //{ label: "Zoo Plzeň", href: "https://zooplzen.cz/" },
 ];
 
-const RIGHT_ICON_HREF = "/profil?tab=profil";
+const RIGHT_ICON_HREF = "/profil?tab=profil?tab=profil";
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
 
