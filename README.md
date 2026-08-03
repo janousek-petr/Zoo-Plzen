@@ -9,14 +9,16 @@ Projekt se skládá ze dvou částí
 
 Předpoklady
 -  
-<b>Před začátkem se ujistěte, že máte nainstalované následující nástroje</b>  
+<b>Před začátkem se ujistěte, že máte nainstalované následující nástroje</b>
 - **Git** (pro stažení projektu)
 - **Node.js** (v18 nebo novější, pro běh Next.js)
 - **PHP >= 8.2** & **Composer**
 - **MySQL / MariaDB** (např. v rámci XAMPP)
 - **PHP Rozšíření:** `pdo_mysql` a `iconv`
 ###  Nastavení PHP rozšíření:
-- **Windows (XAMPP):** Otevřete soubor `php.ini` a odstraňte středník `;` na začátku řádků `;extension=pdo_mysql` a `;extension=iconv`.
+- **Windows (XAMPP):**
+    - Rozšíření `iconv` bývá v XAMPPu zapnuté výchozím stavem.
+    - Otevřete soubor `php.ini` a odstraňte středník `;` na začátku řádků `;extension=pdo_mysql` a `;extension=iconv`.
 - **Linux (Ubuntu/Debian):** Spusťte `sudo apt install php-mysql php-iconv`.
 - **macOS:** Rozšíření jsou součástí PHP (případně spravujte přes Homebrew).
 
