@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('correct_input')->nullable()->default(null);
             $table->boolean('is_correct')->default(false);
             $table->string('image')->nullable()->default(null);
+            $table->softDeletes();
         });
     }
 
