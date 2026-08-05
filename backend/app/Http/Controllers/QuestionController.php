@@ -6,6 +6,8 @@ use App\Models\Answer;
 use App\Models\Question;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Nette\Schema\ValidationException;
+use Throwable;
 
 class QuestionController extends Controller
 {
