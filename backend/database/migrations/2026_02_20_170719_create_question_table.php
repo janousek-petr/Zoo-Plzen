@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('image')->nullable()->default(null);
             $table->foreignId('question_category')->constrained('question_category');
             $table->integer('points')->default(2);
+            $table->softDeletes();
         });
     }
 

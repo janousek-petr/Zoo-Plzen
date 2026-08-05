@@ -136,18 +136,19 @@ export default function EditQuestion({ quizId, question }: Props) {
         }
 
         try {
-            await updateQuestion(quizId, question.id!, {
+            const payload = {
                 text: form.text,
                 points: Number(form.points),
                 question_category: Number(form.question_category),
                 image: image?.path ?? null,
                 answers: answers.map(a => ({
-                    id: a.id,
+                    id: a.id ?? null,
                     text: a.text,
                     is_correct: a.is_correct,
                     image: (a.image as MediaItem)?.path ?? null,
                 }))
-            })
+            }
+            await updateQuestion(quizId, question.id!, payload)
             router.push(`/admin/quizzes/${quizId}/questions`)
         } catch {
             setError('Nepodařilo se upravit otázku.')

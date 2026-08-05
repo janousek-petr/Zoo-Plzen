@@ -132,7 +132,7 @@ export async function updateQuestion(quizId: number, questionId: number, data: {
     question_category: number,
     image?: string | null,
     answers: {
-        id?: number,
+        id?: number | null,
         text?: string | null,
         is_correct: boolean,
         image?: string | null,

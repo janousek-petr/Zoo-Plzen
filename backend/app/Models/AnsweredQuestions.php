@@ -20,7 +20,7 @@ class AnsweredQuestions extends Model
     }
 
     public function question() {
-        return $this->belongsTo(Question::class);
+        return $this->belongsTo(Question::class)->withTrashed();
     }
 
     public function chosenAnswer() {
@@ -29,6 +29,6 @@ class AnsweredQuestions extends Model
 
     public function answers()
     {
-        return $this->hasMany(Answer::class, 'question_id');
+        return $this->hasMany(Answer::class, 'question_id')->withTrashed();
     }
 }
