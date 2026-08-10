@@ -87,3 +87,7 @@ Route::post('/profiles/claim-daily-reward', [ProfileController::class, 'claimDai
 
 Route::post('/generate/weeklyChallenges', [ChallengeController::class, 'triggerWeekly']);
 Route::post('/generate/dailyChallenges', [ChallengeController::class, 'triggerDaily']);
+
+// Level a XP
+Route::post('/addLevel', [ProfileController::class, 'addLevel']);
+Route::post('/addXp', [ProfileController::class, 'addXp']);
