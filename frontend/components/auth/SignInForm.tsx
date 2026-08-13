@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { RiAlertLine } from "react-icons/ri";
+import Link from "next/link";
 
 export default function SignInForm() {
     const { login, isLoading, error } = useAuth();
@@ -39,8 +40,8 @@ export default function SignInForm() {
                         onChange={(e) => setPassword(e.target.value)}
                         required
                     />
+                    <Link href='/zapomenute-heslo' className="text-green-700 self-end">Zapomenuté heslo</Link>
                 </div>
-
                 {error && (
                     <div
                         role="alert"
