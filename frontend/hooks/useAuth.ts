@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import {useCallback, useState} from 'react';
 import { useRouter } from 'next/navigation';
-import authService, { RegisterData, LoginData } from '@/lib/api/auth';
+import authService, {RegisterData, LoginData, ResetPasswordData} from '@/lib/api/auth';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { getFriendlyErrorMessage } from '@/lib/api/auth';
 
@@ -17,7 +17,8 @@ export const useAuth = () => {
         try {
             await authService.register(data);
             await refreshUser();
-            router.push('/zvoleni-profilu');
+            //router.push('/zvoleni-profilu');
+            router.push('/verification');
         } catch (err: any) {
             setError(getFriendlyErrorMessage(err, 'Registrace se nezdařila', false));
         } finally {
@@ -48,10 +49,60 @@ export const useAuth = () => {
         }
     };
 
+    const forgotPassword = async (email: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await authService.forgotPassword(email);
+            //return {'message':  "Na e-mailovou adresu jsme Vám poslali odkaz na obnovení hesla. Prosím, obnovte si heslo do 60 minut."}
+        } catch (err: any) {
+            console.error(err);
+            setError(err.response.data.message);
+            //setError(getFriendlyErrorMessage(err, "Vyskytla se chyba na naší straně. Zkuste to prosím později.", false));
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const resetPassword = async (data: ResetPasswordData) => {
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            await authService.resetPassword(data);
+            //return {'message': "Obnovení hesla se podařila. Vraťte se prosím na přihlašovací stránku."}
+        } catch (err: any) {
+            console.error(err);
+            setError(err.response.data.message);
+            //setError(getFriendlyErrorMessage(err, "Vyskytla se chyba na naší straně. Zkuste to prosím později.", false));
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    const checkResetToken = useCallback(async (email: string, token: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await authService.checkResetToken(email, token);
+        } catch (err: any) {
+            console.error(err);
+            setError("Odkaz pro obnovení hesla je neplatný, již vypršel nebo nepatří k tomuto účtu.");
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     return {
         register,
         login,
         logout,
+        forgotPassword,
+        resetPassword,
+        checkResetToken,
         user,
         isLoading: isLoading,
         isAuthenticated,

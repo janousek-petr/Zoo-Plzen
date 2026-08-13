@@ -29,6 +29,30 @@ Route::post('/register', [RegisteredUserController::class, 'store'])->middleware
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('guest:sanctum');
 
+// Obnovení hesla
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('guest:sanctum');
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest:sanctum');
+
+// Vymazat "valid", pokud bude používat try jako úspěch a catch jako neplatí
+Route::post('/check-reset-token', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'token' => 'required|string',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    // Kontrola: Zda uživatel existuje a zda token patří jemu a nevypršel
+    if (!$user || !Password::getRepository()->exists($user, $request->token)) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Odkaz pro obnovení hesla je neplatný, již vypršel nebo nepatří k tomuto účtu.'
+        ], 422);
+    }
+
+    return response()->json(['valid' => true]);
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('profiles', ProfileController::class);
 });
