@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Challenges\ChallengeCompleted;
 use App\Challenges\DistributeChallengeReward;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
