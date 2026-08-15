@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { getMedia, uploadMedia, deleteMedia} from '@/lib/api/media'
+import {getMedia, uploadMedia, deleteMedia, getStorageUrl} from '@/lib/api/media'
 import { MediaItem } from '@/lib/types'
 import {
   RiUploadCloud2Line,
@@ -127,7 +127,7 @@ export default function MediaPage() {
                     </>
                   ) : (
                     <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}${item.path}`}
+                      src={getStorageUrl(item.path)}
                       alt={item.filename}
                       className="w-full h-full object-cover"
                     />
@@ -147,7 +147,7 @@ export default function MediaPage() {
               <RiMusic2Line className="text-5xl text-gray-400" />
               <audio
                 controls
-                src={`${process.env.NEXT_PUBLIC_API_URL}${selectedItem.path}`}
+                src={getStorageUrl(selectedItem.path)}
                 className="w-full"
               />
             </div>
