@@ -1,6 +1,19 @@
 import axios from '@/lib/axios'
 import { MediaItem } from '@/lib/types'
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+export function getStorageUrl(path?: string | null): string {
+    if (!path) return '';
+    // Pokud cesta již obsahuje celou URL (http/https), vrátíme ji rovnou
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+    }
+    // Ošetření lomítek mezi API_URL a path
+    const cleanPath = path.startsWith('/') ? path : `/${path}`;
+    return `${API_URL}${cleanPath}`;
+}
+
 export async function getMedia(): Promise<MediaItem[]> {
     try {
         const res = await axios.get('/api/media');
