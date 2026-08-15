@@ -3,6 +3,8 @@
 use App\Http\Controllers\ActiveChallengeController;
 use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\ProfileController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\RegionInfoController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
