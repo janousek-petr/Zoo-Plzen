@@ -3,6 +3,8 @@
 use App\Http\Controllers\ActiveChallengeController;
 use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ChallengeController;
 use App\Http\Controllers\ProfileController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\RegionInfoController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +31,30 @@ Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
 Route::post('/register', [RegisteredUserController::class, 'store'])->middleware('guest:sanctum');
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum');
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('guest:sanctum');
+
+// Obnovení hesla
+Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->middleware('guest:sanctum');
+Route::post('/reset-password', [NewPasswordController::class, 'store'])->middleware('guest:sanctum');
+
+// Vymazat "valid", pokud bude používat try jako úspěch a catch jako neplatí
+Route::post('/check-reset-token', function (Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'token' => 'required|string',
+    ]);
+
+    $user = User::where('email', $request->email)->first();
+
+    // Kontrola: Zda uživatel existuje a zda token patří jemu a nevypršel
+    if (!$user || !Password::getRepository()->exists($user, $request->token)) {
+        return response()->json([
+            'valid' => false,
+            'message' => 'Odkaz pro obnovení hesla je neplatný, již vypršel nebo nepatří k tomuto účtu.'
+        ], 422);
+    }
+
+    return response()->json(['valid' => true]);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('profiles', ProfileController::class);
@@ -87,3 +114,7 @@ Route::post('/profiles/claim-daily-reward', [ProfileController::class, 'claimDai
 
 Route::post('/generate/weeklyChallenges', [ChallengeController::class, 'triggerWeekly']);
 Route::post('/generate/dailyChallenges', [ChallengeController::class, 'triggerDaily']);
+
+// Level a XP
+Route::post('/addLevel', [ProfileController::class, 'addLevel']);
+Route::post('/addXp', [ProfileController::class, 'addXp']);

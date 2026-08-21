@@ -1,36 +1,48 @@
-ZOO PLZEŇ PROJEKT
--  
-Zdravím! <br>  
-Tento návod vás provede stažením kódu, nainstalování dependencies a spuštěním aplikace na vašem počítači.
+# ZOO PLZEŇ PROJEKT
+Zdravím!
 
-Projekt se skládá ze dvou částí
-- Next.js (Frontend)
-- Laravel (Backend)
+Tento návod vás provede stažením kódu, nainstalováním závislostí (dependencies) a spuštěním aplikace na vašem počítači.
 
-Předpoklady
--  
-<b>Před začátkem se ujistěte, že máte nainstalované následující nástroje</b>  
+Projekt se skládá ze dvou částí:
+- **Next.js** (Frontend)
+- **Laravel** (Backend)
+
+---
+
+## Předpoklady
+
+Před začátkem se ujistěte, že máte nainstalované následující nástroje:
+
 - **Git** (pro stažení projektu)
 - **Node.js** (v18 nebo novější, pro běh Next.js)
 - **PHP >= 8.2** & **Composer**
-- **MySQL / MariaDB** (např. v rámci XAMPP)
+- **MySQL / MariaDB** (např. v rámci XAMPP nebo samostatně)
 - **PHP Rozšíření:** `pdo_mysql` a `iconv`
-###  Nastavení PHP rozšíření:
-- **Windows (XAMPP):** Otevřete soubor `php.ini` a odstraňte středník `;` na začátku řádků `;extension=pdo_mysql` a `;extension=iconv`.
-- **Linux (Ubuntu/Debian):** Spusťte `sudo apt install php-mysql php-iconv`.
-- **macOS:** Rozšíření jsou součástí PHP (případně spravujte přes Homebrew).
 
-Naklonování repozitáře
--  
-Nejprve si stáhněte projekt k sobě do počítače a přejděte do jeho hlavní složky <br>
-`git clone https://github.com/janousek-petr/Zoo-Plzen.git` <br>  
-`cd Zoo-Plzen` <br>
+### Nastavení PHP rozšíření a limitů:
+- **Windows (XAMPP):**
+    - Otevřete soubor `php.ini` a odstraňte středník `;` na začátku řádků `;extension=pdo_mysql` a `;extension=iconv`.
+- **Linux (Ubuntu/Debian):** Spusťte `sudo apt install php-mysql php-iconv`.
+- **macOS:** Rozšíření jsou součástí PHP (případně je spravujte přes Homebrew).
+
+> **Důležité:** V souboru `php.ini` najděte parametry `upload_max_filesize` a `post_max_size` a nastavte jejich hodnotu na `20M` nebo vyšší (doporučeno `25M` až `30M`).
+> *(Cestu k aktivnímu souboru `php.ini` zjistíte příkazem `php --ini` v terminálu).*
+
+---
+
+## Naklonování repozitáře
+
+Nejprve si stáhněte projekt do počítače a přejděte do jeho kořenové složky:
+
+```bash
+git clone https://github.com/janousek-petr/Zoo-Plzen.git
+cd Zoo-Plzen
+```
 
 ## Příprava databáze
+1. Spusťte MySQL server (např. přes ovládací panel XAMPP).
 
-1.  Spusťte MySQL (např. přes ovládací panel XAMPP).
-
-2.  Otevřete phpMyAdmin (`http://localhost/phpmyadmin`) a vytvořte novou databázi:
+2. Otevřete phpMyAdmin (`http://localhost/phpmyadmin`) nebo váš DB klient a vytvořte novou databázi:
 
     -   **Název databáze:** `zoo_plzen`
 
@@ -38,42 +50,33 @@ Nejprve si stáhněte projekt k sobě do počítače a přejděte do jeho hlavn�
 
     -   **Porovnávání (Collation):** `utf8mb4_unicode_ci`
 
-Nastavení FRONTENDU (Next.js a Axios)
--
-Přejděte do frontend složky <br>
-`cd frontend` <br>
-
-Nainstalujte závislosti <br>
-`npm install` <br>
-
-Nastavení BACKENDU (Laravel a Breeze)
--  
-Přejděte do složky backendu:
-`cd backend` <br>  
-Nainstalujte závislosti Composeru:
-`composer install` <br>
-
-### Automatická instalace (Doporučeno):
-
-Spusťte automatický setup skript, který zkontroluje prostředí, vytvoří `.env`, vygeneruje klíče, propojí storage a naplní databázi záznamy:
+## Instalace
+### Možnost A: Automatická instalace (Doporučeno)
+Z kořenového adresáře projektu spusťte automatický setup skript, který zkontroluje prostředí, vytvoří `.env` soubory, vygeneruje klíče, propojí storage a naplní databázi záznamy:
 
 Bash
-
 ```
-composer run setup
-
+bash setup.sh
 ```
+(Pokud nechcete promazat stávající databázi, můžete použít `bash setup.sh safe`).
 
-_(Pokud nechcete promazat stávající databázi, můžete použít `composer run setup-safe`)_.
+### Možnost B: Ruční instalace
+Pokud nepoužijete automatický setup, nainstalujte projekt ručně:
 
-### Alternativa: Ruční instalace (krok za krokem):
+1. **Nastavení backendu (Laravel)**
 
-Pokud nepoužijete automatický setup, spusťte příkazy ručně:
+Přejděte do složky backendu a nainstalujte Composer závislosti:
 
 Bash
-
 ```
-# Kopírování nastavení (upravte DB údaje v .env pokud nepoužíváte root bez hesla)
+cd backend
+composer install
+```
+Následně spusťte příkazy pro nastavení prostředí:
+
+Bash
+```
+# Kopírování nastavení (upravte DB údaje v .env, pokud nepoužíváte root bez hesla)
 cp .env.example .env
 
 # Vygenerování klíče aplikace
@@ -82,11 +85,28 @@ php artisan key:generate
 # Spuštění migrací a naplnění databáze seedery
 php artisan migrate:fresh --seed
 
-# Vytvoření odkazů na obrázky
+# Vytvoření odkazů na obrázky a média
 php artisan storage:link
 ```
 
-Do souboru .env přidejte <b>NEXT_PUBLIC_API_URL=http://localhost:8000</b>
+2. **Nastavení frontendu (Next.js)**
+
+Přejděte do složky frontendu a nainstalujte NPM závislosti:
+
+Bash
+```
+cd frontend
+npm install
+```
+Vytvořte konfigurační soubor `.env.local`:
+
+Bash
+```
+cp .env.example .env.local
+```
+Ujistěte se, že v souboru `.env.local` je nastavená URL adresa backendu:
+
+`NEXT_PUBLIC_API_URL=http://localhost:8000`
 
 ## Spuštění aplikace
 
@@ -94,25 +114,23 @@ Pro běh aplikace musíte mít spuštěné oba servery zároveň (ve dvou termin
 
 1.  **Backend (Terminál 1 - složka `backend`):**
 
-    Bash
+Bash
 
-    ```
-    php artisan serve
-    
-    ```
+   ```  
+  php artisan serve  
+  ```  
 
-    _(Backend poběží na `http://localhost:8000`)_
+_(Backend poběží na `http://localhost:8000`)_
 
 2.  **Frontend (Terminál 2 - složka `frontend`):**
 
-    Bash
+Bash
 
-    ```
-    npm run dev
-    
-    ```
+   ```  
+  npm run dev  
+  ```  
 
-    _(Frontend poběží na `http://localhost:3000`)_
+_(Frontend poběží na `http://localhost:3000`)_
 
 
 Nyní otevřete prohlížeč a přejděte na adresu **`http://localhost:3000`**.

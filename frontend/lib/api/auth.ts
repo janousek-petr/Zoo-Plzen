@@ -14,6 +14,13 @@ export interface LoginData{
     remember?: boolean;
 }
 
+export interface ResetPasswordData{
+    email: string;
+    password: string;
+    password_confirmation: string;
+    token: string;
+}
+
 
 const authService = {
     csrf: async () => {
@@ -33,6 +40,20 @@ const authService = {
     logout: async () => {
         await authService.csrf();
         return await axios.post('/logout');
+    },
+
+    forgotPassword: async (email: string) => {
+        await authService.csrf();
+        return await axios.post('/forgot-password', { email });
+    },
+
+    resetPassword: async (data: ResetPasswordData) => {
+        await authService.csrf();
+        return await axios.post('/reset-password', data);
+    },
+
+    checkResetToken: async (email: string, token: string) => {
+        return await axios.post('api/check-reset-token', { email, token });
     },
 
     getUser: async () => {

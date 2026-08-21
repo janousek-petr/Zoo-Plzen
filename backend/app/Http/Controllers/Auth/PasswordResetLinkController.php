@@ -18,7 +18,11 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'email:rfc', 'max:255', 'exists:users,email'],
+        ], [
+            'email.required' => 'E-mailová adresa je povinná.',
+            'email.email' => 'Zadejte e-mail ve správném formátu.',
+            'email.exists' => 'Tento e-mail není v našem systému. Zkuste se zaregistrovat.',
         ]);
 
         // We will send the password reset link to this user. Once we have attempted

@@ -6,7 +6,9 @@ use App\Models\Inventory;
 use App\Models\Item;
 use App\Models\Profile;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProfileController extends Controller
 {
@@ -38,6 +40,53 @@ class ProfileController extends Controller
         }
 
         return response()->json($profile);
+    }
+
+    /**
+     * Přidá XP hráčovi, uloží změny do DB a vrátí informace o případném Level Upu.
+     */
+    public function addXp(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'profile_id' => 'required|integer|exists:profiles,id',
+            'xp' => 'required|integer|min:1',
+        ]);
+
+        return DB::transaction(function () use ($validated) {
+            $profile = Profile::where('user_id', auth()->id())->lockForUpdate()
+                ->findOrFail($validated['profile_id']);
+
+            // Přičtení XP profilu
+            $profile->xp += $validated['xp'];
+            $oldLevel = $profile->level;
+            [$level, $xp] = $this->normalizeLevelXp($oldLevel, $profile->xp);
+
+            $profile->xp = $xp;
+            $profile->level = $level;
+            $profile->save();
+
+            return response()->json([
+                'level' => $level,
+                'xp' => $xp,
+                'leveled_up' => $level !== $oldLevel,
+            ]);
+        });
+    }
+
+    /**
+     * Zvýší level hráče
+     */
+    public function addLevel(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'profile_id' => 'required|integer|exists:profiles,id',
+            'level' => 'required|integer|min:1',
+        ]);
+        $profile = Profile::where('user_id', auth()->id())->findOrFail($validated['profile_id']);
+        $profile->level += $validated['level'];
+        $profile->save();
+
+        return response()->json(['message' => 'Level added'], 201);
     }
 
     /**
