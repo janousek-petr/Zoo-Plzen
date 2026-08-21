@@ -24,7 +24,7 @@ export default function ForgottenPasswordForm() {
         setStatusMessage(null);
         try {
             await forgotPassword(email);
-            setStatusMessage("Odkaz jsme poslali na Váš e-mailovou adresu. Doručení může trvat 1–2 minuty. Zkontrolujte prosím i složku SPAM.");
+            setStatusMessage("Odkaz jsme poslali na Vaší e-mailovou adresu. Doručení může trvat 1–2 minuty. Zkontrolujte prosím i složku SPAM.");
             // Nastavení 60sekundového odpočtu po úspěšném odeslání
             setCooldown(60);
         } catch (err) {
