@@ -61,8 +61,9 @@ const authService = {
         return await axios.get('api/user');
     },
 
-    verifyEmail: async (url: string) => {
-        return await axios.get(url);
+    resendVerificationEmail: async () => {
+        await authService.csrf();
+        return await axios.post('/email/verification-notification');
     }
 };
 

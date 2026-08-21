@@ -10,8 +10,9 @@ interface AuthContextType {
     setActiveProfile: (profile: Profile | null) => void;
     isLoading: boolean;
     isAuthenticated: boolean;
+    isVerified: boolean;
     logout: () => Promise<void>;
-    refreshUser: () => Promise<void>;
+    refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -22,22 +23,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const [mounted, setMounted] = useState(false);
 
-    const refreshUser = async () => {
+    const refreshUser = async (): Promise<User | null> => {
         try {
             const response = await authService.getUser();
             setUser(response.data);
+            return response.data;
         } catch {
             setUser(null);
+            return null
         }
     };
 
     useEffect(() => {
         setMounted(true);
         const init = async () => {
-            await refreshUser();
-            const stored = sessionStorage.getItem('activeProfile');
-            if (stored) setActiveProfile(JSON.parse(stored));
-            setIsLoading(false);
+            try {
+                await refreshUser();
+                const stored = sessionStorage.getItem('activeProfile');
+                if (stored && stored !== "undefined") {
+                    setActiveProfile(JSON.parse(stored));
+                }
+            } catch (err) {
+                console.error("Chyba při inicializaci auth:", err);
+            } finally {
+                setIsLoading(false);
+            }
         };
         init();
     }, []);
@@ -65,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setActiveProfile: handleSetActiveProfile,
                 isLoading: true,
                 isAuthenticated: false,
+                isVerified: false,
                 logout,
                 refreshUser,
             }}>
@@ -80,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setActiveProfile: handleSetActiveProfile,
             isLoading,
             isAuthenticated: !!user,
+            isVerified: Boolean(user?.email_verified_at),
             logout,
             refreshUser,
         }}>
