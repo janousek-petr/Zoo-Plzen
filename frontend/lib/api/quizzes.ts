@@ -1,5 +1,5 @@
 import axiosClient from "@/lib/axios";
-import { Quiz } from "@/lib/types";
+import {MediaItem, Quiz} from "@/lib/types";
 
 /**
  * Vrácí informace o všech kvízech
@@ -7,7 +7,12 @@ import { Quiz } from "@/lib/types";
  * @returns Pole informací kvízů
  */
 
-
+export const CATEGORY_LABEL: Record<string, string> = {
+    select: 'Výběr',
+    true_false: 'Ano / Ne',
+    image_select: 'Výběr obrázku',
+    audio_select: 'Výběr audia',
+}
 export async function getQuestions(id: number) {
     try {
         const res = await axiosClient.get(`/api/quizzes/${id}/questions`);
@@ -110,14 +115,17 @@ export async function createQuestion(quizId: number, data: {
     text: string,
     points: number,
     question_category: number,
-    image?: string | null,
+    image?: MediaItem | null,
+    audio?: MediaItem | null,
     answers: {
         text?: string | null,
         is_correct: boolean,
-        image?: string | null,
+        image?: MediaItem | null,
+        audio?: MediaItem | null,
     }[]
 }) {
     try {
+        console.log(data)
         const res = await axiosClient.post(`/api/quizzes/${quizId}/questions`, data)
         return res.data
     } catch (err) {
@@ -130,12 +138,14 @@ export async function updateQuestion(quizId: number, questionId: number, data: {
     text: string,
     points: number,
     question_category: number,
-    image?: string | null,
+    image?: MediaItem | null,
+    audio?: MediaItem | null,
     answers: {
         id?: number | null,
         text?: string | null,
         is_correct: boolean,
-        image?: string | null,
+        image?: MediaItem | null,
+        audio?: MediaItem | null,
     }[]
 }) {
     try {

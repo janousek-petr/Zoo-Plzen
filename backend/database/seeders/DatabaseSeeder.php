@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Quiz; // Předpokládám, že model existuje
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Database\Seeders\UserSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,7 +19,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@test.cz',
         ]);*/
 
-    
+
         $this->call([
             RegionSeeder::class,
             QuestionCategorySeeder::class,
@@ -26,7 +27,8 @@ class DatabaseSeeder extends Seeder
             QuestionSeeder::class,
             AnswerSeeder::class,
             ItemCategorySeeder::class,
-            RegionInfoSeeder::class
+            RegionInfoSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

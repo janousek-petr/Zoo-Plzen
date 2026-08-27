@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('question', function (Blueprint $table) {
             $table->id();
             $table->string('text');
-            $table->string('image')->nullable()->default(null);
+            $table->foreignId('image_id')->nullable()->constrained('media');
+            $table->foreignId('audio_id')->nullable()->constrained('media');
             $table->foreignId('question_category')->constrained('question_category');
             $table->integer('points')->default(2);
             $table->softDeletes();

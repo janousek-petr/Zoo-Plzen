@@ -1,12 +1,10 @@
-import { isAudioPath } from '@/lib/api/media'
+import { isAudioPath, getStorageUrl } from '@/lib/api/media'
 
 interface MediaPreviewProps {
-    path?: string | null
+    path?: any | null
     alt?: string
     className?: string
 }
-
-const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
 
 export default function MediaPreview({ path, alt = '', className = '' }: MediaPreviewProps) {
     if (!path) return null
@@ -15,7 +13,7 @@ export default function MediaPreview({ path, alt = '', className = '' }: MediaPr
         return (
             <audio
                 controls
-                src={`${apiBase}${path}`}
+                src={getStorageUrl(path)}
                 className={`w-full h-9 ${className}`}
             />
         )
@@ -23,7 +21,7 @@ export default function MediaPreview({ path, alt = '', className = '' }: MediaPr
 
     return (
         <img
-            src={`${apiBase}${path}`}
+            src={getStorageUrl(path)}
             alt={alt}
             className={`object-cover ${className}`}
         />

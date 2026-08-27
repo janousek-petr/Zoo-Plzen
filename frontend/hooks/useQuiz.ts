@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Question } from "@/lib/types";
+import {useRouter} from "next/navigation";
 
 function shuffleArray<T>(array: T[]): T[] {
   const arr = [...array];
@@ -27,6 +28,8 @@ export function useQuiz(questions: Question[]) {
   const [finished, setFinished] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const router = useRouter();
 
   // Blokování tlačítka zpět
   useEffect(() => {
@@ -84,6 +87,12 @@ export function useQuiz(questions: Question[]) {
     setHasAnswered(false);
   };
 
+  const handleExit = (path = "/domov") => {
+    console.log(path);
+    if (confirm("Opravdu si přeješ odejít z kvízu? Výsledek se ti neuloží!"))
+      router.push(path)
+  }
+
   const correctAnswerId = currentQuestion?.answers.find(a => a.is_correct === 1)?.id ?? null;
 
   const timeLabel = `${Math.floor(elapsedSeconds / 60).toString().padStart(2, "0")}:${(elapsedSeconds % 60).toString().padStart(2, "0")}`;
@@ -100,6 +109,7 @@ export function useQuiz(questions: Question[]) {
     correctAnswerId,
     handleOptionClick,
     handleNext,
+    handleExit,
     timeLabel,
     selectedAnswers
   };

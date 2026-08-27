@@ -11,11 +11,13 @@ class Question extends Model
     use SoftDeletes;
     protected $fillable = [
         'text',
-        'image',
+        'image_id',
+        'audio_id',
         'points',
         'question_category',
+        'quiz_id',
     ];
-    protected $hidden = ['question_category'];
+    protected $hidden = ['question_category', 'audio_id', 'image_id'];
 
     protected $table = 'question';
 
@@ -56,6 +58,14 @@ class Question extends Model
     public function quizzes()
     {
         return $this->belongsToMany(Quiz::class, 'quiz_question');
+    }
+
+    public function image() {
+        return $this->belongsTo(Media::class, 'image_id');
+    }
+
+    public function audio() {
+        return $this->belongsTo(Media::class, 'audio_id');
     }
 
     public function answeredQuestions() {

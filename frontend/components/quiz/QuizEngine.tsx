@@ -2,346 +2,343 @@
 
 import {useState, useEffect, useRef} from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { Question } from "@/lib/types";
-import { useQuiz } from "@/hooks/useQuiz";
-import { useAuthContext } from "@/contexts/AuthContext";
+import {Question} from "@/lib/types";
+import {useQuiz} from "@/hooks/useQuiz";
+import {useAuthContext} from "@/contexts/AuthContext";
 import {submitQuizResult} from "@/lib/api/quizzes";
 import QuizResult from "./QuizResult";
 import QuizIntro from "./QuizIntro";
 import QuizAudioPlayer from "./QuizAudioPlayer";
-import { isAudioPath } from "@/lib/api/media";
-import { FiLogOut, FiPlay, FiPause } from "react-icons/fi";
+import {getStorageUrl} from "@/lib/api/media";
+import {FiLogOut, FiPlay, FiPause} from "react-icons/fi";
 
 interface Props {
-  questions: Question[];
-  totalPoints: number;
-  regionName?: string;
-  regionColor?: string;
-  regionAnimal?: string;
-  level?: number;
-  quizId?: number;
-  exitHref?: string;
+    questions: Question[];
+    totalPoints: number;
+    regionName?: string;
+    regionColor?: string;
+    regionAnimal?: string;
+    level?: number;
+    quizId?: number;
+    exitHref?: string;
 }
 
-// Malé tlačítko přehrávače pro audio odpověď v gridu (image_select)
-function AnswerAudioButton({ src, color }: { src: string; color: string }) {
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [playing, setPlaying] = useState(false);
+// Malé tlačítko přehrávače pro audio odpověď v gridu
+function AnswerAudioButton({src, color}: { src: string; color: string }) {
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const [playing, setPlaying] = useState(false);
 
-  const toggle = (e: React.MouseEvent | React.KeyboardEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    const audio = audioRef.current;
-    if (!audio) return;
-    playing ? audio.pause() : audio.play();
-  };
-  return (
-    <div className="flex flex-col items-center justify-center gap-2 w-full h-full">
-      <audio
-        ref={audioRef}
-        src={src}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => setPlaying(false)}
-      />
-      {/* div místo button, aby nevznikl <button> uvnitř <button> (rodičovská karta je button) */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={toggle}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") toggle(e); }}
-        aria-label={playing ? "Pozastavit" : "Přehrát"}
-        className="flex items-center justify-center w-14 h-14 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer"
-        style={{ backgroundColor: color }}
-      >
-        {playing ? <FiPause size={22} className="text-white" /> : <FiPlay size={22} className="text-white ml-0.5" />}
-      </div>
-    </div>
-  );
+    const toggle = (e: React.MouseEvent | React.KeyboardEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const audio = audioRef.current;
+        if (!audio) return;
+        playing ? audio.pause() : audio.play();
+    };
+
+    return (
+        <div className="flex flex-col items-center justify-center gap-2 w-full h-full">
+            <audio
+                ref={audioRef}
+                src={src}
+                onPlay={() => setPlaying(true)}
+                onPause={() => setPlaying(false)}
+                onEnded={() => setPlaying(false)}
+            />
+            <div
+                role="button"
+                tabIndex={0}
+                onClick={toggle}
+                onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") toggle(e);
+                }}
+                aria-label={playing ? "Pozastavit" : "Přehrát"}
+                className="flex items-center justify-center w-14 h-14 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer"
+                style={{backgroundColor: color}}
+            >
+                {playing ? <FiPause size={22} className="text-white"/> :
+                    <FiPlay size={22} className="text-white ml-0.5"/>}
+            </div>
+        </div>
+    );
 }
 
-export default function QuizEngine({
-  questions,
-  totalPoints,
-  regionName = "",
-  regionColor = "",
-  regionAnimal = "",
-  level = 1,
-  quizId,
-  exitHref = "/hry/kontinenty/",
-}: Props) {
-  const [started, setStarted] = useState(false);
-  const router = useRouter();
-  const { activeProfile } = useAuthContext();
-  const submittedRef = useRef(false);
+export default function QuizEngine(
+    {
+        questions,
+        totalPoints,
+        regionName = "",
+        regionColor = "",
+        regionAnimal = "",
+        level = 1,
+        quizId,
+        exitHref = "/hry/kontinenty/",
+    }: Props) {
+    const [started, setStarted] = useState(false);
+    const {activeProfile} = useAuthContext();
+    const submittedRef = useRef(false);
 
-  const {
-    currentQuestion,
-    currentIndex,
-    selectedId,
-    hasAnswered,
-    score,
-    finished,
-    progress,
-    isLast,
-    correctAnswerId,
-    handleOptionClick,
-    handleNext,
-    timeLabel,
-    selectedAnswers
-  } = useQuiz(questions);
+    const {
+        currentQuestion,
+        selectedId,
+        hasAnswered,
+        score,
+        finished,
+        progress,
+        isLast,
+        correctAnswerId,
+        handleOptionClick,
+        handleNext,
+        handleExit,
+        timeLabel,
+        selectedAnswers
+    } = useQuiz(questions);
 
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? ''
-  const imgUrl = (path: string | null | undefined) =>
-      path ? (path.startsWith('http') ? path : `${apiBase}${path}`) : null
+    // Uložení výsledku kvízu po dokončení
+    useEffect(() => {
+        if (!finished || submittedRef.current) return;
+        if (!quizId || !activeProfile?.id) {
+            console.warn("Nelze uložit výsledek kvízu - chybí quizId nebo activeProfile.");
+            return;
+        }
 
-  // Uložení výsledku kvízu po dokončení
-  useEffect(() => {
-    if (!finished || submittedRef.current) return;
-    if (!quizId || !activeProfile?.id) {
-      console.warn("Nelze uložit výsledek kvízu - chybí quizId nebo activeProfile.");
-      return;
+        submittedRef.current = true;
+        submitQuizResult({
+            quiz_id: quizId,
+            profile_id: activeProfile.id,
+            score,
+            selectedAnswers: selectedAnswers
+        }).catch(() => {
+            submittedRef.current = false;
+        });
+    }, [finished, quizId, activeProfile, score, selectedAnswers]);
+
+    if (!started) {
+        return (
+            <QuizIntro
+                regionName={regionName}
+                regionColor={regionColor}
+                level={level}
+                questionCount={questions.length}
+                exitHref={exitHref}
+                onStart={() => setStarted(true)}
+            />
+        );
     }
 
-    submittedRef.current = true;
-    submitQuizResult({
-      quiz_id: quizId,
-      profile_id: activeProfile.id,
-      score,
-      selectedAnswers: selectedAnswers
-    }).catch(() => {
-      submittedRef.current = false;
-    });
-  }, [finished, quizId, activeProfile, score, selectedAnswers]);
+    if (finished) {
+        return (
+            <QuizResult
+                score={score}
+                totalPoints={totalPoints}
+                questions={questions}
+                regionName={regionName}
+                regionColor={regionColor}
+                level={level}
+                quizId={quizId}
+                timeLabel={timeLabel}
+                selectedAnswers={selectedAnswers}
+                regionAnimal={regionAnimal}
+            />
+        );
+    }
 
-  if (!started) {
+    const questionType = currentQuestion.category?.name ?? "select";
+
     return (
-      <QuizIntro
-        regionName={regionName}
-        regionColor={regionColor}
-        level={level}
-        questionCount={questions.length}
-        exitHref={exitHref}
-        onStart={() => setStarted(true)}
-      />
-    );
-  }
+        <main className="lg:min-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
 
-  if (finished) {
-    console.log("regionAnimal v QuizEngine:", regionAnimal);
-    return (
-    <QuizResult
-        score={score}
-        totalPoints={totalPoints}
-        questions={questions}
-        regionName={regionName}
-        regionColor={regionColor}
-        level={level}
-        quizId={quizId}
-        timeLabel={timeLabel}
-        selectedAnswers={selectedAnswers}
-        regionAnimal={regionAnimal}
-      />
-    );
-  }
-
-  const questionType = currentQuestion.category?.name ?? "select";
-  const questionIsAudio = !!currentQuestion.image && isAudioPath(currentQuestion.image);
-
-  return (
-    <main className="lg:min-h-screen w-full flex flex-col items-center px-4 overflow-hidden py-20">
-
-      {/* Header */}
-      <header className="w-full max-w-sm pt-6 pb-2 text-center shrink-0">
-        <h1
-          className="cus-font-impacted-2 uppercase text-5xl"
-          style={{ color: regionColor }}
-        >
-          {regionName}
-        </h1>
-        <p
-          className="text-3xl tracking-widest uppercase mt-0.5"
-          style={{ color: regionColor }}
-        >
-          - Level {level} -
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-3">
-          <div
-            className="h-1.5 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%`, backgroundColor: regionColor }}
-          />
-        </div>
-      </header>
-
-      {/* Audio otázky */}
-      {questionType !== "image_select" && currentQuestion.image && questionIsAudio && (
-        <QuizAudioPlayer
-          key={currentQuestion.id}
-          src={imgUrl(currentQuestion.image)!}
-          color={regionColor || undefined}
-          label="Poslechni si zvuk"
-        />
-      )}
-
-      {/* Obrázek otázky — jen když existuje a není to audio */}
-      {questionType !== "image_select" && currentQuestion.image && !questionIsAudio && (
-        <div className="relative w-full max-w-sm h-56 my-4 shrink-0">
-          <Image
-            src={imgUrl(currentQuestion.image)!}
-            alt="Zvíře"
-            fill
-            className="object-contain"
-            priority
-          />
-        </div>
-      )}
-
-      {/* Spacer — když není žádné médium */}
-      {questionType !== "image_select" && !currentQuestion.image && (
-        <div />
-      )}
-
-      {/* Otázka */}
-      <p className="text-center text-3xl max-w-sm mb-4 px-2 cus-font-impacted my-4">
-        {currentQuestion.text}
-      </p>
-
-      {/* === select === */}
-      {questionType === "select" && (
-        <div className="flex flex-col gap-3 w-full max-w-sm shrink-0 my-4">
-          {currentQuestion.answers.map((answer) => {
-            const isCorrect = answer.id === correctAnswerId;
-            const isSelected = answer.id === selectedId;
-
-            let bg = "bg-[#f0ece4] text-gray-700";
-            let dot = "bg-gray-300";
-
-            if (hasAnswered) {
-              if (isCorrect) { bg = "bg-green-700 text-white"; dot = "bg-white"; }
-              else if (isSelected) { bg = "bg-red-600 text-white"; dot = "bg-white"; }
-              else { bg = "bg-[#f0ece4] text-gray-400 opacity-60"; }
-            }
-
-            return (
-              <button
-                key={answer.id}
-                type="button"
-                onClick={() => answer.id && handleOptionClick(answer.id)}
-                disabled={hasAnswered}
-                className={`flex items-center gap-3 px-4 py-3 rounded-md font-semibold text-left transition-all text-lg ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
-              >
-                <span className={`w-4 h-4 rounded-full shrink-0 border-2 border-white shadow ${dot}`} />
-                {answer.text}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* === true_false === */}
-      {questionType === "true_false" && (
-        <div className="flex gap-4 w-full max-w-sm shrink-0 my-4">
-          {currentQuestion.answers.map((answer) => {
-            const isCorrect = answer.id === correctAnswerId;
-            const isSelected = answer.id === selectedId;
-
-            let bg = "bg-[#f0ece4] text-gray-700";
-
-            if (hasAnswered) {
-              if (isCorrect) bg = "bg-green-700 text-white";
-              else if (isSelected) bg = "bg-red-600 text-white";
-              else bg = "bg-[#f0ece4] text-gray-400 opacity-60";
-            }
-
-            return (
-              <button
-                key={answer.id}
-                type="button"
-                onClick={() => answer.id && handleOptionClick(answer.id)}
-                disabled={hasAnswered}
-                className={`flex-1 py-7 text-2xl font-bold rounded-2xl transition-all ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
-              >
-                {answer.text}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* === image_select === */}
-      {questionType === "image_select" && (
-        <div className="grid grid-cols-3 gap-3 w-full max-w-3xl shrink-0 my-4">
-          {currentQuestion.answers.map((answer) => {
-            const isCorrect = answer.id === correctAnswerId;
-            const isSelected = answer.id === selectedId;
-            const answerIsAudio = !!answer.image && isAudioPath(answer.image);
-
-            let border = "border-transparent";
-            let opacity = "";
-            let bg = "bg-white";
-
-            if (hasAnswered) {
-              if (isCorrect) border = "border-green-700";
-              else if (isSelected) border = "border-red-600";
-              else opacity = "opacity-40";
-            }
-
-            if (answerIsAudio) bg = "bg-[#f0ece4]";
-
-            return (
-              <button
-                key={answer.id}
-                type="button"
-                onClick={() => answer.id && handleOptionClick(answer.id)}
-                disabled={hasAnswered}
-                className={`relative rounded-2xl overflow-hidden border-4 ${bg} shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
-                style={{ aspectRatio: "3/4" }}
-              >
-                {answer.image && (
-                  answerIsAudio ? (
-                    <AnswerAudioButton
-                      src={imgUrl(answer.image)!}
-                      color={regionColor || "#374151"}
+            {/* Header */}
+            <header className="w-full max-w-sm pt-6 pb-2 text-center shrink-0">
+                <h1
+                    className="cus-font-impacted-2 uppercase text-5xl"
+                    style={{color: regionColor}}
+                >
+                    {regionName}
+                </h1>
+                <p
+                    className="text-3xl tracking-widest uppercase mt-0.5"
+                    style={{color: regionColor}}
+                >
+                    - Level {level} -
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-3">
+                    <div
+                        className="h-1.5 rounded-full transition-all duration-500"
+                        style={{width: `${progress}%`, backgroundColor: regionColor}}
                     />
-                  ) : (
+                </div>
+            </header>
+
+            {/* Otázka */}
+            <p className="text-center text-3xl max-w-sm mb-4 px-2 cus-font-impacted my-4">
+                {currentQuestion.text}
+            </p>
+
+            {/* Obrázek otázky — zobrazí se u klasických otázek, pokud existuje obrázek */}
+            {currentQuestion.image && (
+                <div className="relative w-full max-w-sm h-56 my-4 shrink-0">
                     <Image
-                      src={imgUrl(answer.image)!}
-                      alt={answer.text ?? ""}
-                      fill
-                      className="object-contain p-2"
+                        src={getStorageUrl(currentQuestion.image)}
+                        alt="Obrázek otázky"
+                        fill
+                        className="object-contain"
+                        priority
                     />
-                  )
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
+                </div>
+            )}
 
-      {/* Pokračovat */}
-      {hasAnswered && (
-        <button
-          type="button"
-          onClick={handleNext}
-          className="my-6 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
-          style={{ backgroundColor: regionColor }}
-        >
-          {isLast ? "Zobrazit výsledek" : "Pokračovat"}
-        </button>
-      )}
+            {/* Audio otázky — zobrazí se, pokud otázka obsahuje audio */}
+            {currentQuestion.audio && (
+                <QuizAudioPlayer
+                    key={currentQuestion.id}
+                    src={getStorageUrl(currentQuestion.audio)}
+                    color={regionColor || undefined}
+                    label="Poslechni si zvuk"
+                />
+            )}
 
-      {/* Ikonky */}
-      <div className="flex gap-4 pb-4 shrink-0 flex-row">
-        <button
-          onClick={() => router.push(exitHref)}
-          className="w-10 h-10 rounded-lg border-2 bg-red-500 flex items-center justify-center text-white hover:text-red-500 hover:border-red-400 hover:bg-transparent transition-all cursor-pointer"
-          aria-label="Odejít z kvízu"
-        >
-          <FiLogOut size={18} />
-        </button>
-      </div>
+            {/* === select === */}
+            {questionType === "select" && (
+                <div className="flex flex-col gap-3 w-full max-w-sm shrink-0 my-4">
+                    {currentQuestion.answers.map((answer) => {
+                        const isCorrect = answer.id === correctAnswerId;
+                        const isSelected = answer.id === selectedId;
 
-    </main>
-  );
+                        let bg = "bg-[#f0ece4] text-gray-700";
+                        let dot = "bg-gray-300";
+
+                        if (hasAnswered) {
+                            if (isCorrect) {
+                                bg = "bg-green-700 text-white";
+                                dot = "bg-white";
+                            } else if (isSelected) {
+                                bg = "bg-red-600 text-white";
+                                dot = "bg-white";
+                            } else {
+                                bg = "bg-[#f0ece4] text-gray-400 opacity-60";
+                            }
+                        }
+
+                        return (
+                            <button
+                                key={answer.id}
+                                type="button"
+                                onClick={() => answer.id && handleOptionClick(answer.id)}
+                                disabled={hasAnswered}
+                                className={`flex items-center gap-3 px-4 py-3 rounded-md font-semibold text-left transition-all text-lg ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                            >
+                                <span className={`w-4 h-4 rounded-full shrink-0 border-2 border-white shadow ${dot}`}/>
+                                {answer.text}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* === true_false === */}
+            {questionType === "true_false" && (
+                <div className="flex gap-4 w-full max-w-sm shrink-0 my-4">
+                    {currentQuestion.answers.map((answer) => {
+                        const isCorrect = answer.id === correctAnswerId;
+                        const isSelected = answer.id === selectedId;
+
+                        let bg = "bg-[#f0ece4] text-gray-700";
+
+                        if (hasAnswered) {
+                            if (isCorrect) bg = "bg-green-700 text-white";
+                            else if (isSelected) bg = "bg-red-600 text-white";
+                            else bg = "bg-[#f0ece4] text-gray-400 opacity-60";
+                        }
+
+                        return (
+                            <button
+                                key={answer.id}
+                                type="button"
+                                onClick={() => answer.id && handleOptionClick(answer.id)}
+                                disabled={hasAnswered}
+                                className={`flex-1 py-7 text-2xl font-bold rounded-2xl transition-all ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                            >
+                                {answer.text}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* === image_select & audio_select === */}
+            {(questionType === "image_select" || questionType === "audio_select") && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full max-w-3xl shrink-0 my-4">
+                    {currentQuestion.answers.map((answer) => {
+                        const isCorrect = answer.id === correctAnswerId;
+                        const isSelected = answer.id === selectedId;
+
+                        let border = "border-transparent";
+                        let opacity = "";
+                        let bg = "bg-white";
+
+                        if (hasAnswered) {
+                            if (isCorrect) border = "border-green-700";
+                            else if (isSelected) border = "border-red-600";
+                            else opacity = "opacity-40";
+                        }
+
+                        const hasAudio = !!answer.audio;
+                        if (hasAudio) bg = "bg-[#f0ece4]";
+
+                        return (
+                            <button
+                                key={answer.id}
+                                type="button"
+                                onClick={() => answer.id && handleOptionClick(answer.id)}
+                                disabled={hasAnswered}
+                                className={`relative rounded-2xl overflow-hidden border-4 ${bg} shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                                style={{aspectRatio: "3/4"}}
+                            >
+                                {hasAudio ? (
+                                    <AnswerAudioButton
+                                        src={getStorageUrl(answer.audio)}
+                                        color={regionColor || "#374151"}
+                                    />
+                                ) : answer.image ? (
+                                    <Image
+                                        src={getStorageUrl(answer.image)}
+                                        alt={answer.text ?? "Obrázek odpovědi"}
+                                        fill
+                                        className="object-contain p-2"
+                                    />
+                                ) : (
+                                    <span className="p-2 font-semibold text-gray-700">{answer.text}</span>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Pokračovat */}
+            {hasAnswered && (
+                <button
+                    type="button"
+                    onClick={handleNext}
+                    className="my-6 px-10 py-3 font-bold uppercase cursor-pointer tracking-widest text-lg rounded-md transition-all text-white shrink-0"
+                    style={{backgroundColor: regionColor}}
+                >
+                    {isLast ? "Zobrazit výsledek" : "Pokračovat"}
+                </button>
+            )}
+
+            {/* Ikonky */}
+            <div className="flex gap-4 pb-4 shrink-0 flex-row">
+                <button
+                    onClick={() => handleExit(exitHref)}
+                    className="w-10 h-10 rounded-lg border-2 bg-red-500 flex items-center justify-center text-white hover:text-red-500 hover:border-red-400 hover:bg-transparent transition-all cursor-pointer"
+                    aria-label="Odejít z kvízu"
+                >
+                    <FiLogOut size={18}/>
+                </button>
+            </div>
+
+        </main>
+    );
 }

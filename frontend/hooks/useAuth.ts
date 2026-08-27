@@ -4,7 +4,7 @@ import authService, {RegisterData, LoginData, ResetPasswordData} from '@/lib/api
 import { useAuthContext } from '@/contexts/AuthContext';
 import { getFriendlyErrorMessage } from '@/lib/api/auth';
 
-const useAuth = () => {
+export const useAuth = () => {
     const router = useRouter();
     const { refreshUser, logout: contextLogout, user, isLoading: contextLoading, isAuthenticated, isVerified } = useAuthContext();
 

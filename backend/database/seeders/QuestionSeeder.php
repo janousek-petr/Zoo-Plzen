@@ -18,7 +18,7 @@ class QuestionSeeder extends Seeder
             'text' => 'Jaké zvíře je největší suchozemský savec?',
             'points' => 10,
             'question_category' => 2, // select
-            'image' => null,
+            'image_id' => null,
         ]);
         DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q1]);
 
@@ -27,7 +27,7 @@ class QuestionSeeder extends Seeder
             'text' => 'Jaké zvíře má dlouhý krk?',
             'points' => 10,
             'question_category' => 2, // select
-            'image' => null,
+            'image_id' => null,
         ]);
         DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q2]);
 
@@ -36,10 +36,10 @@ class QuestionSeeder extends Seeder
             'text' => 'Je žirafa největší zvíře na světě?',
             'points' => 10,
             'question_category' => 1, // true_false
-            'image' => null,
+            'image_id' => null,
         ]);
         DB::table('quiz_question')->insert(['quiz_id' => $quiz->id, 'question_id' => $q3]);
 
-        
+
     }
 }

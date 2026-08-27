@@ -2,16 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { updateQuestion, getQuestionCategories, deleteQuestion } from '@/lib/api/quizzes'
+import { updateQuestion, getQuestionCategories, deleteQuestion, CATEGORY_LABEL } from '@/lib/api/quizzes'
 import MediaPickerButton from '@/components/admin/media/MediaPickerButton'
 import { MediaItem, Question } from "@/lib/types"
-import { RiDeleteBinLine } from 'react-icons/ri'
-
-const CATEGORY_LABEL: Record<string, string> = {
-    select: 'Výběr',
-    true_false: 'Ano / Ne',
-    image_select: 'Výběr obrázku',
-}
+import {RiAddLine, RiCloseLine, RiDeleteBinLine} from 'react-icons/ri'
 
 type Category = { id: number; name: string }
 
@@ -20,6 +14,7 @@ type AnswerForm = {
     text: string
     is_correct: boolean
     image?: MediaItem | null
+    audio?: MediaItem | null
 }
 
 const TRUE_FALSE_ANSWERS: AnswerForm[] = [
@@ -44,16 +39,16 @@ export default function EditQuestion({ quizId, question }: Props) {
         question_category: question.category?.id ? String(question.category.id) : '',
     })
 
-    const [image, setImage] = useState<MediaItem | null>(
-        question.image ? { path: question.image } as MediaItem : null
-    )
+    const [image, setImage] = useState<MediaItem | null>(question.image ?? null)
+    const [audio, setAudio] = useState<MediaItem | null>(question.audio ?? null)
 
     const [answers, setAnswers] = useState<AnswerForm[]>(
         question.answers.map(a => ({
             id: a.id,
             text: a.text ?? '',
             is_correct: a.is_correct === 1,
-            image: a.image ? { path: a.image } as MediaItem : null,
+            image: a.image ?? null,
+            audio: a.audio ?? null,
         }))
     )
 
@@ -73,6 +68,23 @@ export default function EditQuestion({ quizId, question }: Props) {
         const newCat = categories.find(c => String(c.id) === newCatId)
         setForm(prev => ({ ...prev, question_category: newCatId }))
 
+        // Pokud se vracíme k původní kategorii ze serveru
+        const originalCatId = question.category?.id ? String(question.category.id) : ''
+
+        if (originalCatId && originalCatId === newCatId) {
+            setAnswers(
+                question.answers.map(a => ({
+                    id: a.id,
+                    text: a.text ?? '',
+                    is_correct: a.is_correct === 1,
+                    image: a.image ?? null,
+                    audio: a.audio ?? null,
+                }))
+            )
+            return
+        }
+
+        // Pokud se vybere nová kategorie, vynulují se odpovídající políčka
         if (newCat?.name === 'true_false') {
             setAnswers(TRUE_FALSE_ANSWERS)
         } else if (newCat?.name === 'select') {
@@ -84,6 +96,11 @@ export default function EditQuestion({ quizId, question }: Props) {
             setAnswers([
                 { text: '', is_correct: false, image: null },
                 { text: '', is_correct: false, image: null },
+            ])
+        } else if (newCat?.name === 'audio_select') {
+            setAnswers([
+                { text: '', is_correct: false, audio: null },
+                { text: '', is_correct: false, audio: null },
             ])
         }
     }
@@ -140,12 +157,14 @@ export default function EditQuestion({ quizId, question }: Props) {
                 text: form.text,
                 points: Number(form.points),
                 question_category: Number(form.question_category),
-                image: image?.path ?? null,
+                image: image ?? null,
+                audio: audio ?? null,
                 answers: answers.map(a => ({
                     id: a.id ?? null,
                     text: a.text,
                     is_correct: a.is_correct,
-                    image: (a.image as MediaItem)?.path ?? null,
+                    image: a.image ?? null,
+                    audio: a.audio ?? null
                 }))
             }
             await updateQuestion(quizId, question.id!, payload)
@@ -176,14 +195,26 @@ export default function EditQuestion({ quizId, question }: Props) {
                     />
                 </div>
 
-                {/* Obrázek otázky */}
-                <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
-                    <label className="text-sm text-gray-400">Obrázek otázky <span className="text-gray-300">(volitelné)</span></label>
-                    <MediaPickerButton
-                        value={image}
-                        onChange={setImage}
-                        label="Vybrat obrázek otázky"
-                    />
+                {/* Obrázek a Audio otázky */}
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
+                        <label className="text-sm text-gray-400">Obrázek otázky <span className="text-gray-300">(volitelné)</span></label>
+                        <MediaPickerButton
+                            value={image}
+                            onChange={setImage}
+                            label="Vybrat obrázek otázky"
+                            onlyImage={true}
+                        />
+                    </div>
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
+                        <label className="text-sm text-gray-400">Audio otázky <span className="text-gray-300">(volitelné)</span></label>
+                        <MediaPickerButton
+                            value={audio}
+                            onChange={setAudio}
+                            label="Vybrat audio otázky"
+                            onlyImage={false}
+                        />
+                    </div>
                 </div>
 
                 {/* Body a kategorie */}
@@ -334,6 +365,52 @@ export default function EditQuestion({ quizId, question }: Props) {
                 {!categoryName && (
                     <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-4 text-sm text-gray-400 text-center">
                         Nejprve vyberte kategorii otázky
+                    </div>
+                )}
+
+                {/* Kategorie: Výběr audia (audio_select) */}
+                {categoryName === 'audio_select' && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-4">
+                        <label className="text-sm text-gray-400">Odpovědi <span className="text-gray-300">(zaškrtni správnou)</span></label>
+                        <div className="flex flex-col gap-3">
+                            {answers.map((answer, index) => (
+                                <div key={index} className="flex items-center gap-3">
+                                    <input
+                                        type="radio"
+                                        name="add_question_correct"
+                                        checked={Boolean(answer.is_correct)}
+                                        onChange={() => handleCorrectToggle(index)}
+                                        className="w-5 h-5 accent-green-600 cursor-pointer shrink-0"
+                                    />
+
+                                    <div className="flex-1">
+                                        <MediaPickerButton
+                                            value={answer.audio}
+                                            onChange={item => handleAnswerChange(index, 'audio', item)}
+                                            label="Vybrat audio odpovědi"
+                                            onlyImage={false}
+                                        />
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => removeAnswer(index)}
+                                        disabled={answers.length <= 2}
+                                        className="p-1 text-gray-300 hover:text-red-400 transition-colors disabled:opacity-0 flex-shrink-0"
+                                    >
+                                        <RiCloseLine size={22} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={addAnswer}
+                            className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors text-left mt-2 font-medium"
+                        >
+                            <RiAddLine size={18} />
+                            <span>Přidat odpověď</span>
+                        </button>
                     </div>
                 )}
 
