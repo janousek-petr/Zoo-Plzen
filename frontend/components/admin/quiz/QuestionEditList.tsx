@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { getQuiz, getQuestions, deleteQuestion } from '@/lib/api/quizzes'
+import { getQuiz, getQuestions, deleteQuestion, CATEGORY_LABEL } from '@/lib/api/quizzes'
 import { RiAddLine, RiEditLine, RiDeleteBinLine, RiCheckLine } from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
 import { MenuCard, MenuCardProps} from '@/components/admin/MenuCard'
 import MediaPreview from '@/components/admin/media/MediaPreview'
 
-const CATEGORY_LABEL: Record<string, string> = {
-    select: 'Výběr',
-    true_false: 'Ano / Ne',
-    image_select: 'Výběr obrázku',
-}
 
 
 export default function QuestionEditList({ quizId }: { quizId: number }) {
@@ -92,6 +87,9 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
                             alt="Otázka"
                             className="h-24 mb-3"
                         />
+                        <MediaPreview
+                            path={question.audio}
+                        />
 
                         <div className="flex flex-col gap-1.5">
                             {question.answers.map(answer => (
@@ -108,11 +106,19 @@ export default function QuestionEditList({ quizId }: { quizId: number }) {
                                     ) : (
                                         <span className="w-4 shrink-0" />
                                     )}
-                                    <MediaPreview
-                                        path={answer.image}
-                                        alt="Odpověď"
-                                        className="h-10 max-w-45"
-                                    />
+
+                                    {answer.audio ? (
+                                        <MediaPreview
+                                            path={answer.audio}
+                                        />
+                                    ): null}
+                                    {answer.image ? (
+                                        <MediaPreview
+                                            path={answer.image}
+                                            alt="Odpověď"
+                                            className="h-10 max-w-45"
+                                        />
+                                    ) : null}
                                     {answer.text}
                                 </div>
                             ))}

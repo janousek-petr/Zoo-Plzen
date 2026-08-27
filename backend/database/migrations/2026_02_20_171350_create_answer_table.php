@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('text')->nullable()->default(null);
             $table->string('correct_input')->nullable()->default(null);
             $table->boolean('is_correct')->default(false);
-            $table->string('image')->nullable()->default(null);
+
+            $table->foreignId('image_id')->nullable()->constrained('media');
+            $table->foreignId('audio_id')->nullable()->constrained('media');
             $table->softDeletes();
         });
     }

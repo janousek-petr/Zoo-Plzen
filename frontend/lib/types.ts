@@ -4,7 +4,8 @@ export type Answer = {
     "text"?: string,
     "correct_input"?: string,
     "is_correct"?: 0|1,
-    "image"?: string
+    "image"?: MediaItem | null,
+    "audio"?: MediaItem | null,
 }
 
 export type Question = {
@@ -15,7 +16,8 @@ export type Question = {
         "id": number,
         "name"?: string
     }
-    "image"?: string,
+    "image"?: MediaItem | null,
+    "audio"?: MediaItem | null,
     "answers": Answer[]
 }
 

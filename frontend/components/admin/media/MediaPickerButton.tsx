@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { RiImageAddLine, RiCloseLine, RiMusic2Line } from 'react-icons/ri';
 import MediaPicker from './MediaPicker';
 import { MediaItem } from "@/lib/types"
+import {getStorageUrl} from "@/lib/api/media";
 
 interface MediaPickerButtonProps {
     value?: MediaItem | null;
@@ -16,7 +17,6 @@ const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');
 
 export default function MediaPickerButton({ value, onChange, label = 'Vybrat soubor', onlyImage }: MediaPickerButtonProps) {
     const [open, setOpen] = useState(false);
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
     const audio = value ? isAudio(value.mime_type) : false;
 
     return (
@@ -33,7 +33,7 @@ export default function MediaPickerButton({ value, onChange, label = 'Vybrat sou
                                 </span>
                             </>
                         ) : (
-                            <img src={`${apiBase}${value.path}`} alt={value.filename} className="w-full h-full object-cover" />
+                            <img src={getStorageUrl(value)} alt={value.filename} className="w-full h-full object-cover" />
                         )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                             <button type="button" onClick={() => setOpen(true)}
@@ -54,7 +54,7 @@ export default function MediaPickerButton({ value, onChange, label = 'Vybrat sou
                     </button>
                 )}
                 {value && audio && (
-                    <audio controls src={`${apiBase}${value.path}`} className="w-40 h-8" />
+                    <audio controls src={getStorageUrl(value)} className="w-40 h-8" />
                 )}
                 {value && <p className="text-xs text-gray-400 truncate max-w-40">{value.filename}</p>}
             </div>

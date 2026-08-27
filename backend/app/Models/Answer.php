@@ -14,7 +14,8 @@ class Answer extends Model
         'text',
         'correct_input',
         'is_correct',
-        'image',
+        'image_id',
+        'audio_id',
     ];
 
     protected $table = 'answer';
@@ -24,5 +25,13 @@ class Answer extends Model
     public function questions()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    public function image() {
+        return $this->belongsTo(Media::class, 'image_id');
+    }
+
+    public function audio() {
+        return $this->belongsTo(Media::class, 'audio_id');
     }
 }

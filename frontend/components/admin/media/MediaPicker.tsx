@@ -5,7 +5,7 @@ import {
     RiCloseLine, RiSearchLine, RiCheckLine,
     RiImageLine, RiUpload2Line, RiLoader4Line, RiMusic2Line,
 } from 'react-icons/ri';
-import { getMedia, uploadMedia } from '@/lib/api/media';
+import {getMedia, getStorageUrl, uploadMedia} from '@/lib/api/media';
 import { MediaItem } from '@/lib/types'
 
 interface MediaPickerProps {
@@ -73,7 +73,6 @@ export default function MediaPicker({ open, onClose, onSelect, selected, onlyIma
 
     if (!open) return null;
 
-    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? '';
     const highlightedItem = items.find(x => x.id === highlighted);
 
     return (
@@ -152,7 +151,7 @@ export default function MediaPicker({ open, onClose, onSelect, selected, onlyIma
                                                 </span>
                                             </>
                                         ) : (
-                                            <img src={`${apiBase}${item.path}`} alt={item.filename}
+                                            <img src={getStorageUrl(item.path)} alt={item.filename}
                                                 className="w-full h-full object-cover" loading="lazy" />
                                         )}
                                         <div className={`absolute inset-0 bg-black/40 flex items-end p-1.5 transition-opacity
@@ -182,11 +181,15 @@ export default function MediaPicker({ open, onClose, onSelect, selected, onlyIma
 
                 {/* Audio preview pásek nad footerem, jen pokud je vybrané audio */}
                 {highlightedItem && isAudio(highlightedItem.mime_type) && (
-                    <div className="px-6 py-3 border-t border-gray-100 bg-white">
+                    <div
+                        className="px-6 py-3 border-t border-gray-100 bg-white"
+                        onClick={e => e.stopPropagation()}
+                        onMouseDown={e => e.stopPropagation()}
+                    >
                         <audio
                             key={highlightedItem.id}
                             controls
-                            src={`${apiBase}${highlightedItem.path}`}
+                            src={getStorageUrl(highlightedItem.path)}
                             className="w-full h-9"
                         />
                     </div>

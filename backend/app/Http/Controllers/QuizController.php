@@ -162,7 +162,7 @@ class QuizController extends Controller
     }
 
     public function questions($id){
-        $questions = Question::with(['answers', 'category'])
+        $questions = Question::with(['answers', 'category', 'audio', 'image', 'answers.image', 'answers.audio'])
             ->whereHas('quizzes', fn ($q) => $q->where('quiz_id', $id))
             ->get();
 
@@ -204,7 +204,7 @@ class QuizController extends Controller
                     ->inRandomOrder()
                     ->firstOrFail();
 
-        $questions = Question::with(['answers', 'category'])
+        $questions = Question::with(['answers', 'category', 'audio', 'image', 'answers.image', 'answers.audio'])
             ->whereHas('quizzes', fn($q) => $q->where('quiz_id', $quiz->id))
             ->get();
 
