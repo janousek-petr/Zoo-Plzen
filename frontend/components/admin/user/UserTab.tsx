@@ -27,7 +27,7 @@ export function UserTab({ id, first_name, last_name, email, profiles, created_at
   return (
     <div className="flex flex-row items-center gap-4 p-4 bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-400 duration-100 rounded-xl shadow-sm cursor-default">
       <div className="flex-1 min-w-0">
-        <p className="text-lg text-gray-900">{email}</p>
+        <p className="text-lg text-gray-900">{email} ({first_name + " " + last_name})</p>
       </div>
 
       {role === 'admin' && (

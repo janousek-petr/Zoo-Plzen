@@ -22,6 +22,9 @@ const userService = {
     destroy: async (id: number) => {
         return await axios.delete(`/api/users/${id}`);
     },
+    sendPasswordReset: async(userId: number)=> {
+        return await axios.post(`/admin/users/${userId}/send-reset-password`)
+    },
 
     profiles: {
         getAll: async (userId: number) => {

@@ -9,7 +9,7 @@ import {
   RiMailLine,
   RiShieldUserLine,
   RiCalendarLine,
-  RiUserLine,
+  RiUserLine, RiLockPasswordLine,
 } from 'react-icons/ri'
 import { MenuCard, MenuCardProps } from '@/components/admin/MenuCard'
 import Header from '@/components/admin/Header'
@@ -25,6 +25,7 @@ export default function UserDetail({ id }: { id: number }) {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [resetting, setResetting] = useState(false)
 
   useEffect(() => {
     userService.getOne(id)
@@ -32,6 +33,20 @@ export default function UserDetail({ id }: { id: number }) {
       .finally(() => setLoading(false))
   }, [id])
 
+  const handleResetPassword = async () => {
+    if (!user) return
+    if (!confirm(`Opravdu chceš uživateli „${user.email}“ poslat e-mail s odkazem na obnovu hesla?`)) return
+
+    try {
+      setResetting(true)
+      await userService.sendPasswordReset(user.id) // Volání API
+      alert('E-mail s odkazem na obnovu hesla byl úspěšně odeslán.')
+    } catch {
+      alert('Nepodařilo se odeslat e-mail pro obnovu hesla.')
+    } finally {
+      setResetting(false)
+    }
+  }
   const handleDelete = async () => {
     if (!user) return
     if (!confirm(`Opravdu chceš smazat uživatele „${user.email}"? Smažou se i všechny jeho profily.`)) return
@@ -77,11 +92,21 @@ export default function UserDetail({ id }: { id: number }) {
 
         <div className="px-6 pb-6 flex flex-col gap-6">
 
-          {/* Smazat */}
-          <div className="flex items-center gap-2">
+          {/* Tlačítka akcí */}
+          <div className="flex items-center gap-3">
+            {/* Obnovit heslo */}
             <button
-              onClick={handleDelete}
-              className="flex items-center gap-2 text-lg text-white px-3 py-2 rounded-lg bg-red-700 hover:bg-red-800 transition-colors cursor-pointer"
+                onClick={handleResetPassword}
+                disabled={resetting}
+                className="flex items-center gap-2 text-lg text-white px-3 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 disabled:opacity-50 transition-colors cursor-pointer"
+            >
+              <RiLockPasswordLine /> {resetting ? 'Odesílám...' : 'Obnovit heslo (e-mail)'}
+            </button>
+
+            {/* Smazat */}
+            <button
+                onClick={handleDelete}
+                className="flex items-center gap-2 text-lg text-white px-3 py-2 rounded-lg bg-red-700 hover:bg-red-800 transition-colors cursor-pointer"
             >
               <RiDeleteBinLine /> Smazat uživatele
             </button>
