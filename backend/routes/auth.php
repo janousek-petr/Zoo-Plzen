@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/register', [RegisteredUserController::class, 'store'])
@@ -23,6 +24,17 @@ Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
 Route::post('/reset-password', [NewPasswordController::class, 'store'])
     ->middleware('guest')
     ->name('password.store');
+
+Route::post('/admin/users/{id}/send-reset-password', function ($id) {
+    $user = User::findOrFail($id);
+    $status = Password::sendResetLink(['email' => $user->email]);
+
+    if ($status === Password::RESET_LINK_SENT) {
+        return response()->json(['message' => 'Odkaz byl odeslán.']);
+    }
+
+    return response()->json(['message' => 'E-mail se nepodařilo odeslat.'], 400);
+});
 
 Route::get('/email/verify/{id}/{hash}', VerifyEmailController::class)
     ->middleware(['signed', 'throttle:6,1'])
