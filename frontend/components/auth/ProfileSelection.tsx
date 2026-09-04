@@ -328,12 +328,21 @@ export default function ProfileSelection() {
                         {isManaging ? "Hotovo" : "Spravovat profily"}
                     </button>
                     {!isManaging && (
-                        <button
-                            onClick={() => logout()}
-                            className="border-2 font-bold border-red-300 text-red-400 px-8 py-3 uppercase tracking-widest hover:border-red-500 hover:text-red-500 transition-all cursor-pointer"
-                        >
-                            Odhlásit se
-                        </button>
+                        <>
+                            <button
+                                onClick={() => router.push('/muj-ucet')}
+                                className={`flex items-center gap-2 border-2 font-bold px-8 py-3 uppercase tracking-widest transition-all cursor-pointer
+                                            border-gray-400 text-gray-500 hover:border-sky-600 hover:text-sky-600`}
+                            >
+                                Můj účet
+                            </button>
+                            <button
+                                onClick={() => logout()}
+                                className="border-2 font-bold border-red-300 text-red-400 px-8 py-3 uppercase tracking-widest hover:border-red-500 hover:text-red-500 transition-all cursor-pointer"
+                            >
+                                Odhlásit se
+                            </button>
+                        </>
                     )}
                 </div>
             </main>

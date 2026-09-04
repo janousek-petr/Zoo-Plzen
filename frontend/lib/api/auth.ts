@@ -53,7 +53,7 @@ const authService = {
     },
 
     checkResetToken: async (email: string, token: string) => {
-        return await axios.post('api/check-reset-token', { email, token });
+        return await axios.post('/check-reset-token', { email, token });
     },
 
     getUser: async () => {

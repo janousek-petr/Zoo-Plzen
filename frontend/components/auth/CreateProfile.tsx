@@ -119,7 +119,7 @@ export default function CreateProfile() {
     };
 
     return (
-        <main className="bg-white flex flex-col items-center justify-center p-6">
+        <main className="bg-white flex flex-col items-center justify-center p-6 min-h-[80vh]">
 
             {/* Progress bar */}
             {step > 2 && (
@@ -172,13 +172,23 @@ export default function CreateProfile() {
                         />
                     </div>
 
-                    <button
-                        className="cus-auth-submit disabled:opacity-50 mt-2"
-                        disabled={!firstName.trim() || !lastName.trim()}
-                        onClick={() => setStep(2)}
-                    >
-                        Pokračovat
-                    </button>
+                    <div className="flex flex-row gap-4 mt-2 w-full">
+                        <button
+                            type="button"
+                            onClick={() => router.push("/zvoleni-profilu")}
+                            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3.5 px-4 rounded-2xl transition-colors cursor-pointer text-center"
+                        >
+                            Zpět
+                        </button>
+                        <button
+                            type="button"
+                            disabled={!firstName.trim() || !lastName.trim()}
+                            onClick={() => setStep(2)}
+                            className="flex-1 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-bold py-3.5 px-4 rounded-2xl transition-colors cursor-pointer text-center"
+                        >
+                            Pokračovat
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -191,12 +201,22 @@ export default function CreateProfile() {
                     <p className="text-2xl text-gray-600 font-medium">
                         Předej tablet <span className="font-black text-sky-600">{firstName}</span>
                     </p>
-                    <button
-                        onClick={() => setStep(3)}
-                        className="mt-4 bg-sky-500 hover:bg-sky-600 text-white cus-font-impacted-2 uppercase text-3xl px-12 py-5 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95"
-                    >
-                        Jsem připraven
-                    </button>
+                    <div className="flex gap-4 mt-4">
+                        <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            className="border-4 border-gray-300 text-gray-500 font-black text-xl px-8 py-5 rounded-3xl hover:border-gray-400 transition-all cursor-pointer"
+                        >
+                            Zpět
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setStep(3)}
+                            className="bg-sky-500 hover:bg-sky-600 text-white cus-font-impacted-2 uppercase text-3xl px-12 py-5 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+                        >
+                            Jsem připraven
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -268,8 +288,9 @@ export default function CreateProfile() {
                             {nickname}
                         </div>
                         <button
+                            type="button"
                             onClick={() => setNickname(generateNickname())}
-                            className="text-sky-600 font-black uppercase tracking-widest hover:text-sky-800 transition-colors"
+                            className="text-sky-600 font-black uppercase tracking-widest hover:text-sky-800 transition-colors cursor-pointer"
                         >
                             Zkusit jinou
                         </button>
@@ -313,8 +334,9 @@ function ItemGrid({
                 {items.map((item) => (
                     <button
                         key={item.id}
+                        type="button"
                         onClick={() => onSelect(item)}
-                        className={`relative rounded-2xl overflow-hidden transition-all duration-200 ${
+                        className={`relative rounded-2xl overflow-hidden transition-all duration-200 cursor-pointer ${
                             selected?.id === item.id
                                 ? 'ring-4 ring-yellow-400 ring-offset-2 scale-[1.05] shadow-xl'
                                 : 'hover:scale-[1.03] hover:shadow-md'
@@ -333,19 +355,20 @@ function ItemGrid({
             {items.map((item) => (
                 <button
                     key={item.id}
+                    type="button"
                     onClick={() => onSelect(item)}
                     className={
                         shape === "circle"
-                            ? `relative w-36 h-36 rounded-full overflow-hidden border-8 transition-all duration-200 ${
-                                  selected?.id === item.id
-                                      ? 'border-yellow-400 scale-110 shadow-2xl'
-                                      : 'border-transparent hover:border-sky-300 hover:scale-105'
-                              }`
-                            : `relative w-36 h-36 rounded-2xl border-8 transition-all duration-200 ${
-                                  selected?.id === item.id
-                                      ? 'border-yellow-400 scale-110 shadow-2xl'
-                                      : 'border-transparent opacity-60 hover:opacity-100 hover:border-sky-300 hover:scale-105'
-                              }`
+                            ? `relative w-36 h-36 rounded-full overflow-hidden border-8 transition-all duration-200 cursor-pointer ${
+                                selected?.id === item.id
+                                    ? 'border-yellow-400 scale-110 shadow-2xl'
+                                    : 'border-transparent hover:border-sky-300 hover:scale-105'
+                            }`
+                            : `relative w-36 h-36 rounded-2xl border-8 transition-all duration-200 cursor-pointer ${
+                                selected?.id === item.id
+                                    ? 'border-yellow-400 scale-110 shadow-2xl'
+                                    : 'border-transparent opacity-60 hover:opacity-100 hover:border-sky-300 hover:scale-105'
+                            }`
                     }
                 >
                     <Image
@@ -361,12 +384,12 @@ function ItemGrid({
 }
 
 function ChildStep({
-    title,
-    children,
-    onBack,
-    onNext,
-    nextLabel = "Pokračovat",
-    nextDisabled = false,
+   title,
+   children,
+   onBack,
+   onNext,
+   nextLabel = "Pokračovat",
+   nextDisabled = false,
 }: {
     title: string;
     children: React.ReactNode;
@@ -385,15 +408,17 @@ function ChildStep({
 
             <div className="flex gap-4 mt-4 w-full max-w-xs">
                 <button
+                    type="button"
                     onClick={onBack}
-                    className="flex-1 border-4 border-gray-300 text-gray-500 font-black text-lg py-4 rounded-2xl hover:border-gray-400 transition-all"
+                    className="flex-1 border-4 border-gray-300 text-gray-500 font-black text-lg py-4 rounded-2xl hover:border-gray-400 transition-all cursor-pointer"
                 >
-                    Zpet
+                    Zpět
                 </button>
                 <button
+                    type="button"
                     onClick={onNext}
                     disabled={nextDisabled}
-                    className="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-black text-lg py-4 rounded-2xl shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                    className="flex-1 bg-sky-500 hover:bg-sky-600 text-white font-black text-lg py-4 rounded-2xl shadow-md hover:shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                     {nextLabel}
                 </button>
