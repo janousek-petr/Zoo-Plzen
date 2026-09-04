@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import type { Profile, User } from "@/lib/types";
+import {createContext, useContext, useState, useEffect, ReactNode} from "react";
+import type {Profile, User} from "@/lib/types";
 import authService from "@/lib/api/auth";
+import axiosClient from "@/lib/axios";
 
 interface AuthContextType {
     user: User | null;
@@ -13,11 +14,12 @@ interface AuthContextType {
     isVerified: boolean;
     logout: () => Promise<void>;
     refreshUser: () => Promise<User | null>;
+    clearLocalAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({children}: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -67,6 +69,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         handleSetActiveProfile(null);
     };
 
+    const clearLocalAuth = () => {
+        localStorage.removeItem("token");
+
+        // Odstraní výchozí Authorization hlavičku z Axiosu
+        delete axiosClient.defaults.headers.common["Authorization"];
+
+        setUser(null);
+    }
+
     if (!mounted) {
         return (
             <AuthContext.Provider value={{
@@ -78,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isVerified: false,
                 logout,
                 refreshUser,
+                clearLocalAuth,
             }}>
                 {children}
             </AuthContext.Provider>
@@ -94,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             isVerified: Boolean(user?.email_verified_at),
             logout,
             refreshUser,
+            clearLocalAuth,
         }}>
             {children}
         </AuthContext.Provider>
