@@ -71,7 +71,7 @@ export default function EditItem({ categoryId, itemId }: { categoryId: number; i
                 {/* Obrázek */}
                 <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
                     <label className="text-sm text-gray-400">Obrázek</label>
-                    <MediaPickerButton value={image} onChange={setImage} label="Vybrat obrázek předmětu" onlyImage={true} />
+                    <MediaPickerButton value={image} onChange={setImage} label="Vybrat obrázek předmětu" allowedType={"image"} />
                 </div>
 
                 {/* Název */}

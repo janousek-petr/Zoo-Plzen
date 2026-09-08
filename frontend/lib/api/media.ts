@@ -1,5 +1,5 @@
 import axios from '@/lib/axios'
-import { MediaItem } from '@/lib/types'
+import {MediaItem} from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -50,6 +50,29 @@ export async function uploadMedia(file: File): Promise<MediaItem> {
 
 export async function deleteMedia(id: number): Promise<void> {
     await axios.delete(`/api/media/${id}`);
+}
+
+export async function checkIfMediaExists(file: File): Promise<MediaItem | null> {
+    const file_hash = await calculateFileHash(file);
+    try {
+        const res = await axios.get(`/api/media/check-hash/${file_hash}`);
+        return res.data.exists ? res.data.media : null;
+    } catch (err) {
+        console.error('Chyba při kontrole haše:', err);
+        return null;
+    }
+}
+
+async function calculateFileHash(file: File): Promise<string> {
+    //Převod File na ArrayBuffer (což je BufferSource)
+    const arrayBuffer = await file.arrayBuffer();
+
+    // Výpočet haše pomocí prohlížečového Web Crypto API
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+
+    // Převod výstupního ArrayBufferu na Hex řetězec
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 const AUDIO_EXTENSIONS = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'webm'];

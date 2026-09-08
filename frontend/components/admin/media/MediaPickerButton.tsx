@@ -3,21 +3,32 @@
 import { useState } from 'react';
 import { RiImageAddLine, RiCloseLine, RiMusic2Line } from 'react-icons/ri';
 import MediaPicker from './MediaPicker';
-import { MediaItem } from "@/lib/types"
-import {getStorageUrl} from "@/lib/api/media";
+import { MediaItem } from "@/lib/types";
+import { getStorageUrl } from "@/lib/api/media";
 
 interface MediaPickerButtonProps {
     value?: MediaItem | null;
     onChange: (item: MediaItem | null) => void;
     label?: string;
+    allowedType?: 'image' | 'audio' | 'all';
     onlyImage?: boolean;
 }
 
 const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');
 
-export default function MediaPickerButton({ value, onChange, label = 'Vybrat soubor', onlyImage }: MediaPickerButtonProps) {
+export default function MediaPickerButton({
+                                              value,
+                                              onChange,
+                                              label = 'Vybrat soubor',
+                                              allowedType,
+                                              onlyImage
+                                          }: MediaPickerButtonProps) {
     const [open, setOpen] = useState(false);
     const audio = value ? isAudio(value.mime_type) : false;
+
+    // Určí typ souboru (přednost má allowedType, případně fallback ze staršího onlyImage)
+    const resolvedAllowedType: 'image' | 'audio' | 'all' =
+        allowedType ?? (onlyImage ? 'image' : 'all');
 
     return (
         <>
@@ -33,32 +44,38 @@ export default function MediaPickerButton({ value, onChange, label = 'Vybrat sou
                                 </span>
                             </>
                         ) : (
-                            <img src={getStorageUrl(value)} alt={value.filename} className="w-full h-full object-cover" />
+                            <img src={getStorageUrl(value.path)} alt={value.filename} className="w-full h-full object-cover" />
                         )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                             <button type="button" onClick={() => setOpen(true)}
-                                className="px-3 py-1.5 bg-white text-gray-800 text-xs font-medium rounded-lg shadow hover:bg-gray-50 transition">
+                                    className="px-3 py-1.5 bg-white text-gray-800 text-xs font-medium rounded-lg shadow hover:bg-gray-50 transition">
                                 Změnit
                             </button>
                             <button type="button" onClick={() => onChange(null)}
-                                className="flex items-center justify-center w-7 h-7 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
+                                    className="flex items-center justify-center w-7 h-7 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
                                 <RiCloseLine size={14} />
                             </button>
                         </div>
                     </div>
                 ) : (
                     <button type="button" onClick={() => setOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-green-700 hover:text-emerald-600 hover:bg-emerald-50/40 transition-all">
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-green-700 hover:text-emerald-600 hover:bg-emerald-50/40 transition-all">
                         <RiImageAddLine size={18} />
                         {label}
                     </button>
                 )}
                 {value && audio && (
-                    <audio controls src={getStorageUrl(value)} className="w-40 h-8" />
+                    <audio controls src={getStorageUrl(value.path)} className="w-40 h-8" />
                 )}
                 {value && <p className="text-xs text-gray-400 truncate max-w-40">{value.filename}</p>}
             </div>
-            <MediaPicker open={open} onClose={() => setOpen(false)} onSelect={onChange} selected={value?.id ?? null} onlyImage={onlyImage}/>
+            <MediaPicker
+                open={open}
+                onClose={() => setOpen(false)}
+                onSelect={onChange}
+                selected={value?.id ?? null}
+                allowedType={resolvedAllowedType}
+            />
         </>
     );
 }

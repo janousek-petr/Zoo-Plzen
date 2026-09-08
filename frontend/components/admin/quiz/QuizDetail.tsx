@@ -3,12 +3,17 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getQuiz, getQuestions, togglePublishQuiz, deleteQuiz, CATEGORY_LABEL } from '@/lib/api/quizzes'
-import { RiMapPinLine, RiEditLine,  RiStarLine, RiQuestionLine, RiCheckLine, RiEyeLine, RiEyeOffLine, RiDeleteBinLine } from 'react-icons/ri'
+import {
+    RiMapPinLine, RiEditLine, RiStarLine, RiQuestionLine,
+    RiCheckLine, RiEyeLine, RiEyeOffLine, RiDeleteBinLine,
+} from 'react-icons/ri'
 import type { Quiz, Question } from '@/lib/types'
 import { MenuCard, MenuCardProps } from "../MenuCard";
 import Header from '@/components/admin/Header'
 import MediaPreview from '@/components/admin/media/MediaPreview'
+import Pagination from "@/components/admin/Pagination";
 
+const ITEMS_PER_PAGE = 5;
 
 const LEVEL_BADGE: Record<number, string> = {
     1: 'bg-green-50 text-green-800',
@@ -21,15 +26,16 @@ export default function QuizDetail({ id }: { id: number }) {
     const [quiz, setQuiz] = useState<Quiz | null>(null)
     const [questions, setQuestions] = useState<Question[]>([])
     const [loading, setLoading] = useState(true)
+    const [currentPage, setCurrentPage] = useState(1)
 
     useEffect(() => {
         Promise.all([getQuiz(id), getQuestions(id)]).then(([quizData, questionsData]) => {
             setQuiz(quizData)
             setQuestions(questionsData)
             setLoading(false)
-
         })
     }, [id])
+
     const handleTogglePublish = async () => {
         if (!quiz) return
         try {
@@ -53,6 +59,10 @@ export default function QuizDetail({ id }: { id: number }) {
 
     if (loading) return <p className="text-lg text-gray-400 p-6 cus-font-impacted uppercase">Načítám...</p>
     if (!quiz) return <p className="text-lg text-red-400 p-6">Kvíz nenalezen.</p>
+
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const paginatedQuestions = questions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(questions.length / ITEMS_PER_PAGE);
 
     const menuItems: MenuCardProps[] = [
         { label: "Upravit kvíz", icon: RiEditLine, href: `/admin/quizzes/${id}/edit`},
@@ -112,12 +122,12 @@ export default function QuizDetail({ id }: { id: number }) {
                                 <div className="flex items-center gap-2">
                                     {quiz.is_published ? (
                                         <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-800">
-                                        Publikován
-                                    </span>
+                                            Publikován
+                                        </span>
                                     ) : (
                                         <span className="text-sm font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
-                                        Nepublikován
-                                    </span>
+                                            Nepublikován
+                                        </span>
                                     )}
                                 </div>
                             </div>
@@ -126,8 +136,8 @@ export default function QuizDetail({ id }: { id: number }) {
                         <div className="bg-white border border-gray-200 rounded-xl p-4">
                             <p className="text-xs text-gray-400 mb-1">Náročnost</p>
                             <span className={`text-sm font-medium px-2 py-0.5 rounded-full ${LEVEL_BADGE[quiz.level]}`}>
-                            Level {quiz.level}
-                        </span>
+                                Level {quiz.level}
+                            </span>
                         </div>
                         <div className="bg-white border border-gray-200 rounded-xl p-4">
                             <p className="text-xs text-gray-400 mb-1">Otázky</p>
@@ -160,17 +170,17 @@ export default function QuizDetail({ id }: { id: number }) {
                             {questions.length === 0 && (
                                 <p className="text-sm text-gray-400">Žádné otázky.</p>
                             )}
-                            {questions.map((question, index) => (
+                            {paginatedQuestions.map((question, index) => (
                                 <div key={question.id} className="bg-white border border-gray-200 rounded-xl p-4">
                                     <div className="flex items-start justify-between gap-4 mb-3">
                                         <div className="flex items-start gap-3">
-                                            <span className="text-sm font-medium text-gray-400 mt-0.5">{index + 1}.</span>
+                                            <span className="text-sm font-medium text-gray-400 mt-0.5">{startIndex + index + 1}.</span>
                                             <p className="text-sm font-medium text-gray-900">{question.text}</p>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">
-                                        <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
-                                            {CATEGORY_LABEL[question.category?.name ?? ''] ?? question.category?.name ?? '—'}
-                                        </span>
+                                            <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                {CATEGORY_LABEL[question.category?.name ?? ''] ?? question.category?.name ?? '—'}
+                                            </span>
                                             <span className="text-xs text-gray-400">{question.points} b.</span>
                                         </div>
                                     </div>
@@ -234,6 +244,17 @@ export default function QuizDetail({ id }: { id: number }) {
                                     </div>
                                 </div>
                             ))}
+                        </div>
+
+                        {/* Ovládací lišta stránkování */}
+                        <div className="px-6 pb-6">
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                onPageChange={setCurrentPage}
+                                totalItems={questions.length}
+                                itemsPerPage={ITEMS_PER_PAGE}
+                            />
                         </div>
                     </div>
                 </div>

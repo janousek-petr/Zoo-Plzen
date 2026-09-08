@@ -14,7 +14,7 @@ type AnswerForm = {
     text: string
     is_correct: boolean
     image?: MediaItem | null
-    "audio"?: MediaItem | null,
+    audio?: MediaItem | null,
 }
 
 const TRUE_FALSE_ANSWERS: AnswerForm[] = [
@@ -107,6 +107,26 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
             return
         }
 
+        // Validace obrázků pro kategorii "Výběr obrázku"
+        if (categoryName === 'image_select') {
+            const hasAllImages = answers.every(a => Boolean(a.image))
+            if (!hasAllImages) {
+                setError('Musíte vybrat obrázek u všech odpovědí.')
+                setLoading(false)
+                return
+            }
+        }
+
+        // Validace audia pro kategorii "Výběr audia"
+        if (categoryName === 'audio_select') {
+            const hasAllAudio = answers.every(a => Boolean(a.audio))
+            if (!hasAllAudio) {
+                setError('Musíte vybrat audio u všech odpovědí.')
+                setLoading(false)
+                return
+            }
+        }
+
         try {
             await createQuestion(quizId, {
                 text: form.text,
@@ -117,8 +137,8 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
                 answers: answers.map(a => ({
                     text: a.text,
                     is_correct: a.is_correct,
-                    image: a.image && null,
-                    audio: a.audio && null
+                    image: a.image ?? null,
+                    audio: a.audio ?? null
                 }))
             })
             router.push(`/admin/quizzes/${quizId}`)
@@ -156,7 +176,7 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
                             value={image}
                             onChange={setImage}
                             label="Vybrat obrázek otázky"
-                            onlyImage={true}
+                            allowedType={"image"}
                         />
                     </div>
                     <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
@@ -165,7 +185,7 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
                             value={audio}
                             onChange={setAudio}
                             label="Vybrat audio otázky"
-                            onlyImage={false}
+                            allowedType={"audio"}
                         />
                     </div>
                 </div>
@@ -302,6 +322,7 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
                                         value={answer.image as MediaItem | null}
                                         onChange={item => handleAnswerChange(index, 'image', item)}
                                         label="Vybrat obrázek"
+                                        allowedType={"image"}
                                     />
                                 </div>
                             ))}
@@ -336,7 +357,7 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
                                             value={answer.audio}
                                             onChange={item => handleAnswerChange(index, 'audio', item)}
                                             label="Vybrat audio odpovědi"
-                                            onlyImage={false}
+                                            allowedType={"audio"}
                                         />
                                     </div>
 

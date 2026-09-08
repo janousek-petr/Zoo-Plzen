@@ -7,6 +7,10 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\ChallengeController;
+use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\ItemCategoryController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\MediaController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\QuestionCategoryController;
 use App\Http\Controllers\QuestionController;
@@ -68,7 +72,9 @@ Route::delete('/quizzes/{quizId}/questions/{questionId}', [QuestionController::c
 
 Route::get('/question-categories', [QuestionCategoryController::class, 'index']);
 
+// Media
 Route::apiResource('media', MediaController::class)->only(['index', 'store', 'destroy']);
+Route::get('/media/check-hash/{file_hash}', [MediaController::class, 'checkIfMediaExists'])->name('media.check-hash');
 
 Route::get('/regions/{id}/quizzes', [QuizController::class, 'byRegion']);
 Route::get('/regions', [RegionController::class, 'index']);
