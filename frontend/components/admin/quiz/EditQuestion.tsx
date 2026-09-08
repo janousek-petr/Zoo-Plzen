@@ -203,7 +203,7 @@ export default function EditQuestion({ quizId, question }: Props) {
                             value={image}
                             onChange={setImage}
                             label="Vybrat obrázek otázky"
-                            onlyImage={true}
+                            allowedType={"image"}
                         />
                     </div>
                     <div className="bg-white border border-gray-200 rounded-xl p-4 flex flex-col gap-1.5">
@@ -212,7 +212,7 @@ export default function EditQuestion({ quizId, question }: Props) {
                             value={audio}
                             onChange={setAudio}
                             label="Vybrat audio otázky"
-                            onlyImage={false}
+                            allowedType={"audio"}
                         />
                     </div>
                 </div>
@@ -348,6 +348,7 @@ export default function EditQuestion({ quizId, question }: Props) {
                                         value={answer.image as MediaItem | null}
                                         onChange={item => handleAnswerChange(index, 'image', item)}
                                         label="Vybrat obrázek"
+                                        allowedType={"image"}
                                     />
                                 </div>
                             ))}
@@ -388,7 +389,7 @@ export default function EditQuestion({ quizId, question }: Props) {
                                             value={answer.audio}
                                             onChange={item => handleAnswerChange(index, 'audio', item)}
                                             label="Vybrat audio odpovědi"
-                                            onlyImage={false}
+                                            allowedType={"audio"}
                                         />
                                     </div>
 
