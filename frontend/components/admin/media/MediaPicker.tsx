@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import {
     RiCheckLine,
     RiCloseLine,
+    RiFullscreenLine,
     RiImageLine,
     RiLoader4Line,
     RiMusic2Line,
@@ -13,6 +14,7 @@ import { getMedia, getStorageUrl, uploadMedia } from '@/lib/api/media';
 import { MediaItem } from '@/lib/types';
 import Pagination from "@/components/admin/Pagination";
 import MediaFilterBar, { TypeFilter, SortOption } from "@/components/admin/media/MediaFilterBar";
+import MediaFullscreenModal from "@/components/admin/media/MediaFullscreenModal";
 
 interface MediaPickerProps {
     open: boolean;
@@ -42,6 +44,7 @@ export default function MediaPicker({
     const [dragOver, setDragOver] = useState(false);
     const [activeFilter, setActiveFilter] = useState<AllowedType>(allowedType);
     const [currentPage, setCurrentPage] = useState(1);
+    const [fullscreenUrl, setFullscreenUrl] = useState<string | null>(null);
 
     const load = useCallback(async () => {
         setLoading(true);
@@ -69,7 +72,6 @@ export default function MediaPicker({
         return () => document.removeEventListener('keydown', handler);
     }, [open, onClose]);
 
-    // Určí aktuálně aplikovaný filtr (z props nebo ze záložek)
     const currentTypeFilter = allowedType !== 'all' ? allowedType : activeFilter;
 
     const handleSearchChange = (value: string) => {
@@ -87,7 +89,6 @@ export default function MediaPicker({
         setCurrentPage(1);
     };
 
-    // 1. Filtrování
     const filtered = items
         .filter(i => {
             if (currentTypeFilter === 'image') return !isAudio(i.mime_type);
@@ -96,7 +97,6 @@ export default function MediaPicker({
         })
         .filter(i => (i.filename ?? '').toLowerCase().includes(search.toLowerCase()));
 
-    // 2. Řazení
     const sortedMediaItems = [...filtered].sort((a, b) => {
         if (sortBy === 'newest') return b.id - a.id;
         if (sortBy === 'oldest') return a.id - b.id;
@@ -105,7 +105,6 @@ export default function MediaPicker({
         return 0;
     });
 
-    // 3. Stránkování
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const paginatedMediaItems = sortedMediaItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
     const totalPages = Math.ceil(sortedMediaItems.length / ITEMS_PER_PAGE);
@@ -188,7 +187,7 @@ export default function MediaPicker({
                             onSearchChange={handleSearchChange}
                             onTypeFilterChange={handleTypeFilterChange}
                             onSortChange={handleSortChange}
-                            hideTypeFilter={allowedType !== 'all'} // Pokud je allowedType 'image' nebo 'audio', výběr typu se skryje
+                            hideTypeFilter={allowedType !== 'all'}
                         />
                     </div>
 
@@ -235,19 +234,20 @@ export default function MediaPicker({
                             {paginatedMediaItems.map(item => {
                                 const isSel = highlighted === item.id;
                                 const audio = isAudio(item.mime_type);
+                                const fileUrl = getStorageUrl(item.path);
+
                                 return (
-                                    <button key={item.id}
-                                            type="button"
-                                            onClick={() => setHighlighted(item.id)}
-                                            onDoubleClick={() => {
-                                                setHighlighted(item.id);
-                                                onSelect(item);
-                                                onClose();
-                                            }}
-                                            title={`${item.filename}\n${fmt(item.size)}`}
-                                            className={`relative group aspect-square rounded-xl overflow-hidden border-2 transition-all focus:outline-none
-                                            ${isSel ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md scale-[1.03]' : 'border-transparent hover:border-gray-300 hover:shadow-sm'}
-                                            ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-1.5' : ''}`}>
+                                    <div key={item.id}
+                                         onClick={() => setHighlighted(item.id)}
+                                         onDoubleClick={() => {
+                                             setHighlighted(item.id);
+                                             onSelect(item);
+                                             onClose();
+                                         }}
+                                         title={`${item.filename}\n${fmt(item.size)}`}
+                                         className={`relative group aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer select-none
+                                         ${isSel ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md scale-[1.03]' : 'border-transparent hover:border-gray-300 hover:shadow-sm'}
+                                         ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-1.5' : ''}`}>
                                         {audio ? (
                                             <>
                                                 <RiMusic2Line size={26} className="text-gray-400"/>
@@ -256,8 +256,21 @@ export default function MediaPicker({
                                                 </span>
                                             </>
                                         ) : (
-                                            <img src={getStorageUrl(item.path)} alt={item.filename}
-                                                 className="w-full h-full object-cover" loading="lazy"/>
+                                            <>
+                                                <img src={fileUrl} alt={item.filename}
+                                                     className="w-full h-full object-cover" loading="lazy"/>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setFullscreenUrl(fileUrl);
+                                                    }}
+                                                    className="absolute left-1.5 top-1.5 z-10 bg-black/60 hover:bg-black/80 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                                    title="Otevřít přes celou obrazovku"
+                                                >
+                                                    <RiFullscreenLine size={14}/>
+                                                </button>
+                                            </>
                                         )}
                                         <div className={`absolute inset-0 bg-black/40 flex items-end p-1.5 transition-opacity
                                             ${isSel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
@@ -268,7 +281,7 @@ export default function MediaPicker({
                                                 <RiCheckLine size={12} className="text-white"/>
                                             </span>
                                         )}
-                                    </button>
+                                    </div>
                                 );
                             })}
                         </div>
@@ -333,6 +346,14 @@ export default function MediaPicker({
                     </div>
                 </div>
             </div>
+
+            {/* Fullscreen modal */}
+            {fullscreenUrl && (
+                <MediaFullscreenModal
+                    url={fullscreenUrl}
+                    onClose={() => setFullscreenUrl(null)}
+                />
+            )}
         </div>
     );
 }
