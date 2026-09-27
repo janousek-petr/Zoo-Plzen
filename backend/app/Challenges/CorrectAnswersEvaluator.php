@@ -4,11 +4,8 @@ namespace App\Challenges;
 
 use App\Models\ActiveChallenge;
 use App\Models\AnsweredQuestions;
-use App\Models\AnsweredQuizzes;
-use App\Models\Quiz;
 use App\Models\ProfileChallengeProgress;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
 {
@@ -47,7 +44,7 @@ class CorrectAnswersEvaluator extends AbstractChallengeEvaluator
         // Celkový počet správných odpovědí z tohoto pokusu
         $totalCorrect = $correctClosed + $correctOpen;
 
-        if ($totalCorrect === 0) return;
+        if ($totalCorrect <= 0) return;
 
         // Přičtení k progresu a uložení zpracovaného pokusu
         $progress->progress += $totalCorrect;

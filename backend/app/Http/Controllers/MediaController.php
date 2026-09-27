@@ -4,13 +4,26 @@ namespace App\Http\Controllers;
 
 use App\Models\Media;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Media::latest()->get());
+        $query = Media::query();
+
+        // Pokud požadavek přichází z modulu výzev, označíme a upřednostníme fotky pro výzvy
+        if ($request->input('context') === 'challenge') {
+            $query->select('media.*')
+                ->selectRaw('EXISTS(SELECT 1 FROM challenge_image WHERE challenge_image.media_id = media.id) as is_challenge_image')
+                ->orderByDesc('is_challenge_image');
+        }
+
+        // Standardní řazení podle data vytvoření
+        $media = $query->latest()->get();
+
+        return response()->json($media);
     }
 
     public function store(Request $request)

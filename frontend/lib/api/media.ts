@@ -29,9 +29,9 @@ export function getStorageUrl(path?: any): string {
     return `${API_URL}${cleanPath}`;
 }
 
-export async function getMedia(): Promise<MediaItem[]> {
+export async function getMedia(context: "challenge" | "default" = "default"): Promise<MediaItem[]> {
     try {
-        const res = await axios.get('/api/media');
+        const res = await axios.get('/api/media', {params: {context}});
         return res.data;
     } catch (err) {
         console.error(err);
