@@ -16,12 +16,17 @@ import Pagination from "@/components/admin/Pagination";
 import MediaFilterBar, { TypeFilter, SortOption } from "@/components/admin/media/MediaFilterBar";
 import MediaFullscreenModal from "@/components/admin/media/MediaFullscreenModal";
 
+interface MediaItemExtended extends MediaItem {
+    is_challenge_image?: boolean | number;
+}
+
 interface MediaPickerProps {
     open: boolean;
     onClose: () => void;
     onSelect: (item: MediaItem) => void;
     selected?: number | null;
     allowedType?: AllowedType;
+    context?: "challenge" | "default";
 }
 
 type AllowedType = 'all' | 'image' | 'audio';
@@ -33,9 +38,10 @@ export default function MediaPicker({
                                         onClose,
                                         onSelect,
                                         selected,
-                                        allowedType = 'all'
+                                        allowedType = 'all',
+                                        context = "default",
                                     }: MediaPickerProps) {
-    const [items, setItems] = useState<MediaItem[]>([]);
+    const [items, setItems] = useState<MediaItemExtended[]>([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
     const [sortBy, setSortBy] = useState<SortOption>('newest');
@@ -48,10 +54,15 @@ export default function MediaPicker({
 
     const load = useCallback(async () => {
         setLoading(true);
-        const data = await getMedia();
-        setItems(data);
-        setLoading(false);
-    }, []);
+        try {
+            const data = await getMedia(context);
+            setItems(data);
+        } catch (err) {
+            console.error('Chyba při načítání médií:', err);
+        } finally {
+            setLoading(false);
+        }
+    }, [context]);
 
     useEffect(() => {
         if (open) {
@@ -64,13 +75,22 @@ export default function MediaPicker({
         }
     }, [open, selected, allowedType, load]);
 
+    // Klávesové zkratky (Escape pro zavření, Enter pro potvrzení)
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key === 'Escape') {
+                onClose();
+            } else if (e.key === 'Enter' && highlighted) {
+                const item = items.find(i => i.id === highlighted);
+                if (item) {
+                    onSelect(item);
+                    onClose();
+                }
+            }
         };
         if (open) document.addEventListener('keydown', handler);
         return () => document.removeEventListener('keydown', handler);
-    }, [open, onClose]);
+    }, [open, onClose, highlighted, items, onSelect]);
 
     const currentTypeFilter = allowedType !== 'all' ? allowedType : activeFilter;
 
@@ -97,7 +117,15 @@ export default function MediaPicker({
         })
         .filter(i => (i.filename ?? '').toLowerCase().includes(search.toLowerCase()));
 
+    // Řazení s prioritou pro výzvy
     const sortedMediaItems = [...filtered].sort((a, b) => {
+        if (context === 'challenge') {
+            const aIsChallenge = Boolean(a.is_challenge_image);
+            const bIsChallenge = Boolean(b.is_challenge_image);
+            if (aIsChallenge && !bIsChallenge) return -1;
+            if (!aIsChallenge && bIsChallenge) return 1;
+        }
+
         if (sortBy === 'newest') return b.id - a.id;
         if (sortBy === 'oldest') return a.id - b.id;
         if (sortBy === 'name') return (a.filename ?? '').localeCompare(b.filename ?? '');
@@ -235,6 +263,7 @@ export default function MediaPicker({
                                 const isSel = highlighted === item.id;
                                 const audio = isAudio(item.mime_type);
                                 const fileUrl = getStorageUrl(item.path);
+                                const isChallengeImg = Boolean(item.is_challenge_image);
 
                                 return (
                                     <div key={item.id}
@@ -248,6 +277,14 @@ export default function MediaPicker({
                                          className={`relative group aspect-square rounded-xl overflow-hidden border-2 transition-all cursor-pointer select-none
                                          ${isSel ? 'border-emerald-500 ring-2 ring-emerald-500/30 shadow-md scale-[1.03]' : 'border-transparent hover:border-gray-300 hover:shadow-sm'}
                                          ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-1.5' : ''}`}>
+
+                                        {/* Odznak výzvy */}
+                                        {isChallengeImg && (
+                                            <span className="absolute top-1.5 left-1.5 z-10 bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow flex items-center gap-0.5">
+                                                🐾 Výzva
+                                            </span>
+                                        )}
+
                                         {audio ? (
                                             <>
                                                 <RiMusic2Line size={26} className="text-gray-400"/>
@@ -265,19 +302,21 @@ export default function MediaPicker({
                                                         e.stopPropagation();
                                                         setFullscreenUrl(fileUrl);
                                                     }}
-                                                    className="absolute left-1.5 top-1.5 z-10 bg-black/60 hover:bg-black/80 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                                    className="absolute left-1.5 bottom-1.5 z-10 bg-black/60 hover:bg-black/80 text-white p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                                                     title="Otevřít přes celou obrazovku"
                                                 >
                                                     <RiFullscreenLine size={14}/>
                                                 </button>
                                             </>
                                         )}
+
                                         <div className={`absolute inset-0 bg-black/40 flex items-end p-1.5 transition-opacity
                                             ${isSel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}>
                                             <span className="text-white text-[10px] leading-tight truncate w-full">{item.filename}</span>
                                         </div>
+
                                         {isSel && (
-                                            <span className="absolute top-1.5 right-1.5 flex items-center justify-center w-5 h-5 bg-emerald-500 rounded-full shadow">
+                                            <span className="absolute top-1.5 right-1.5 z-10 flex items-center justify-center w-5 h-5 bg-emerald-500 rounded-full shadow">
                                                 <RiCheckLine size={12} className="text-white"/>
                                             </span>
                                         )}
@@ -340,7 +379,7 @@ export default function MediaPicker({
                         </button>
                         <button type="button" onClick={handleConfirm} disabled={!highlighted}
                                 className={`px-5 py-2 text-sm font-medium rounded-lg transition-all
-                                ${highlighted ? 'bg-emerald-700 text-white hover:bg-emerald-700 active:scale-95' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
+                                ${highlighted ? 'bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}>
                             Vybrat soubor
                         </button>
                     </div>

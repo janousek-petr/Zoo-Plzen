@@ -3,7 +3,7 @@
 import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {
-    RiFileTextLine,
+    RiFileTextLine, RiGamepadLine,
     RiGiftLine,
     RiImageLine,
     RiLayoutGridFill,
@@ -18,7 +18,8 @@ const NAV_ITEMS = [
     {label: "Uživatelé", href: "/admin/users", icon: RiUserLine},
     {label: "Média", href: "/admin/media", icon: RiImageLine},
     {label: "Předměty", href: "/admin/items", icon: RiGiftLine},
-    {label: "Texty", href: "/admin/texts", icon: RiFileTextLine}
+    {label: "Texty", href: "/admin/texts", icon: RiFileTextLine},
+    {label: "Výzvy", href: "/admin/challenges", icon: RiGamepadLine},
 ];
 
 interface SidebarProps {

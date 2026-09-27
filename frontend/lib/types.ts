@@ -38,8 +38,9 @@ export type Quiz = {
 }
 
 export type Region = {
-    "id": number,
-    "name": string
+    id: number,
+    name: string,
+    color: string
 }
 
 export type MediaItem = {

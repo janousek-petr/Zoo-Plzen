@@ -85,9 +85,15 @@ Route::post('/profiles/{profile}/inventory/giveItem', [InventoryController::clas
 
 //Výzvy
 Route::post('/challenges', [ActiveChallengeController::class, 'index']);
+Route::get('/challenges/{id}', [ActiveChallengeController::class, 'show']);
+Route::put('/challenges/{id}', [ActiveChallengeController::class, 'update']);
 Route::post('/challenges/event', [ActiveChallengeController::class, 'submitEvent']);
 Route::post('/profiles/claim-daily-reward', [ProfileController::class, 'claimDailyReward']); # Daily login
 
+Route::post('/admin/active-challenges', [ActiveChallengeController::class, 'store']);
+Route::delete('/admin/active-challenges/{id}', [ActiveChallengeController::class, 'destroy']);
+
+// Generátor výzev
 Route::post('/generate/weeklyChallenges', [ChallengeController::class, 'triggerWeekly']);
 Route::post('/generate/dailyChallenges', [ChallengeController::class, 'triggerDaily']);
 

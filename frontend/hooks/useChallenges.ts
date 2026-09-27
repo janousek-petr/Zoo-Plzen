@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import {useCallback, useEffect, useState} from "react";
 import axiosClient from "@/lib/axios";
 
 export function useChallenges(profile_id: number | undefined) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+    const refetch = useCallback(async () => {
         axiosClient
             .post("/api/challenges", {"profile_id": profile_id})
             .then((res) => {
@@ -17,5 +19,9 @@ export function useChallenges(profile_id: number | undefined) {
             });
     }, [profile_id]);
 
-    return { data, loading };
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
+
+    return { data, loading, refetch };
 }

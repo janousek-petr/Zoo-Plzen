@@ -3,10 +3,12 @@
 namespace App\Challenges;
 
 use App\Models\ActiveChallenge;
+use App\Models\ChallengeImage;
+use App\Models\ChallengeTemplate;
 use App\Models\Region;
 use Carbon\CarbonInterface;
 use DB;
-use Mockery\Exception;
+use Illuminate\Support\Carbon;
 
 class ChallengeGenerator
 {
@@ -60,65 +62,81 @@ class ChallengeGenerator
     /**
      * Vygeneruje denní výzvy
      */
-    public function generateDaily(?int $count = null): void
+    public function generateDaily(?int $count = null, ?string $valid_until = null): void
     {
         $count = $count ?? config('challenges.daily_count', 3);
-        $this->generateChallenges($count, now()->endOfDay(), "daily");
+        $valid_until = $valid_until ? Carbon::parse($valid_until) : now()->endOfDay();
+        $this->generateChallenges($count, Carbon::parse($valid_until), "daily");
     }
 
     /**
      * Vygeneruje týdenní výzvy
      */
-    public function generateWeekly(?int $count = null): void
+    public function generateWeekly(?int $count = null, ?string $valid_until = null): void
     {
         $count = $count ?? config('challenges.weekly_count', 3);
-        $this->generateChallenges($count, now()->addWeek(), "weekly");
+        $valid_until = $valid_until ? Carbon::parse($valid_until)->endOfDay() : now()->addWeek();
+        $this->generateChallenges($count, Carbon::parse($valid_until), "weekly");
     }
 
     /**
-     * Vygeneruje výzvy daného období
-     * @param int $count Počet výzev, které se mají vytvořit
-     * @param CarbonInterface $date Datum platnosti
-     * @param string $period Období
-     * @return void
-     * @throws \Throwable
-     */
+        * Vygeneruje výzvy daného období
+        * @param int $count Počet výzev, které se mají vytvořit
+        * @param CarbonInterface $date Datum platnosti
+        * @param string $period Období (daily/weekly)
+        * @return void
+        * @throws \Exception
+    */
     private function generateChallenges(int $count, CarbonInterface $date, string $period): void
     {
         DB::transaction(function () use ($count, $date, $period) {
-            $modifiers = config("challenges.{$period}");
+            // Načteme dostupné šablony z DB
+            $modifiers = ChallengeTemplate::whereIn('period', [$period, "both"])
+                ->where('is_active', true) // Pouze aktivní
+                ->get();
 
             $regions = Region::all();
 
+            // Kontrola, zda máme v DB z čeho generovat
+            if ($modifiers->isEmpty()) {
+                throw new \Exception("V databázi nebyly nalezeny žádné šablony výzev pro období: '{$period}'.");
+            }
+
+            if ($regions->isEmpty()) {
+                throw new \Exception("V databázi nebyly nalezeny žádné regiony.");
+            }
+
             for ($i = 0; $i < $count; $i++) {
                 do {
-                    // Vybere náhodný modifikátor
-                    $modifier = collect($modifiers)->random();
-                    // Podle modifikátoru si sáhne pro základní šablonu
-                    $baseTemplate = config("challenges.templates.{$modifier['templates']}");
+                    // Vybere náhodnou šablonu z DB
+                    /** @var ChallengeTemplate $templateModel */
+                    $templateModel = $modifiers->random();
 
-                    // Spojí základní šablonu s modifikátorem do jednoho pole
-                    $template = array_merge($baseTemplate, $modifier);
+                    // Převedeme model na pole pro další zpracování
+                    $template = $templateModel->toArray();
 
-                    // Vygeneruje náhodný cíl (target) v rozmezí min a max z šablony
-                    $randomTarget = rand($template['min'], $template['max']);
-                    $template['target'] = $randomTarget;
+                    // Vygeneruje náhodný cíl (target) z min_target a max_target šablony
+                    $min = $template['min_target'] ?? 1;
+                    $max = $template['max_target'] ?? 10;
+                    $template['target'] = rand($min, $max);
+
+                    // Přejmenování fieldů z DB pro potřeby evaluatorů, pokud se liší
+                    $template['type'] = $templateModel->type;
+                    $template['reward'] = $templateModel->reward_paw ?? $templateModel->reward ?? 5;
 
                     $region = $regions->random();
 
-                    // Sestaví finální strukturu dat výzvy (dosadí se texty, nahradí se zástupné znaky jako :target)
+                    // Sestaví finální strukturu dat výzvy
                     $challenge = $this->buildChallenge($template, $region);
 
                     // Pro týdenní výzvy přidá obrázek zvířete
                     if ($period === 'weekly') {
-                        // Střídá stranu podle indexu
                         $side = ($i % 2 === 0) ? 'left' : 'right';
 
-                        // Vytáhne z databáze obrázek zvířete pro tento region a stranu
-                        $animalImage = DB::table('challenge_region_image')
-                            ->where('region_id', $region->id)
+                        $animalImage = ChallengeImage::
+                            where('region_id', $region->id)
                             ->where('side', $side)
-                            ->inRandomOrder() // Pokud bys měl pro jednu stranu víc zvířat, vybere náhodné
+                            ->inRandomOrder()
                             ->first();
 
                         $challenge['animalSrc'] = $animalImage ? $animalImage->url : '';
@@ -128,8 +146,9 @@ class ChallengeGenerator
                         $challenge['rewardIconSrc'] = '/img/icons/currency-icon.png';
                         $challenge['rewardIconAlt'] = 'Tlapky';
 
-                        if ($animalImage?->title)
+                        if ($animalImage?->title) {
                             $challenge['title'] = $animalImage->title;
+                        }
                     }
                 } while ($this->isDuplicate($challenge, $period));
 

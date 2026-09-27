@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { RiImageAddLine, RiCloseLine, RiMusic2Line } from 'react-icons/ri';
+import {useState} from 'react';
+import {RiImageAddLine, RiCloseLine, RiMusic2Line} from 'react-icons/ri';
 import MediaPicker from './MediaPicker';
-import { MediaItem } from "@/lib/types";
-import { getStorageUrl } from "@/lib/api/media";
+import {MediaItem} from "@/lib/types";
+import {getStorageUrl} from "@/lib/api/media";
 
 interface MediaPickerButtonProps {
     value?: MediaItem | null;
@@ -12,6 +12,7 @@ interface MediaPickerButtonProps {
     label?: string;
     allowedType?: 'image' | 'audio' | 'all';
     onlyImage?: boolean;
+    context: "challenge" | "default"
 }
 
 const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');
@@ -21,7 +22,8 @@ export default function MediaPickerButton({
                                               onChange,
                                               label = 'Vybrat soubor',
                                               allowedType,
-                                              onlyImage
+                                              onlyImage,
+                                              context = "default"
                                           }: MediaPickerButtonProps) {
     const [open, setOpen] = useState(false);
     const audio = value ? isAudio(value.mime_type) : false;
@@ -38,34 +40,36 @@ export default function MediaPickerButton({
                         ${audio ? 'bg-gray-100 flex flex-col items-center justify-center gap-2 p-3' : ''}`}>
                         {audio ? (
                             <>
-                                <RiMusic2Line className="text-4xl text-gray-400" />
+                                <RiMusic2Line className="text-4xl text-gray-400"/>
                                 <span className="text-[11px] text-gray-500 text-center break-all line-clamp-3">
                                     {value.filename}
                                 </span>
                             </>
                         ) : (
-                            <img src={getStorageUrl(value.path)} alt={value.filename} className="w-full h-full object-cover" />
+                            <img src={getStorageUrl(value.path)} alt={value.filename}
+                                 className="w-full h-full object-cover"/>
                         )}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                        <div
+                            className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
                             <button type="button" onClick={() => setOpen(true)}
                                     className="px-3 py-1.5 bg-white text-gray-800 text-xs font-medium rounded-lg shadow hover:bg-gray-50 transition">
                                 Změnit
                             </button>
                             <button type="button" onClick={() => onChange(null)}
                                     className="flex items-center justify-center w-7 h-7 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition">
-                                <RiCloseLine size={14} />
+                                <RiCloseLine size={14}/>
                             </button>
                         </div>
                     </div>
                 ) : (
                     <button type="button" onClick={() => setOpen(true)}
                             className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-white border-2 border-dashed border-gray-300 rounded-xl hover:border-green-700 hover:text-emerald-600 hover:bg-emerald-50/40 transition-all">
-                        <RiImageAddLine size={18} />
+                        <RiImageAddLine size={18}/>
                         {label}
                     </button>
                 )}
                 {value && audio && (
-                    <audio controls src={getStorageUrl(value.path)} className="w-40 h-8" />
+                    <audio controls src={getStorageUrl(value.path)} className="w-40 h-8"/>
                 )}
                 {value && <p className="text-xs text-gray-400 truncate max-w-40">{value.filename}</p>}
             </div>
@@ -75,6 +79,7 @@ export default function MediaPickerButton({
                 onSelect={onChange}
                 selected={value?.id ?? null}
                 allowedType={resolvedAllowedType}
+                context={context}
             />
         </>
     );

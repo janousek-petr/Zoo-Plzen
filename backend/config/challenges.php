@@ -46,10 +46,10 @@ return [
             "max" => 20,
             "reward" => 9
         ],
-        'region_quizzes' => [
+        'region_quiz_completed' => [
             'type' => 'region_quiz_completed',
             'title' => 'Průzkumník oblastí',
-            'description' => 'Dokonči {count} kvízů v oblasti "{region}".',
+            'description' => 'Dokonči {count} kvízů v oblasti "{region}". (Musíš mít 80% otázek správně.)',
             "code_pattern" => "quiz_{count}_region_{region_id}",
             "min" => 5,
             "max" => 20,
@@ -58,7 +58,7 @@ return [
         'quiz_completed' => [
             'type' => 'quiz_completed',
             'title' => 'Bystrý žák',
-            'description' => 'Dokonči {count} kvízů.',
+            'description' => 'Dokonči {count} kvízů. (Musíš mít 80% otázek správně.)',
             "code_pattern" => "complete_{count}_quiz",
             "min" => 5,
             "max" => 20,
@@ -73,7 +73,7 @@ return [
     */
     'daily' => [
         [
-            'templates' => 'region_quizzes', // Odkaz na klíč v sekci 'template'
+            'templates' => 'region_quiz_completed', // Odkaz na klíč v sekci 'template'
             'description' => 'Dokonči {count} kvíz v oblasti "{region}".',
             'min' => 1,
             'max' => 1,
@@ -107,7 +107,7 @@ return [
     */
     'weekly' => [
         [
-            'templates' => 'region_quizzes',
+            'templates' => 'region_quiz_completed',
             'min' => 5,
             'max' => 8,
             'reward' => 15,

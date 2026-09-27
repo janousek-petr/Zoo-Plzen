@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('challenge_region_image', function (Blueprint $table) {
+        Schema::create('challenge_image', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('region_id')->constrained('region');
-            $table->string('url');
+            $table->foreignId('region_id')->nullable()->constrained('region')->nullOnDelete();
+            $table->foreignId('media_id')->constrained('media');
             $table->string('title')->nullable();
-            $table->string('alt');
-            $table->enum('side', ['left', 'right']);
+            $table->string('alt')->default('Obrázek výzvy');
+            $table->enum('side', ['left', 'right', 'both'])->default('right');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('challenge_region_image');
+        Schema::dropIfExists('challenge_image');
     }
 };

@@ -2,11 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Quiz; // Předpokládám, že model existuje
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
-use Database\Seeders\UserSeeder;
+
 
 class DatabaseSeeder extends Seeder
 {
@@ -29,6 +26,8 @@ class DatabaseSeeder extends Seeder
             ItemCategorySeeder::class,
             RegionInfoSeeder::class,
             UserSeeder::class,
+            ChallengeTemplateSeeder::class,
+            ChallengeImageSeeder::class,
         ]);
     }
 }
