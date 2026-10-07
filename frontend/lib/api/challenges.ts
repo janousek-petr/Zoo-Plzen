@@ -7,7 +7,7 @@ type ChallengeType = {
     reward: number,
     valid_until: string,
     media_id: number | null,
-    animalSrc: string,
+    animalSrc: string | null,
     animalAlt: string,
     animalSide: string,
     bgColor: string,

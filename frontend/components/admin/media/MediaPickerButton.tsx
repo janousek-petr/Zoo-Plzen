@@ -12,7 +12,7 @@ interface MediaPickerButtonProps {
     label?: string;
     allowedType?: 'image' | 'audio' | 'all';
     onlyImage?: boolean;
-    context: "challenge" | "default"
+    context?: "challenge" | "default"
 }
 
 const isAudio = (mime?: string) => !!mime && mime.startsWith('audio/');

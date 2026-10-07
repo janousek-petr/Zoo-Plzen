@@ -1,4 +1,3 @@
-import MediaPage from "@/components/admin/MediaPage"
 import ItemList from "@/components/admin/item/ItemList"
 import Header from "@/components/admin/Header"
 
