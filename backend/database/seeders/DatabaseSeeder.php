@@ -26,8 +26,8 @@ class DatabaseSeeder extends Seeder
             ItemCategorySeeder::class,
             RegionInfoSeeder::class,
             UserSeeder::class,
-            ChallengeTemplateSeeder::class,
-            ChallengeImageSeeder::class,
+            //ChallengeTemplateSeeder::class,
+            //ChallengeImageSeeder::class,
         ]);
     }
 }

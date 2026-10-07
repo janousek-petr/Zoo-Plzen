@@ -34,10 +34,13 @@ export default function AdminChallengesPage() {
     const [generating, setGenerating] = useState<boolean>(false);
 
     // Při změně dat v useChallenges aktualizujeme lokální stav
+    // TODO: odstranit přetypování, až bude useChallenges správně otypovaný
     useEffect(() => {
-        if (data) {
-            setWeeklyChallenges(data.weeklyChallenges || []);
-            setDailyTasks(data.dailyTasks || []);
+        const challengesData = data as { weeklyChallenges?: any[]; dailyTasks?: any[] } | null;
+
+        if (challengesData) {
+            setWeeklyChallenges(challengesData.weeklyChallenges || []);
+            setDailyTasks(challengesData.dailyTasks || []);
         }
     }, [data]);
 

@@ -15,7 +15,7 @@ import {
 export default function MyAccountPage() {
     const { user, clearLocalAuth} = useAuthContext();
     const router = useRouter();
-    const date = new Date(user?.created_at)
+    const date = user?.created_at ? new Date(user.created_at) : null;
 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -54,10 +54,13 @@ export default function MyAccountPage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Po této kontrole TypeScript ví, že user.id je number
+        if (!user || user.id === undefined) return;
+
         setLoading(true);
         setError(null);
         try {
-            userService.update(user?.id, formData)
+            await userService.update(user.id, formData);
             setIsEditing(false);
         } catch (error) {
             console.log("Chyba v úpravě údajů: ", error);
@@ -68,12 +71,14 @@ export default function MyAccountPage() {
     };
 
     const handleDeleteClick = async () => {
+        if (!user || user.id === undefined) return;
+
         if (confirm("Opravdu chcete smazat svůj účet? Smažou se všechny profily vytvořené na Vašem účtu. Tato akce je nevratná!")) {
             try {
                 setLoading(true);
                 setError(null);
-                userService.destroy(user?.id)
-                clearLocalAuth()
+                await userService.destroy(user.id);
+                clearLocalAuth();
                 router.push("/prihlaseni");
             } catch (error) {
                 console.error("Nepodařilo se smazat účet:", error);
@@ -175,7 +180,9 @@ export default function MyAccountPage() {
                             </div>
                             <div className="flex flex-col gap-1">
 
-                                <p className={"text-sm font-bold text-gray-700"}>Datum vytvoření účtu: {date.toLocaleDateString()}</p>
+                                <p className={"text-sm font-bold text-gray-700"}>
+                                    Datum vytvoření účtu: {date ? date.toLocaleDateString("cs-CZ") : "-"}
+                                </p>
                             </div>
                         </div>
                     </div>
