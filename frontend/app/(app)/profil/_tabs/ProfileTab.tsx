@@ -61,65 +61,71 @@ export default function ProfileTab() {
   const wallpapersCount  = countFor(CATEGORY_WALLPAPER);
   const photosCount      = countFor(CATEGORY_PHOTO);
 
-  return (
-    <>
-      {/* Avatar + jméno */}
-      <div className="flex md:flex-row flex-col justify-center items-center gap-10">
-        <div className="relative">
-          <div className="relative w-50 h-50 rounded-full overflow-hidden bg-gray-200">
-            {selectedAvatar && (
-              <Image
-                src={selectedAvatarSrc}
-                alt={`Profilová fotka ${profile.first_name}`}
-                fill
-                className="object-cover"
-              />
-            )}
-          </div>
-          {/* Level badge */}
-          <div className="absolute bottom-0 right-0 flex items-center justify-center bg-yellow-400 rounded-full w-16 h-16 shadow-lg">
-            <span className="font-bold text-2xl text-gray-800">{profile.level}</span>
-          </div>
-          {/* Doplněk */}
-          {selectedAccessory && (
-            <div className="absolute top-0 right-0 w-16 h-16 rotate-30">
-              <div className="relative w-full h-full">
-                <Image
-                    src={selectedAccessorySrc}
-                    alt="Hat"
-                    fill
-                    className="object-contain"
-                />
-              </div>
-            </div>
+return (
+  <>
+    {/* Avatar + jméno */}
+    <div className="flex flex-col md:flex-row justify-center items-center gap-6 md:gap-10 px-4">
+      <div className="relative shrink-0">
+        <div className="relative w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden bg-gray-200">
+          {selectedAvatar && (
+            <Image
+              src={selectedAvatarSrc}
+              alt={`Profilová fotka ${profile.first_name}`}
+              fill
+              sizes="(min-width: 768px) 192px, 144px"
+              className="object-cover"
+            />
           )}
         </div>
 
-        <div className="text-start">
-          <h1 className="text-8xl cus-font-impacted-2 uppercase leading-none text-sky-600">
-            {profile.nickname}
-          </h1>
+        {/* Level badge */}
+        <div className="absolute bottom-0 right-0 flex items-center justify-center bg-yellow-400 rounded-full w-12 h-12 md:w-16 md:h-16 shadow-lg">
+          <span className="font-bold text-xl md:text-2xl text-gray-800">{profile.level}</span>
         </div>
+
+        {/* Doplněk */}
+        {selectedAccessory && (
+          <div className="absolute top-0 right-0 w-12 h-12 md:w-16 md:h-16 rotate-[30deg]">
+            <div className="relative w-full h-full">
+              <Image
+                src={selectedAccessorySrc}
+                alt="Hat"
+                fill
+                sizes="64px"
+                className="object-contain"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* XP bar */}
-      <div className="flex justify-center my-10 px-4">
+      <div className="min-w-0 text-center md:text-start">
+        <h1 className="text-4xl sm:text-5xl lg:text-7xl xl:text-8xl cus-font-impacted-2 uppercase leading-none text-sky-600 break-words">
+          {profile.nickname}
+        </h1>
+      </div>
+    </div>
+
+    {/* XP bar */}
+    <div className="flex justify-center my-8 md:my-10 px-4">
+      <div className="w-full max-w-xl min-w-0">
         <ExperienceBar
           level={profile.level}
           currentXp={profile.xp}
           nextLevelXp={xpMax}
         />
       </div>
+    </div>
 
-      {/* Statistiky — vlastněno / celkem existující v kategorii */}
-      <div className="grid md:grid-cols-2 gap-x-15 gap-y-10 justify-self-center">
-        <StatCard label="Profilovky" current={avatarsCount.current}     total={avatarsCount.total}     bgColor="bg-sky-600"   />
-        <StatCard label="Doplňky"    current={accessoriesCount.current} total={accessoriesCount.total} bgColor="bg-red-500"   />
-        <StatCard label="Tapety"     current={wallpapersCount.current}  total={wallpapersCount.total}  bgColor="cus-bg-beige" />
-        <StatCard label="Fotky"      current={photosCount.current}      total={photosCount.total}      bgColor="bg-green-700" />
-      </div>
-    </>
-  );
+    {/* Statistiky */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-x-8 sm:gap-y-10 w-full max-w-3xl mx-auto px-4">
+      <div className="min-w-0"><StatCard label="Profilovky" current={avatarsCount.current} total={avatarsCount.total} bgColor="bg-sky-600"/></div>
+      <div className="min-w-0"><StatCard label="Doplňky" current={accessoriesCount.current} total={accessoriesCount.total} bgColor="bg-red-500"/></div>
+      <div className="min-w-0"><StatCard label="Tapety" current={wallpapersCount.current} total={wallpapersCount.total}  bgColor="cus-bg-beige" /></div>
+      <div className="min-w-0"><StatCard label="Fotky" current={photosCount.current} total={photosCount.total} bgColor="bg-green-700" /></div>
+    </div>
+  </>
+);
 }
 
 function ProfileSkeleton() {

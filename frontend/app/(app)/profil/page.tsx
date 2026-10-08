@@ -29,7 +29,7 @@ export default function Profile() {
   }, [searchParams]);
 
   return (
-    <main className="py-20">
+    <main className="py-10 md:py-20 overflow-x-hidden">
       <div className="pb-5">
         <SlidingTabBar
           tabs={tabs}
