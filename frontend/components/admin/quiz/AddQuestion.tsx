@@ -74,7 +74,7 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
 
     // Pro select a image_select: pouze jedna správná odpověď (radio chování)
     const handleCorrectToggle = (index: number) => {
-        if (categoryName === 'select' || categoryName === 'image_select') {
+        if (categoryName === 'select' || categoryName === 'image_select' || categoryName === 'audio_select') {
             setAnswers(prev => prev.map((a, i) => ({ ...a, is_correct: i === index })))
         } else {
             setAnswers(prev => prev.map((a, i) => i === index ? { ...a, is_correct: !a.is_correct } : a))
@@ -84,6 +84,8 @@ export default function AddQuestion({ quizId }: { quizId: number }) {
     const addAnswer = () => {
         if (categoryName === 'image_select') {
             setAnswers(prev => [...prev, { text: '', is_correct: false, image: null }])
+        } else if (categoryName === 'audio_select') {
+            setAnswers(prev => [...prev, { text: '', is_correct: false, audio: null }])
         } else {
             setAnswers(prev => [...prev, { text: '', is_correct: false }])
         }
