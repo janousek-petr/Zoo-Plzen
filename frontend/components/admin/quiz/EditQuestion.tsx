@@ -96,6 +96,7 @@ export default function EditQuestion({ quizId, question }: Props) {
             setAnswers([
                 { text: '', is_correct: false, image: null },
                 { text: '', is_correct: false, image: null },
+                { text: '', is_correct: false, image: null },
             ])
         } else if (newCat?.name === 'audio_select') {
             setAnswers([
@@ -110,7 +111,11 @@ export default function EditQuestion({ quizId, question }: Props) {
     }
 
     const handleCorrectToggle = (index: number) => {
-        if (categoryName === 'select' || categoryName === 'image_select') {
+        if (
+            categoryName === 'select' ||
+            categoryName === 'image_select' ||
+            categoryName === 'audio_select'
+        ) {
             setAnswers(prev => prev.map((a, i) => ({ ...a, is_correct: i === index })))
         } else {
             setAnswers(prev => prev.map((a, i) => i === index ? { ...a, is_correct: !a.is_correct } : a))
@@ -120,6 +125,8 @@ export default function EditQuestion({ quizId, question }: Props) {
     const addAnswer = () => {
         if (categoryName === 'image_select') {
             setAnswers(prev => [...prev, { text: '', is_correct: false, image: null }])
+        } else if (categoryName === 'audio_select') {
+            setAnswers(prev => [...prev, { text: '', is_correct: false, audio: null }])
         } else {
             setAnswers(prev => [...prev, { text: '', is_correct: false }])
         }
