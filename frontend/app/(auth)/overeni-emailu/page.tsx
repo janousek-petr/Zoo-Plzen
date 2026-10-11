@@ -3,7 +3,13 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { RiAlertLine, RiCheckLine, RiInformationLine, RiMailSendLine } from "react-icons/ri";
+import {
+    RiAlertLine,
+    RiCheckLine,
+    RiInformationLine,
+    RiMailSendLine,
+    RiLogoutBoxRLine
+} from "react-icons/ri";
 import useAuth from "@/hooks/useAuth";
 import { useAuthContext } from "@/contexts/AuthContext";
 
@@ -11,7 +17,7 @@ export default function VerifyEmailPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const { resendVerificationEmail} = useAuth();
+    const { resendVerificationEmail, logout } = useAuth();
     const { isVerified, user, isLoading } = useAuthContext();
 
     const verify = searchParams.get("verify") === "true";
@@ -32,21 +38,6 @@ export default function VerifyEmailPage() {
 
         return () => clearInterval(timer);
     }, [timeLeft]);
-
-    // Kontrola přihlášení a ověření
-    useEffect(() => {
-        if (isLoading) return;
-
-        if (!user) {
-            router.replace("/prihlaseni");
-            return;
-        }
-
-        if (isVerified) {
-            router.replace("/zvoleni-profilu");
-            return;
-        }
-    }, [user, isVerified, isLoading, router]);
 
     // Funkce pro opetovné zaslání e-mailu
     const handleResend = async () => {
@@ -76,11 +67,11 @@ export default function VerifyEmailPage() {
             hasRefSent.current = true;
             // Okamžitě klíč smaže, aby se při dalším F5 e-mail znovu neposílal
             sessionStorage.removeItem("pendingEmailResend");
-            handleResend().then(r => setResendStatus("idle"));
+            handleResend().then(() => setResendStatus("idle"));
         }
     }, [user, isVerified, isLoading, handleResend]);
 
-    if (isLoading || !user || isVerified) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
                 <p className="text-xl text-gray-500 uppercase cus-font-impacted">Načítám...</p>
@@ -164,26 +155,58 @@ export default function VerifyEmailPage() {
                 </div>
             )}
 
-            {/* Tlačítko s časovačem */}
+            {/* Tlačítko pro opětovné odeslání a Odhlášení */}
             {!verify && (
-                <div className="w-full max-w-sm mx-auto text-center pt-2">
-                    <p className="text-sm text-gray-600 mb-2">
-                        Nedorazil Vám e-mail? Zkontrolujte složku Spam nebo pošlete nový.
-                    </p>
+                <div className="w-full max-w-sm mx-auto text-center pt-2 space-y-4">
+                    <div>
+                        <p className="text-sm text-gray-600 mb-2">
+                            Nedorazil Vám e-mail? Zkontrolujte složku Spam nebo pošlete nový.
+                        </p>
 
-                    <button
-                        type="button"
-                        onClick={handleResend}
-                        disabled={timeLeft > 0 || sending || verify}
-                        className="inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium w-full"
-                    >
-                        <RiMailSendLine className="w-4 h-4" />
-                        {sending
-                            ? "Odesílám..."
-                            : timeLeft > 0
-                                ? `Znovu odeslat za ${timeLeft}s`
-                                : "Znovu odeslat e-mail"}
-                    </button>
+                        <button
+                            type="button"
+                            onClick={handleResend}
+                            disabled={timeLeft > 0 || sending || verify}
+                            className="inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium w-full"
+                        >
+                            <RiMailSendLine className="w-4 h-4" />
+                            {sending
+                                ? "Odesílám..."
+                                : timeLeft > 0
+                                    ? `Znovu odeslat za ${timeLeft}s`
+                                    : "Znovu odeslat e-mail"}
+                        </button>
+                    </div>
+
+                    <div className="pt-4 border-t border-gray-200 space-y-3">
+                        {/* Nápověda nad tlačítkem */}
+                        <div className="space-y-1 text-center">
+                            <p className="font-bold text-gray-800 text-sm">
+                                Zadal/a jste špatný e-mail?
+                            </p>
+                            <p className="text-xs text-gray-600 leading-relaxed">
+                                Odhlaste se z tohoto účtu a vytvořte si novou registraci se správnou adresou.
+                            </p>
+                        </div>
+
+                        {/* Tlačítko pro odhlášení */}
+                        <button
+                            type="button"
+                            onClick={logout}
+                            className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors text-sm font-medium w-full"
+                        >
+                            <RiLogoutBoxRLine className="w-4 h-4" />
+                            Odhlásit se
+                        </button>
+
+                        {/* Informační karta přihlášeného uživatele pod tlačítkem */}
+                        <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 text-center text-xs">
+                            <p className="font-semibold text-gray-800">
+                                Přihlášen jako: {user.first_name} {user.last_name}
+                            </p>
+                            <p className="text-gray-500 break-all">{user.email}</p>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
