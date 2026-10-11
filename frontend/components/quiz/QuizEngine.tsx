@@ -11,6 +11,7 @@ import QuizIntro from "./QuizIntro";
 import QuizAudioPlayer from "./QuizAudioPlayer";
 import {getStorageUrl} from "@/lib/api/media";
 import {FiLogOut, FiPlay, FiPause} from "react-icons/fi";
+import AudioReadButton from "@/components/common/AudioReadButton";
 
 interface Props {
     questions: Question[];
@@ -53,11 +54,11 @@ function AnswerAudioButton({src, color}: { src: string; color: string }) {
                     if (e.key === "Enter" || e.key === " ") toggle(e);
                 }}
                 aria-label={playing ? "Pozastavit" : "Přehrát"}
-                className="flex items-center justify-center w-14 h-14 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer"
+                className="flex items-center justify-center w-30 h-30 rounded-full shadow-md transition-transform active:scale-95 cursor-pointer"
                 style={{backgroundColor: color}}
             >
-                {playing ? <FiPause size={22} className="text-white"/> :
-                    <FiPlay size={22} className="text-white ml-0.5"/>}
+                {playing ? <FiPause size={42} className="text-white"/> :
+                    <FiPlay size={42} className="text-white ml-1"/>}
             </div>
         </div>
     );
@@ -170,21 +171,31 @@ export default function QuizEngine(
                 </div>
             </header>
 
-            {/* Otázka */}
-            <p className="text-center text-3xl max-w-sm mb-4 px-2 cus-font-impacted my-4">
-                {currentQuestion.text}
-            </p>
+            {/* Otázka + Tlačítko pro přečtení */}
+            <div className="flex items-center justify-center gap-3 my-4 max-w-sm px-2">
+                <p className="text-center text-3xl cus-font-impacted">
+                    {currentQuestion.text}
+                </p>
+                <AudioReadButton text={currentQuestion.text} color={regionColor} />
+            </div>
 
             {/* Obrázek otázky — zobrazí se u klasických otázek, pokud existuje obrázek */}
             {currentQuestion.image && (
                 <div className="relative w-full max-w-sm h-56 my-4 shrink-0">
                     <Image
                         src={getStorageUrl(currentQuestion.image)}
-                        alt="Obrázek otázky"
+                        alt={currentQuestion.text || "Obrázek otázky"}
                         fill
                         className="object-contain"
                         priority
                     />
+                    <div className="absolute bottom-2 right-2 z-10">
+                        <AudioReadButton
+                            text={currentQuestion.text || "Obrázek k otázce"}
+                            color={regionColor}
+                            size={18}
+                        />
+                    </div>
                 </div>
             )}
 
@@ -221,16 +232,26 @@ export default function QuizEngine(
                         }
 
                         return (
-                            <button
-                                key={answer.id}
-                                type="button"
-                                onClick={() => answer.id && handleOptionClick(answer.id)}
-                                disabled={hasAnswered}
-                                className={`flex items-center gap-3 px-4 py-3 rounded-md font-semibold text-left transition-all text-lg ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
-                            >
-                                <span className={`w-4 h-4 rounded-full shrink-0 border-2 border-white shadow ${dot}`}/>
-                                {answer.text}
-                            </button>
+                            <div key={answer.id} className="flex items-center gap-2 w-full">
+                                <button
+                                    type="button"
+                                    onClick={() => answer.id && handleOptionClick(answer.id)}
+                                    disabled={hasAnswered}
+                                    className={`flex-1 flex items-center gap-3 px-4 py-3 rounded-md font-semibold text-left transition-all text-lg ${bg} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                                >
+                                    <span className={`w-4 h-4 rounded-full shrink-0 border-2 border-white shadow ${dot}`}/>
+                                    <span className="truncate">{answer.text}</span>
+                                </button>
+
+                                {/* Zvukové tlačítko VEDLE tlačítka odpovědi */}
+                                {answer.text && (
+                                    <AudioReadButton
+                                        text={answer.text}
+                                        color={regionColor || "#374151"}
+                                        size={18}
+                                    />
+                                )}
+                            </div>
                         );
                     })}
                 </div>
@@ -286,31 +307,46 @@ export default function QuizEngine(
                         const hasAudio = !!answer.audio;
                         if (hasAudio) bg = "bg-[#f0ece4]";
 
+                        // Text, který se má přečíst u obrázku
+                        const imageAltText = answer.text || "Obrázek odpovědi";
+
                         return (
-                            <button
-                                key={answer.id}
-                                type="button"
-                                onClick={() => answer.id && handleOptionClick(answer.id)}
-                                disabled={hasAnswered}
-                                className={`relative rounded-2xl overflow-hidden border-4 ${bg} shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
-                                style={{aspectRatio: "3/4"}}
-                            >
-                                {hasAudio ? (
-                                    <AnswerAudioButton
-                                        src={getStorageUrl(answer.audio)}
-                                        color={regionColor || "#374151"}
-                                    />
-                                ) : answer.image ? (
-                                    <Image
-                                        src={getStorageUrl(answer.image)}
-                                        alt={answer.text ?? "Obrázek odpovědi"}
-                                        fill
-                                        className="object-contain p-2"
-                                    />
-                                ) : (
-                                    <span className="p-2 font-semibold text-gray-700">{answer.text}</span>
+                            <div key={answer.id} className="relative flex flex-col items-center">
+                                <button
+                                    type="button"
+                                    onClick={() => answer.id && handleOptionClick(answer.id)}
+                                    disabled={hasAnswered}
+                                    className={`relative w-full rounded-2xl overflow-hidden border-4 ${bg} shadow-sm transition-all ${border} ${opacity} ${!hasAnswered ? "cursor-pointer" : "cursor-default"}`}
+                                    style={{ aspectRatio: "3/4" }}
+                                >
+                                    {hasAudio ? (
+                                        <AnswerAudioButton
+                                            src={getStorageUrl(answer.audio)}
+                                            color={regionColor || "#374151"}
+                                        />
+                                    ) : answer.image ? (
+                                        <Image
+                                            src={getStorageUrl(answer.image)}
+                                            alt={imageAltText}
+                                            fill
+                                            className="object-contain p-2"
+                                        />
+                                    ) : (
+                                        <span className="p-2 font-semibold text-gray-700">{answer.text}</span>
+                                    )}
+                                </button>
+
+                                {/* Zvukové tlačítko pod nebo nad obrázkem (přečte ALT text obrázku) */}
+                                {answer.image && !hasAudio && imageAltText && (
+                                    <div className="absolute top-2 right-2 z-10">
+                                        <AudioReadButton
+                                            text={imageAltText}
+                                            color={regionColor || "#374151"}
+                                            size={16}
+                                        />
+                                    </div>
                                 )}
-                            </button>
+                            </div>
                         );
                     })}
                 </div>
