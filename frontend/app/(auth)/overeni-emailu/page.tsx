@@ -93,7 +93,7 @@ export default function VerifyEmailPage() {
                     >
                         <RiInformationLine className="w-4 h-4 mt-0.5 shrink-0" />
                         <span>
-                            Pro přístup do aplikace musíme ověřit Vaší e-mailovou adresu <b>{user.email}</b>. Zaslali jsme Vám na e-mailovou adresu odkaz na ověření e-mailu. Prosím, otevřete tento odkaz pro přístup k aplikaci do 60 minut.
+                            Pro přístup do aplikace musíme ověřit Vaší e-mailovou adresu <b>{user?.email}</b>. Zaslali jsme Vám na e-mailovou adresu odkaz na ověření e-mailu. Prosím, otevřete tento odkaz pro přístup k aplikaci do 60 minut.
                         </span>
                     </div>
                 </div>
@@ -200,11 +200,11 @@ export default function VerifyEmailPage() {
                         </button>
 
                         {/* Informační karta přihlášeného uživatele pod tlačítkem */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 text-center text-xs">
+                        <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 text-center text-xs">¨
                             <p className="font-semibold text-gray-800">
-                                Přihlášen jako: {user.first_name} {user.last_name}
+                                Přihlášen jako: {user?.first_name} {user?.last_name}
                             </p>
-                            <p className="text-gray-500 break-all">{user.email}</p>
+                            <p className="text-gray-500 break-all">{user?.email}</p>
                         </div>
                     </div>
                 </div>
