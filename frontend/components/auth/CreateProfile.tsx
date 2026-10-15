@@ -154,7 +154,11 @@ export default function CreateProfile() {
                             type="text"
                             className="cus-auth-input"
                             value={firstName}
-                            onChange={(e) => setFirstName(e.target.value)}
+                            onChange={(e) => {
+                                // Zachová pouze písmena z UTF-8 (\p{L}), mezery (\s) a pomlčky (-)
+                                const filteredValue = e.target.value.replace(/[^\p{L}\s-]/gu, '');
+                                setFirstName(filteredValue.trim());
+                            }}
                             placeholder="Např. Eliška"
                             autoFocus
                             required
@@ -166,7 +170,11 @@ export default function CreateProfile() {
                             type="text"
                             className="cus-auth-input"
                             value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            onChange={(e) => {
+                                // Zachová pouze písmena z UTF-8 (\p{L}), mezery (\s) a pomlčky (-)
+                                const filteredValue = e.target.value.replace(/[^\p{L}\s-]/gu, '');
+                                setLastName(filteredValue.trim());
+                            }}
                             placeholder="Např. Nováková"
                             required
                         />
