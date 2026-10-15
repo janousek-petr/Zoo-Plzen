@@ -27,8 +27,18 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'email:rfc,strict'],
             'password' => ['required', 'string'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'E-mailová adresa je povinná.',
+            'email.email' => 'Prosím zadejte platný e-mail.',
+            'email.strict' => 'Formát e-mailu není podporován.',
+            'password.required' => 'Musíte zadat heslo.',
         ];
     }
 
