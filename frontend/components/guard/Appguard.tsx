@@ -1,67 +1,44 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
 
 export default function AppGuard({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isLoading, activeProfile, isVerified } = useAuthContext();
+    const { user, isAuthenticated, isLoading, isVerified, activeProfile } = useAuthContext();
     const router = useRouter();
-    const pathname = usePathname();
-    const isVerifyPage = pathname.startsWith("/overeni-emailu");
+
+    const isAdmin = user?.role === "admin";
+    const waitingForUser = isAuthenticated && !user;
 
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || waitingForUser) return;
 
+        // 1. Nepřihlášený -> přihlášení
         if (!isAuthenticated) {
             router.replace("/prihlaseni");
             return;
         }
 
-        if (!isVerified && !isVerifyPage) {
+        // 2. Neověřený e-mail -> ověření
+        if (!isVerified) {
             router.replace("/overeni-emailu");
             return;
         }
 
-        if (isVerified && !activeProfile) {
+        // 3. Admin je výjimka, profil nepotřebuje
+        if (isAdmin) return;
+
+        // 4. Bez vybraného profilu -> výběr profilu
+        if (!activeProfile) {
             router.replace("/zvoleni-profilu");
-            return;
         }
+    }, [isLoading, waitingForUser, isAuthenticated, isVerified, isAdmin, activeProfile, router]);
 
-        if (isVerified && activeProfile && isVerifyPage) {
-            router.replace("/domov");
-            return;
-        }
-    }, [isLoading, isAuthenticated, isVerified, activeProfile, isVerifyPage, router]);
-
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <p className="text-xl text-gray-500 uppercase cus-font-impacted">Načítám...</p>
-            </div>
-        );
-    }
-
+    if (isLoading || waitingForUser) return null;
     if (!isAuthenticated) return null;
-
-    // Logika pro stránku /overeni-emailu uvnitř (app)
-    if (isVerifyPage) {
-        if (!isVerified) return <>{children}</>;
-
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <p className="text-xl text-gray-500 uppercase cus-font-impacted">Přesměrovávám...</p>
-            </div>
-        );
-    }
-
-    if (!isVerified || !activeProfile) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <p className="text-xl text-gray-500 uppercase cus-font-impacted">Přesměrovávám...</p>
-            </div>
-        );
-    }
+    if (!isVerified) return null;
+    if (!isAdmin && !activeProfile) return null;
 
     return <>{children}</>;
 }

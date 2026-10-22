@@ -9,13 +9,17 @@ import {
     RiDeleteBinLine,
     RiArrowLeftLine,
     RiSaveLine,
-    RiCloseLine, RiAlertLine,
+    RiCloseLine,
+    RiAlertLine,
 } from "react-icons/ri";
 
 export default function MyAccountPage() {
-    const { user, clearLocalAuth} = useAuthContext();
+    const { user, clearLocalAuth, refreshUser, activeProfile, isLoading } = useAuthContext();
     const router = useRouter();
     const date = user?.created_at ? new Date(user.created_at) : null;
+
+    // Pokud je vybraný profil, do úpravy uživatele se nesmí (platí i pro admina)
+    const blockedByProfile = !!activeProfile;
 
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -25,6 +29,14 @@ export default function MyAccountPage() {
         last_name: "",
         email: "",
     });
+
+    // Ochrana: s vybraným profilem přesměrovat pryč z úpravy účtu
+    useEffect(() => {
+        if (isLoading) return;
+        if (blockedByProfile) {
+            router.replace("/");
+        }
+    }, [isLoading, blockedByProfile, router]);
 
     // Synchronizace dat uživatele do formuláře
     useEffect(() => {
@@ -37,13 +49,16 @@ export default function MyAccountPage() {
         }
     }, [user]);
 
+    // Hooky končí tady, teprve teď smí přijít předčasný return
+    if (isLoading || !user) return null;
+    if (blockedByProfile) return null;
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
         setFormData((prev) => ({ ...prev, [id]: value }));
     };
 
     const handleCancel = () => {
-        // Vrátí původní hodnoty ze stávajícího uživatele
         setFormData({
             first_name: user?.first_name || "",
             last_name: user?.last_name || "",
@@ -54,13 +69,13 @@ export default function MyAccountPage() {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Po této kontrole TypeScript ví, že user.id je number
         if (!user || user.id === undefined) return;
 
         setLoading(true);
         setError(null);
         try {
             await userService.update(user.id, formData);
+            await refreshUser();
             setIsEditing(false);
         } catch (error) {
             console.log("Chyba v úpravě údajů: ", error);
@@ -89,18 +104,26 @@ export default function MyAccountPage() {
         }
     };
 
+    const inputClass = (editing: boolean) =>
+        `border-2 rounded-lg px-4 py-2.5 text-gray-800 font-medium outline-none transition-colors ${
+            editing
+                ? "border-sky-500 bg-white focus:ring-2 focus:ring-sky-200"
+                : "border-gray-200 bg-gray-50 cursor-not-allowed"
+        }`;
+
     return (
-        <main className="py-20 flex flex-col justify-center items-center gap-4">
-            {error && (<div className="w-full max-w-md">
-                <div
-                    role="alert"
-                    aria-live="polite"
-                    className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-3 py-2 wrap-break-word"
-                >
-                    <RiAlertLine className="w-4 h-4 mt-0.5 shrink-0" />
-                    <span>{error}</span>
+        <div className="py-20 flex flex-col justify-center items-center gap-4">
+            {error && (
+                <div className="w-full max-w-md">
+                    <div
+                        role="alert"
+                        aria-live="polite"
+                        className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-3 py-2 wrap-break-word"
+                    >
+                        <RiAlertLine className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>{error}</span>
+                    </div>
                 </div>
-            </div>
             )}
 
             <div className="w-full max-w-md p-6 bg-white rounded-xl shadow-lg border border-gray-100">
@@ -117,7 +140,7 @@ export default function MyAccountPage() {
                     </button>
                 </div>
 
-                {/* Formulář osobnich udaju */}
+                {/* Formulář osobních údajů */}
                 <form onSubmit={handleSave}>
                     <div className="mb-8">
                         <h2 className="text-lg font-bold text-gray-800 mb-4">Osobní údaje</h2>
@@ -132,11 +155,7 @@ export default function MyAccountPage() {
                                     value={formData.first_name}
                                     onChange={handleChange}
                                     disabled={!isEditing || loading}
-                                    className={`border-2 rounded-lg px-4 py-2.5 text-gray-800 font-medium outline-none transition-colors ${
-                                        isEditing
-                                            ? "border-sky-500 bg-white focus:ring-2 focus:ring-sky-200"
-                                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
-                                    }`}
+                                    className={inputClass(isEditing)}
                                     required
                                 />
                             </div>
@@ -151,11 +170,7 @@ export default function MyAccountPage() {
                                     value={formData.last_name}
                                     onChange={handleChange}
                                     disabled={!isEditing || loading}
-                                    className={`border-2 rounded-lg px-4 py-2.5 text-gray-800 font-medium outline-none transition-colors ${
-                                        isEditing
-                                            ? "border-sky-500 bg-white focus:ring-2 focus:ring-sky-200"
-                                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
-                                    }`}
+                                    className={inputClass(isEditing)}
                                     required
                                 />
                             </div>
@@ -170,17 +185,13 @@ export default function MyAccountPage() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     disabled={!isEditing || loading}
-                                    className={`border-2 rounded-lg px-4 py-2.5 text-gray-800 font-medium outline-none transition-colors ${
-                                        isEditing
-                                            ? "border-sky-500 bg-white focus:ring-2 focus:ring-sky-200"
-                                            : "border-gray-200 bg-gray-50 cursor-not-allowed"
-                                    }`}
+                                    className={inputClass(isEditing)}
                                     required
                                 />
                             </div>
-                            <div className="flex flex-col gap-1">
 
-                                <p className={"text-sm font-bold text-gray-700"}>
+                            <div className="flex flex-col gap-1">
+                                <p className="text-sm font-bold text-gray-700">
                                     Datum vytvoření účtu: {date ? date.toLocaleDateString("cs-CZ") : "-"}
                                 </p>
                             </div>
@@ -223,7 +234,7 @@ export default function MyAccountPage() {
                                     type="button"
                                     onClick={handleDeleteClick}
                                     disabled={loading}
-                                    className="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                                    className="w-full sm:w-auto px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg uppercase tracking-wider text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                                 >
                                     <RiDeleteBinLine size={18} />
                                     Smazat účet
@@ -233,6 +244,6 @@ export default function MyAccountPage() {
                     </div>
                 </form>
             </div>
-        </main>
+        </div>
     );
 }
