@@ -18,15 +18,25 @@ export default function VerifyEmailPage() {
     const router = useRouter();
 
     const { resendVerificationEmail, logout } = useAuth();
-    const { isVerified, user, isLoading } = useAuthContext();
+    const { isVerified, user, isLoading, refreshUser } = useAuthContext();
 
+    const hasVerifyParam = searchParams.has("verify");
     const verify = searchParams.get("verify") === "true";
     const hasRefSent = useRef(false);
+    const hasRefreshed = useRef(false);
 
     // Stavy pro časovač a odesílání
     const [timeLeft, setTimeLeft] = useState(0);
     const [sending, setSending] = useState(false);
     const [resendStatus, setResendStatus] = useState<"idle" | "success" | "error">("idle");
+
+    // Po návratu z e-mailu (?verify=true) znovu načíst uživatele,
+    // aby kontext obsahoval aktuální email_verified_at
+    useEffect(() => {
+        if (isLoading || !verify || hasRefreshed.current) return;
+        hasRefreshed.current = true;
+        refreshUser();
+    }, [isLoading, verify, refreshUser]);
 
     // Odpočet sekund pro časovač
     useEffect(() => {
@@ -39,7 +49,7 @@ export default function VerifyEmailPage() {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
-    // Funkce pro opetovné zaslání e-mailu
+    // Funkce pro opětovné zaslání e-mailu
     const handleResend = async () => {
         if (timeLeft > 0 || sending) return;
 
@@ -50,14 +60,14 @@ export default function VerifyEmailPage() {
             await resendVerificationEmail();
             setResendStatus("success");
             setTimeLeft(60); // Spustí 60sekundový časovač
-        } catch (err) {
+        } catch {
             setResendStatus("error");
         } finally {
             setSending(false);
         }
     };
 
-    // Automatické zaslání e-mailu po přihlášení (?autoSend=true)
+    // Automatické zaslání e-mailu po přihlášení
     useEffect(() => {
         if (isLoading || !user || isVerified) return;
 
@@ -69,7 +79,13 @@ export default function VerifyEmailPage() {
             sessionStorage.removeItem("pendingEmailResend");
             handleResend().then(() => setResendStatus("idle"));
         }
-    }, [user, isVerified, isLoading, handleResend]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user, isVerified, isLoading]);
+
+    const handleLogout = async () => {
+        await logout();
+        router.replace("/prihlaseni");
+    };
 
     if (isLoading) {
         return (
@@ -84,7 +100,7 @@ export default function VerifyEmailPage() {
             <h1 className="cus-auth-title">Ověření e-mailu</h1>
 
             {/* Informační box o zaslaném e-mailu */}
-            {!searchParams.has("verify") && (
+            {!hasVerifyParam && (
                 <div className="w-full max-w-sm mx-auto">
                     <div
                         role="contentinfo"
@@ -100,7 +116,7 @@ export default function VerifyEmailPage() {
             )}
 
             {/* Výsledkový stav podle URL parametru verify */}
-            {searchParams.has("verify") && (
+            {hasVerifyParam && (
                 !verify ? (
                     <div className="w-full max-w-sm mx-auto">
                         <div
@@ -120,16 +136,12 @@ export default function VerifyEmailPage() {
                                 aria-live="polite"
                                 className="flex items-start gap-2 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md px-3 py-2 wrap-break-word"
                             >
-                                <RiCheckLine className="w-4 h-4 mt-0.5 shrink-0"/>
-                                <span>
-                                    Ověření e-mailu bylo úspěšné. Nyní můžete přejít do aplikace
-                                    <Link href={"/zvoleni-profilu"} className="underline text-green-700"> zde</Link>
-                                </span>
-
+                                <RiCheckLine className="w-4 h-4 mt-0.5 shrink-0" />
+                                <span>Ověření e-mailu bylo úspěšné.</span>
                             </div>
                         </div>
                         <p className="text-center">
-                            Zpět do aplikace<br/>
+                            Zpět do aplikace<br />
                             <Link href="/zvoleni-profilu" className="underline text-green-700">zde</Link>.
                         </p>
                     </>
@@ -155,7 +167,7 @@ export default function VerifyEmailPage() {
                 </div>
             )}
 
-            {/* Tlačítko pro opětovné odeslání a Odhlášení */}
+            {/* Tlačítko pro opětovné odeslání a odhlášení */}
             {!verify && (
                 <div className="w-full max-w-sm mx-auto text-center pt-2 space-y-4">
                     <div>
@@ -166,7 +178,7 @@ export default function VerifyEmailPage() {
                         <button
                             type="button"
                             onClick={handleResend}
-                            disabled={timeLeft > 0 || sending || verify}
+                            disabled={timeLeft > 0 || sending}
                             className="inline-flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium w-full"
                         >
                             <RiMailSendLine className="w-4 h-4" />
@@ -179,7 +191,6 @@ export default function VerifyEmailPage() {
                     </div>
 
                     <div className="pt-4 border-t border-gray-200 space-y-3">
-                        {/* Nápověda nad tlačítkem */}
                         <div className="space-y-1 text-center">
                             <p className="font-bold text-gray-800 text-sm">
                                 Zadal/a jste špatný e-mail?
@@ -189,18 +200,16 @@ export default function VerifyEmailPage() {
                             </p>
                         </div>
 
-                        {/* Tlačítko pro odhlášení */}
                         <button
                             type="button"
-                            onClick={logout}
+                            onClick={handleLogout}
                             className="inline-flex items-center justify-center gap-2 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors text-sm font-medium w-full"
                         >
                             <RiLogoutBoxRLine className="w-4 h-4" />
                             Odhlásit se
                         </button>
 
-                        {/* Informační karta přihlášeného uživatele pod tlačítkem */}
-                        <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 text-center text-xs">¨
+                        <div className="bg-gray-50 border border-gray-200 rounded-md p-2.5 text-center text-xs">
                             <p className="font-semibold text-gray-800">
                                 Přihlášen jako: {user?.first_name} {user?.last_name}
                             </p>

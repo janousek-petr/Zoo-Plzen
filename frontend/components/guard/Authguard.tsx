@@ -4,40 +4,63 @@ import { useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
-    const { isAuthenticated, isLoading, isVerified } = useAuthContext();
+const APP_HOME = "/domov";
+
+// Stránky v (auth), na které smí i uživatel s vybraným profilem
+const ALLOWED_WITH_PROFILE = ["/zvoleni-profilu"];
+
+export default function Authguard({ children }: { children: React.ReactNode }) {
+    const { user, isAuthenticated, isLoading, isVerified, activeProfile } = useAuthContext();
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
 
-    // Detekce, zda se uživatel nachází na stránce ověření e-mailu
-    const isVerifyPage = pathname.startsWith("/overeni-emailu");
+    const isVerifyPage = pathname?.startsWith("/overeni-emailu") ?? false;
     const verifyParam = searchParams.get("verify");
 
-    useEffect(() => {
-        if (isLoading) return;
+    const waitingForUser = isAuthenticated && !user;
 
-        // 1. Nepřihlášený uživatel -> přesměrovat na přihlášení
+    // Neověřený uživatel smí jen na stránku ověření (nebo s ?verify=...)
+    const mustVerify = isAuthenticated && !isVerified && !isVerifyPage && !verifyParam;
+
+    // Ověřený uživatel s profilem musí pryč z (auth), kromě povolených stránek.
+    // Zahrnuje i /overeni-emailu, takže ověřený s profilem jde rovnou do aplikace.
+    const isAllowedPage = ALLOWED_WITH_PROFILE.some((p) => pathname?.startsWith(p));
+    const mustLeaveAuth = isVerified && !!activeProfile && !isAllowedPage;
+
+    // Ověřený bez profilu nemá co dělat na stránce ověření
+    const verifiedOnVerifyPage = isVerified && !activeProfile && isVerifyPage;
+
+    useEffect(() => {
+        if (isLoading || waitingForUser) return;
+
         if (!isAuthenticated) {
             router.replace("/prihlaseni");
             return;
         }
-
-        // 2. Neověřený uživatel na běžné chráněné stránce -> přesměrovat na ověření e-mailu
-        if (!isVerified && !isVerifyPage && !verifyParam) {
+        if (mustVerify) {
             router.replace("/overeni-emailu");
             return;
         }
-
-        // 3. Již ověřený uživatel na stránce ověření -> přesměrovat do aplikace
-        if (isVerified && isVerifyPage) {
+        if (mustLeaveAuth) {
+            router.replace(APP_HOME);
+            return;
+        }
+        if (verifiedOnVerifyPage) {
             router.replace("/zvoleni-profilu");
             return;
         }
-    }, [isLoading, isAuthenticated, isVerified, isVerifyPage, router]);
+    }, [
+        isLoading,
+        waitingForUser,
+        isAuthenticated,
+        mustVerify,
+        mustLeaveAuth,
+        verifiedOnVerifyPage,
+        router,
+    ]);
 
-    // Pokud načítáme stav autentizace
-    if (isLoading) {
+    if (isLoading || waitingForUser) {
         return (
             <main className="md:my-30 my-20 flex items-center justify-center min-h-[50vh]">
                 <p className="text-xl text-gray-500 uppercase cus-font-impacted">Načítám...</p>
@@ -45,17 +68,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         );
     }
 
-    // Pokud uživatel není přihlášen (probíhá přesměrování na /prihlaseni)
     if (!isAuthenticated) return null;
+    if (mustVerify) return null;
+    if (mustLeaveAuth) return null;
+    if (verifiedOnVerifyPage) return null;
 
-    // Pokud neověřený uživatel zkouší jít na chráněnou stránku (probíhá přesměrování na /overeni-emailu)
-    if (!isVerified && !isVerifyPage) return null;
-
-    // Pokud již ověřený uživatel vstoupí na /overeni-emailu (probíhá přesměrování do aplikace)
-    if (isVerified && isVerifyPage) return null;
-
-    // Vykreslení obsahu pro:
-    // - Neověřeného přihlášeného uživatele na stránce /overeni-emailu
-    // - Ověřeného přihlášeného uživatele na jakékoliv jiné chráněné stránce
     return <main className="md:my-30 my-20">{children}</main>;
 }

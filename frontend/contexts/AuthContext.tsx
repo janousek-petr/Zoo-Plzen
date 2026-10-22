@@ -32,7 +32,7 @@ export function AuthProvider({children}: { children: ReactNode }) {
             return response.data;
         } catch {
             setUser(null);
-            return null
+            return null;
         }
     };
 
@@ -40,10 +40,26 @@ export function AuthProvider({children}: { children: ReactNode }) {
         setMounted(true);
         const init = async () => {
             try {
-                await refreshUser();
-                const stored = sessionStorage.getItem('activeProfile');
-                if (stored && stored !== "undefined") {
-                    setActiveProfile(JSON.parse(stored));
+                const currentUser = await refreshUser();
+
+                if (currentUser) {
+                    const stored = sessionStorage.getItem("activeProfile");
+                    if (stored && stored !== "undefined") {
+                        try {
+                            const parsed: Profile = JSON.parse(stored);
+                            // Profil obnovíme jen, pokud patří přihlášenému uživateli
+                            if (parsed.user_id === currentUser.id) {
+                                setActiveProfile(parsed);
+                            } else {
+                                sessionStorage.removeItem("activeProfile");
+                            }
+                        } catch {
+                            sessionStorage.removeItem("activeProfile");
+                        }
+                    }
+                } else {
+                    // Nikdo přihlášený -> žádný profil nesmí zůstat
+                    sessionStorage.removeItem("activeProfile");
                 }
             } catch (err) {
                 console.error("Chyba při inicializaci auth:", err);
@@ -57,26 +73,31 @@ export function AuthProvider({children}: { children: ReactNode }) {
     const handleSetActiveProfile = (profile: Profile | null) => {
         setActiveProfile(profile);
         if (profile) {
-            sessionStorage.setItem('activeProfile', JSON.stringify(profile));
+            sessionStorage.setItem("activeProfile", JSON.stringify(profile));
         } else {
-            sessionStorage.removeItem('activeProfile');
+            sessionStorage.removeItem("activeProfile");
         }
     };
 
-    const logout = async () => {
-        await authService.logout();
-        setUser(null);
-        handleSetActiveProfile(null);
-    };
-
+    // Vyčistí úplně všechno lokální (token, hlavičku, uživatele i profil)
     const clearLocalAuth = () => {
         localStorage.removeItem("token");
-
-        // Odstraní výchozí Authorization hlavičku z Axiosu
         delete axiosClient.defaults.headers.common["Authorization"];
-
+        sessionStorage.removeItem("activeProfile");
+        setActiveProfile(null);
         setUser(null);
-    }
+    };
+
+    const logout = async () => {
+        try {
+            await authService.logout();
+        } catch (err) {
+            // I když API selže, lokálně se odhlásíme
+            console.error("Chyba při odhlášení:", err);
+        } finally {
+            clearLocalAuth();
+        }
+    };
 
     if (!mounted) {
         return (
@@ -99,7 +120,8 @@ export function AuthProvider({children}: { children: ReactNode }) {
     return (
         <AuthContext.Provider value={{
             user,
-            activeProfile,
+            // Bez uživatele nikdy nevracíme profil
+            activeProfile: user ? activeProfile : null,
             setActiveProfile: handleSetActiveProfile,
             isLoading,
             isAuthenticated: !!user,
@@ -115,6 +137,6 @@ export function AuthProvider({children}: { children: ReactNode }) {
 
 export function useAuthContext() {
     const context = useContext(AuthContext);
-    if (!context) throw new Error('useAuthContext must be used within AuthProvider');
+    if (!context) throw new Error("useAuthContext must be used within AuthProvider");
     return context;
 }
