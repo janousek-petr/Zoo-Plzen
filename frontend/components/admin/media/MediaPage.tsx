@@ -97,7 +97,6 @@ export default function MediaPage() {
     try {
       await deleteMedia(id);
     } catch (err) {
-      console.error('delete error', err);
     }
     setMedia(prev => prev.filter(m => m.id !== id));
     if (selected === id) setSelected(null);

@@ -6,7 +6,6 @@ export async function getItems() {
         const res = await axiosClient.get('/api/items');
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -16,7 +15,6 @@ export async function getItem(id: number) {
         const res = await axiosClient.get(`/api/items/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -33,7 +31,6 @@ export async function createItem(data: {
         const res = await axiosClient.post('/api/items', data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -43,7 +40,6 @@ export async function updateItem(id: number, data: Partial<Item>) {
         const res = await axiosClient.put(`/api/items/${id}`, data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -53,7 +49,6 @@ export async function deleteItem(id: number) {
         const res = await axiosClient.delete(`/api/items/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -63,7 +58,6 @@ export async function getItemCategories() {
         const res = await axiosClient.get('/api/item-categories');
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }

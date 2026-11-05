@@ -101,7 +101,6 @@ export default function ChallengesPage() {
             }
           })
           .catch(err => {
-            console.error("Chyba při připisování denní odměny:", err);
           });
     }
   }, [activeProfile]);

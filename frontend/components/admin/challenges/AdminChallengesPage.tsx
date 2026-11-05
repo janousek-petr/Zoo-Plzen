@@ -56,7 +56,6 @@ export default function AdminChallengesPage() {
                 setDailyTasks((prev) => prev.filter((item) => item.id !== id));
             }
         } catch (error) {
-            console.error("Chyba při mazání úkolu:", error);
             alert("Nepodařilo se smazat úkol.");
         }
     };
@@ -87,7 +86,6 @@ export default function AdminChallengesPage() {
                 await refetch();
             }
         } catch (error) {
-            console.error("Chyba při generování výzev:", error);
             alert("Nepodařilo se vygenerovat výzvy.");
         } finally {
             setGenerating(false);

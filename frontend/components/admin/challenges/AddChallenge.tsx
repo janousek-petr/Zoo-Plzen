@@ -85,7 +85,6 @@ export default function AddChallenge() {
             setSelectedTemplate(null);
             setSelectedRegion(null);
         } catch (error: any) {
-            console.error("Chyba při ukládání výzvy:", error);
             setFeedback({
                 type: "error",
                 text: error.response?.data?.message || "Nepodařilo se publikovat výzvu.",

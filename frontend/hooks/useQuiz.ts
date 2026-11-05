@@ -88,7 +88,6 @@ export function useQuiz(questions: Question[]) {
   };
 
   const handleExit = (path = "/domov") => {
-    console.log(path);
     if (confirm("Opravdu si přeješ odejít z kvízu? Výsledek se ti neuloží!"))
       router.push(path)
   }

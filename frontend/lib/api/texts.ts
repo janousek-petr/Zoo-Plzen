@@ -13,7 +13,6 @@ export async function getTexts(regionId?: number) {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -26,7 +25,6 @@ export async function getTextsByRegion(regionId: number) {
         const res = await axiosClient.get(`/api/regions/${regionId}/infos`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -35,7 +33,6 @@ export async function getText(id: number) {
         const res = await axiosClient.get(`/api/region-infos/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -48,7 +45,6 @@ export async function createText(data: {
         const res = await axiosClient.post(`/api/region-infos`, data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -58,7 +54,6 @@ export async function updateText(id: number, data: Partial<RegionInfo>) {
         const res = await axiosClient.put(`/api/region-infos/${id}`, data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -68,7 +63,6 @@ export async function deleteText(id: number) {
         const res = await axiosClient.delete(`/api/region-infos/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }

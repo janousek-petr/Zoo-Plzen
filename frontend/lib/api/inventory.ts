@@ -6,7 +6,6 @@ export async function getInventory(profileId: number): Promise<Item[]> {
         const res = await axiosClient.get(`/api/profiles/${profileId}/inventory`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -18,7 +17,6 @@ export async function equipItem(profileId: number, itemId: number) {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -30,7 +28,6 @@ export async function giveItem(profileId: number, itemId: number) {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }

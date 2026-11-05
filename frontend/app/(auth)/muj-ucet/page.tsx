@@ -78,7 +78,6 @@ export default function MyAccountPage() {
             await refreshUser();
             setIsEditing(false);
         } catch (error) {
-            console.log("Chyba v úpravě údajů: ", error);
             setError("Nepodařilo se uložit nové údaje. Zkuste to prosím později.");
         } finally {
             setLoading(false);
@@ -96,7 +95,6 @@ export default function MyAccountPage() {
                 clearLocalAuth();
                 router.push("/prihlaseni");
             } catch (error) {
-                console.error("Nepodařilo se smazat účet:", error);
                 setError("Nepodařilo se smazat účet. Zkuste to prosím později.");
             } finally {
                 setLoading(false);

@@ -58,7 +58,6 @@ export default function MediaPicker({
             const data = await getMedia(context);
             setItems(data);
         } catch (err) {
-            console.error('Chyba při načítání médií:', err);
         } finally {
             setLoading(false);
         }
@@ -156,7 +155,6 @@ export default function MediaPicker({
             setItems(prev => [uploaded, ...prev]);
             setHighlighted(uploaded.id);
         } catch (err) {
-            console.error('Upload selhal:', err);
         } finally {
             setUploading(false);
         }

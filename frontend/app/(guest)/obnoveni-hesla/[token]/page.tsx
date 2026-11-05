@@ -19,9 +19,6 @@ export default function ResetPasswordPage() {
     const { isLoading, checkResetToken, error } = useAuth()
 
     useEffect(() => {
-        if (email && token)
-            console.log(email, token);
-
         const verifyToken = async () => {
             try {
                 await checkResetToken(email, token);

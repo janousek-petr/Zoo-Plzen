@@ -57,7 +57,6 @@ export const useAuth = () => {
             await contextLogout();
             router.push('/prihlaseni');
         } catch (err) {
-            console.error(err);
         }
     };
 
@@ -83,7 +82,6 @@ export const useAuth = () => {
             await authService.forgotPassword(email);
             //return {'message':  "Na e-mailovou adresu jsme Vám poslali odkaz na obnovení hesla. Prosím, obnovte si heslo do 60 minut."}
         } catch (err: any) {
-            console.error(err);
             setError(err.response.data.message);
             //setError(getFriendlyErrorMessage(err, "Vyskytla se chyba na naší straně. Zkuste to prosím později.", false));
             throw err;
@@ -100,7 +98,6 @@ export const useAuth = () => {
             await authService.resetPassword(data);
             //return {'message': "Obnovení hesla se podařila. Vraťte se prosím na přihlašovací stránku."}
         } catch (err: any) {
-            console.error(err);
             setError(err.response.data.message);
             //setError(getFriendlyErrorMessage(err, "Vyskytla se chyba na naší straně. Zkuste to prosím později.", false));
             throw err;
@@ -115,7 +112,6 @@ export const useAuth = () => {
         try {
             await authService.checkResetToken(email, token);
         } catch (err: any) {
-            console.error(err);
             setError("Odkaz pro obnovení hesla je neplatný, již vypršel nebo nepatří k tomuto účtu.");
             throw err;
         } finally {
