@@ -16,7 +16,6 @@ export async function getStore(profileId: number): Promise<StoreOffer[]> {
         const res = await axiosClient.get(`/api/profiles/${profileId}/store`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -28,7 +27,6 @@ export async function buyItem(profileId: number, itemId: number) {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }

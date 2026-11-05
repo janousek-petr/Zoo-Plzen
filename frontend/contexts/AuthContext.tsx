@@ -62,7 +62,6 @@ export function AuthProvider({children}: { children: ReactNode }) {
                     sessionStorage.removeItem("activeProfile");
                 }
             } catch (err) {
-                console.error("Chyba při inicializaci auth:", err);
             } finally {
                 setIsLoading(false);
             }
@@ -93,7 +92,6 @@ export function AuthProvider({children}: { children: ReactNode }) {
             await authService.logout();
         } catch (err) {
             // I když API selže, lokálně se odhlásíme
-            console.error("Chyba při odhlášení:", err);
         } finally {
             clearLocalAuth();
         }

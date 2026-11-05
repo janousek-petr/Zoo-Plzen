@@ -66,7 +66,6 @@ export default function EditChallengePage({ params }: { params: Promise<{ id: st
                 }
             }
         }).catch((err) => {
-            console.error("Chyba při načítání výzvy:", err);
             setFeedback({ type: "error", text: "Nepodařilo se načíst data výzvy." });
         }).finally(() => {
             setInitialLoading(false);
@@ -122,7 +121,6 @@ export default function EditChallengePage({ params }: { params: Promise<{ id: st
             setFeedback({ type: "success", text: "Výzva byla úspěšně aktualizována!" });
             setTimeout(() => router.push("/admin/challenges"), 1200);
         } catch (error: any) {
-            console.error("Chyba při úpravě výzvy:", error);
             setFeedback({
                 type: "error",
                 text: error.response?.data?.message || "Nepodařilo se upravit výzvu.",

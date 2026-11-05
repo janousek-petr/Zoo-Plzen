@@ -198,7 +198,6 @@ export default function ProfileSelection() {
             const response = await profileService.getAll();
             setProfiles(response.data);
         } catch (err) {
-            console.error('Nepodařilo se načíst profily', err);
         } finally {
             setLoadingProfiles(false);
         }

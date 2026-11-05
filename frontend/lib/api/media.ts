@@ -34,7 +34,6 @@ export async function getMedia(context: "challenge" | "default" = "default"): Pr
         const res = await axios.get('/api/media', {params: {context}});
         return res.data;
     } catch (err) {
-        console.error(err);
         return [];
     }
 }
@@ -58,7 +57,6 @@ export async function checkIfMediaExists(file: File): Promise<MediaItem | null> 
         const res = await axios.get(`/api/media/check-hash/${file_hash}`);
         return res.data.exists ? res.data.media : null;
     } catch (err) {
-        console.error('Chyba při kontrole haše:', err);
         return null;
     }
 }

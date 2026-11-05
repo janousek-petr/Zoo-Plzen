@@ -18,7 +18,6 @@ export async function getQuestions(id: number) {
         const res = await axiosClient.get(`/api/quizzes/${id}/questions`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -27,7 +26,6 @@ export async function getQuestion(quizId: number, questionId: number) {
         const res = await axiosClient.get(`/api/quizzes/${quizId}/questions/${questionId}`)
         return res.data
     } catch (err) {
-        console.error(err)
         throw err
     }
 }
@@ -37,7 +35,6 @@ export async function getRegions() {
         const res = await axiosClient.get(`/api/regions`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -46,7 +43,6 @@ export async function getQuizzes() {
         const res = await axiosClient.get(`/api/quizzes`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -57,7 +53,6 @@ export async function getQuizzesByRegion(regionId: number, profileId?: number) {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -71,7 +66,6 @@ export async function createQuiz(data: {
         const res = await axiosClient.post(`/api/quizzes`, data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -81,7 +75,6 @@ export async function updateQuiz(id: number, data: Partial<Quiz>) {
         const res = await axiosClient.put(`/api/quizzes/${id}`, data);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -91,7 +84,6 @@ export async function deleteQuiz(id: number) {
         const res = await axiosClient.delete(`/api/quizzes/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -101,7 +93,6 @@ export async function getQuiz(id: number) {
         const res = await axiosClient.get(`/api/quizzes/${id}`);
         return res.data;
     } catch (err) {
-        console.error(err);
     }
 }
 
@@ -125,11 +116,9 @@ export async function createQuestion(quizId: number, data: {
     }[]
 }) {
     try {
-        console.log(data)
         const res = await axiosClient.post(`/api/quizzes/${quizId}/questions`, data)
         return res.data
     } catch (err) {
-        console.error(err)
         throw err
     }
 }
@@ -152,7 +141,6 @@ export async function updateQuestion(quizId: number, questionId: number, data: {
         const res = await axiosClient.put(`/api/quizzes/${quizId}/questions/${questionId}`, data)
         return res.data
     } catch (err) {
-        console.error(err)
         throw err
     }
 }
@@ -162,7 +150,6 @@ export async function deleteQuestion(quizId: number, questionId: number) {
         const res = await axiosClient.delete(`/api/quizzes/${quizId}/questions/${questionId}`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -172,7 +159,6 @@ export async function togglePublishQuiz(id: number) {
         const res = await axiosClient.patch(`/api/quizzes/${id}/toggle-publish`);
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }
@@ -198,7 +184,6 @@ export async function submitQuizResult(data: {
         });
         return res.data;
     } catch (err) {
-        console.error(err);
         throw err;
     }
 }

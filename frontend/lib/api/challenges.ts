@@ -22,7 +22,6 @@ export async function generateDailyChallenges(count?: number) {
         const res = await axiosClient.post(`api/generate/dailyChallenges`, count);
         return res.data;
     } catch (err) {
-        console.error(err)
     }
 }
 
@@ -34,7 +33,6 @@ export async function generateWeeklyChallenges(count?: number) {
         const res = await axiosClient.post(`api/generate/weeklyChallenges`, count);
         return res.data;
     } catch (err) {
-        console.error(err)
     }
 }
 /**
@@ -62,10 +60,8 @@ export async function generateChallenges(period: "daily" | "weekly", count :numb
         } else {
             res = await axiosClient.post(`api/generate/dailyChallenges`, {period, count, validFrom: validUntil, terminateExisting});
         }
-        console.log("Výzvy se vygenerovaly úspěšně")
         return res.data;
     } catch (err) {
-        console.error(err)
     }
 }
 
@@ -74,7 +70,6 @@ export async function getTemplates() {
         const res = await axiosClient.get(`api/admin/challenge-templates`);
         return res.data;
     } catch (err) {
-        console.error(err)
         throw err;
     }
 }
@@ -84,7 +79,6 @@ export async function createChallenge(data: ChallengeType) {
         const res = await axiosClient.post(`api/admin/active-challenges`, data);
         return res.data;
     } catch (err) {
-        console.error(err)
         throw err;
     }
 }

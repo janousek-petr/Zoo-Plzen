@@ -59,7 +59,6 @@ export default function QuizSection({ regionId, quizHref, primaryColor, secondar
             sessionStorage.setItem("active_quiz", JSON.stringify({...data, regionColor: primaryColor, regionAnimal: regionAnimal}));
             router.push(quizHref);
         } catch (err) {
-            console.error("Nepodařilo se spustit kvíz:", err);
         } finally {
             setLoading(null);
         }
