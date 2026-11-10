@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Notifications\CustomVerifyEmail;
+use App\Notifications\SendVerificationCode;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -24,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'verification_code',
+        'verification_code_expires_at',
     ];
 
     /**
@@ -49,12 +51,27 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    public function profiles(){
+    public function profiles()
+    {
         return $this->hasMany(Profile::class);
     }
 
-    public function sendEmailVerificationNotification() {
-        $this->notify(new CustomVerifyEmail());
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new SendVerificationCode);
     }
 
+    /**
+     * Vygeneruje platný ověřovací kód.
+     */
+    public function createVerificationCode(): void
+    {
+        // Vygenerování nového 6místného kódu a obnovení exspirace
+        $code = sprintf('%06d', mt_rand(1, 999999));
+
+        $this->update([
+            'verification_code' => $code,
+            'verification_code_expires_at' => now()->addMinutes(15),
+        ]);
+    }
 }

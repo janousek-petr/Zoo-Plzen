@@ -56,6 +56,11 @@ const authService = {
         return await axios.post('/check-reset-token', { email, token });
     },
 
+    checkVerificationCode: async (code: string) => {
+        await authService.csrf();
+        return await axios.post('/email/verify-code', { code });
+    },
+
     getUser: async () => {
         await authService.csrf();
         return await axios.get('api/user');
