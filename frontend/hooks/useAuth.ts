@@ -123,6 +123,23 @@ export const useAuth = () => {
         }
     }, []);
 
+
+    /**
+     * Ověří ověřovací kód.
+     * @param code  ověřovací kód
+     */
+    const checkVerificationCode = async (code: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await authService.checkVerificationCode(code);
+        } catch (err: any) {
+            throw err;
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return {
         register,
         login,
@@ -131,6 +148,7 @@ export const useAuth = () => {
         forgotPassword,
         resetPassword,
         checkResetToken,
+        checkVerificationCode,
         user,
         isLoading: isLoading,
         isAuthenticated,
