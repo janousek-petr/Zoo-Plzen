@@ -4,7 +4,7 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {
     RiFileTextLine, RiGamepadLine,
-    RiGiftLine,
+    RiGiftLine, RiHome4Line,
     RiImageLine,
     RiLayoutGridFill,
     RiLayoutGridLine,
@@ -12,6 +12,8 @@ import {
     RiUserLine
 } from "react-icons/ri";
 import {useAuthContext} from "@/contexts/AuthContext";
+import useAuth from "@/hooks/useAuth";
+import {router} from "next/client";
 
 const NAV_ITEMS = [
     {label: "Kvízy", href: "/admin/quizzes", icon: RiLayoutGridLine},
@@ -39,6 +41,7 @@ const getNameAcronym = (firstName?: string, lastName?: string): string => {
 export default function Sidebar({onNavigate}: SidebarProps) {
     const pathname = usePathname();
     const {user} = useAuthContext();
+    const { logout } = useAuth();
 
     const userAcronym = getNameAcronym(user?.first_name, user?.last_name);
     const fullName = user ? `${user.first_name ?? ''} ${user.last_name ?? ''}`.trim() : "Uživatel";
@@ -84,11 +87,23 @@ export default function Sidebar({onNavigate}: SidebarProps) {
                     </div>
                     <span className="text-xs text-gray-500 truncate">{fullName || "Uživatel"}</span>
                 </div>
+
+                {/* Zpět do aplikace */}
                 <button
                     className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
-                    title="Odhlásit se"
+                    title="Zpět do aplikace"
+                    onClick={() => router.push("/zvoleni-profilu")}
                 >
-                    <RiLogoutBoxLine className="text-lg"/>
+                    <RiHome4Line className="text-lg" />
+                </button>
+
+                {/* Odhlásit se */}
+                <button
+                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded text-red-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                    title="Odhlásit se"
+                    onClick={logout}
+                >
+                    <RiLogoutBoxLine className="text-lg" />
                 </button>
             </div>
         </aside>
