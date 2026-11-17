@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Challenges;
 
 use App\Challenges\ChallengeGenerator;
+use App\Http\Controllers\Controller;
 use App\Models\ActiveChallenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;

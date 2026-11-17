@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Media;
 
+use App\Http\Controllers\Controller;
 use App\Models\Media;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class MediaController extends Controller
@@ -35,6 +35,15 @@ class MediaController extends Controller
         $file = $request->file('file');
         $path = $file->store('media', 'public'); // vrátí např. "media/xxx.png"
         $file_hash = hash_file('sha256', $file);
+
+        // 1. Nejprve zkontrolujeme, zda médium se stejným hashem už v DB existuje
+        $existingMedia = Media::where('file_hash', $file_hash)->first();
+
+        if ($existingMedia) {
+            // Vrátíme stávající médium bez opětovného ukládání fyzického souboru na disk[cite: 5]
+            return response()->json($existingMedia, 200);
+        }
+
         $media = Media::create([
             'filename' => $file->getClientOriginalName(),
             'path' => '/storage/'.$path, // veřejná URL cesta

@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Challenges;
 
+use App\Http\Controllers\Controller;
 use App\Models\ActiveChallenge;
 use App\Models\ProfileChallengeProgress;
 use Database\Factories\ChallengeEvaluatorFactory;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ActiveChallengeController extends Controller
 {
