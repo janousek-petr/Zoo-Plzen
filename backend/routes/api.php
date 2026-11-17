@@ -1,22 +1,22 @@
 <?php
 
-use App\Http\Controllers\ActiveChallengeController;
-use App\Http\Controllers\AnsweredQuizzesController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\ChallengeController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\ItemCategoryController;
-use App\Http\Controllers\ItemController;
-use App\Http\Controllers\MediaController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\QuestionCategoryController;
-use App\Http\Controllers\QuestionController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\StoreController;
-use App\Http\Controllers\RegionController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\RegionInfoController;
+use App\Http\Controllers\Challenges\ActiveChallengeController;
+use App\Http\Controllers\Challenges\ChallengeController;
+use App\Http\Controllers\Inventory\InventoryController;
+use App\Http\Controllers\Item\ItemCategoryController;
+use App\Http\Controllers\Item\ItemController;
+use App\Http\Controllers\Media\MediaController;
+use App\Http\Controllers\Question\QuestionCategoryController;
+use App\Http\Controllers\Question\QuestionController;
+use App\Http\Controllers\Quiz\AnsweredQuizzesController;
+use App\Http\Controllers\Quiz\QuizController;
+use App\Http\Controllers\Region\RegionController;
+use App\Http\Controllers\Region\RegionInfoController;
+use App\Http\Controllers\Store\StoreController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

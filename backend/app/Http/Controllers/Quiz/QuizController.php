@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Quiz;
 
+use App\Http\Controllers\Controller;
 use App\Models\Answer;
 use App\Models\AnsweredQuestions;
 use App\Models\AnsweredQuizzes;

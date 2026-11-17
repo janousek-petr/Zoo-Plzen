@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Challenges;
 
+use App\Http\Controllers\Controller;
 use App\Models\ChallengeTemplate;
 use Illuminate\Http\Request;
 
