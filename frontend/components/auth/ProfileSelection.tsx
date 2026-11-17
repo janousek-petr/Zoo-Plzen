@@ -169,7 +169,7 @@ function EditModal({ profile, avatarSrc, accessorySrc, onClose, onSave, onDelete
 
 export default function ProfileSelection() {
     const router = useRouter();
-    const { setActiveProfile, isAuthenticated, isLoading } = useAuthContext();
+    const { setActiveProfile, isAuthenticated, isLoading, user } = useAuthContext();
     const { logout } = useAuth();
 
     const [profiles, setProfiles]           = useState<Profile[]>([]);
@@ -335,6 +335,18 @@ export default function ProfileSelection() {
                             >
                                 Můj účet
                             </button>
+
+                            {/* Odkaz na admin stránku */}
+                            {user?.role === "admin" && (
+                                <button
+                                    onClick={() => router.push('/admin')}
+                                    className={`flex items-center gap-2 border-2 font-bold px-8 py-3 uppercase tracking-widest transition-all cursor-pointer
+                                            border-gray-400 text-gray-500 hover:border-sky-600 hover:text-sky-600`}
+                                >
+                                    Přejít na admin stránku
+                                </button>
+                            )}
+
                             <button
                                 onClick={() => logout()}
                                 className="border-2 font-bold border-red-300 text-red-400 px-8 py-3 uppercase tracking-widest hover:border-red-500 hover:text-red-500 transition-all cursor-pointer"
